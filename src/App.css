@@ -2,24 +2,30 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; /* Прикрепляем дерево к верху экрана */
   height: 100vh;
   background-color: #f0f0f0;
   position: relative;
+  overflow: hidden; /* Ограничиваем игру размером экрана */
 }
+
 
 .branches {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  height: 100%;
   position: relative;
+  overflow: hidden;
 }
 
 .branch {
   position: absolute;
-  width: 100%;
+  width: 50%; /* Ширина ветки, чтобы она не занимала весь экран */
   height: 50px;
-  margin-top: 20px;
+  top: 50%; /* Начальная позиция ветки по вертикали */
+  transform: translateY(-50%); /* Центрирование ветки */
 }
 
 
@@ -53,14 +59,15 @@
 }
 .tree {
   position: absolute;
-  bottom: 0;
-  width: 35%;
+  top: 0; /* Закрепляем дерево сверху */
+  width: auto; /* Устанавливаем ширину дерева относительно экрана */
+  height: 100%;
+ 
 }
 
 .squirrel img {
-  width: 80px; /* Подберите размер белки */
+  width: 50px;
   height: auto;
-  position: relative;
   transition: transform 0.5s ease;
 }
 
@@ -72,3 +79,13 @@
   transform: translate(50px, -100px); /* Смещение для прыжков вверх-вправо */
 }
 
+
+.branch.left {
+  left: 0;
+  transform: translateX(-20%) translateY(-50%); /* Позиционируем ветку слева от дерева */
+}
+
+.branch.right {
+  right: 0;
+  transform: translateX(20%) translateY(-50%); /* Позиционируем ветку справа от дерева */
+}
