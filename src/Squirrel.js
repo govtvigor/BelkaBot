@@ -1,4 +1,5 @@
 import React from 'react';
+import squirrelImage from './assets/squirrel.png';
 
 const Squirrel = ({ position }) => {
   const positionStyles = {
@@ -9,7 +10,7 @@ const Squirrel = ({ position }) => {
 
   return (
     <div className="squirrel" style={{ ...positionStyles[position], transition: 'transform 0.5s ease' }}>
-      <img src="./assets/squirrel.png" alt="Squirrel" />
+      <img src={squirrelImage} alt="Squirrel" />
     </div>
   );
 };
