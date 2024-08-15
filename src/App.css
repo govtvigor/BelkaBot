@@ -59,7 +59,7 @@
 }
 .tree {
   position: absolute;
-  bottom: -65px; /* Закрепляем дерево сверху */
+  bottom: -60px; /* Закрепляем дерево сверху */
   height: 100%;
  
 }
