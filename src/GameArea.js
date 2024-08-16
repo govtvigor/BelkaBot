@@ -10,7 +10,7 @@ const GameArea = () => {
 
   useEffect(() => {
     // Добавляем первую ветку слева
-    setBranches([{ side: 'left', top: 400 }]); // Первая ветка всегда слева и выше белки
+    setBranches([{ side: 'left', top: 200 }]); // Первая ветка всегда слева и выше белки
   }, []);
 
   const handleBranchClick = (side, top) => {

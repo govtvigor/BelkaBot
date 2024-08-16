@@ -47,19 +47,19 @@
 }
 
 .branch img {
-  width: 100%; /* Уменьшите размер до 30% от ширины контейнера */
+  width: 80%; /* Уменьшите размер до 30% от ширины контейнера */
 
   cursor: pointer;
   transform: scaleX(1); /* Это значение для правой ветки */
 }
 .tree {
   position: absolute;
-  bottom: -60px;
+  top: 10px;
   height: 100%;
 }
 
 .squirrel img {
-  width: 50px;
+  width: 100px;
   height: auto;
   
 }
