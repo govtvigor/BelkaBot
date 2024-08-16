@@ -4,8 +4,8 @@ import squirrelImage from './assets/squirrel.png'
 
 const Squirrel = ({ position, top }) => {
   const positionStyles = {
-    left: { left: '35%', transform: `translateY(${top}px)` }, // Позиционирование слева ближе к дереву
-    right: { left: '65%', transform: `translateY(${top}px)` }, // Позиционирование справа ближе к дереву
+    left: { left: '30%', top: `${top}px`, transform: `translate(-50%, -50%)` },
+    right: { left: '70%', top: `${top}px`, transform: `translate(-50%, -50%)` },
   };
 
   return (
@@ -16,4 +16,3 @@ const Squirrel = ({ position, top }) => {
 };
 
 export default Squirrel;
-

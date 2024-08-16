@@ -4,8 +4,8 @@ import branchImage from './assets/branch.png'
 
 const Branch = ({ side, top, onClick }) => {
   const branchStyles = {
-    left: { left: '29%', transform: `translateY(${top}px) scaleX(-1)` },  // Ближе к дереву слева
-    right: { right: '28%', transform: `translateY(${top}px)` }, // Ближе к дереву справа
+    left: { left: '20%', transform: `translateY(${top}px) scaleX(-1)` },
+    right: { right: '20%', transform: `translateY(${top}px)` },
   };
 
   return (
@@ -16,4 +16,3 @@ const Branch = ({ side, top, onClick }) => {
 };
 
 export default Branch;
-
