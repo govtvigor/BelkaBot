@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Squirrel from './Squirrel';
 import Branch from './Branch';
 import Score from './Score';
+import Lives from './Lives'; // Новый компонент для отображения жизней
 import treeImage from './assets/tree.png';
 
 const GameArea = () => {
@@ -10,8 +11,9 @@ const GameArea = () => {
   const [squirrelSide, setSquirrelSide] = useState('right');
   const [squirrelTop, setSquirrelTop] = useState(500);
   const [points, setPoints] = useState(0);
+  const [lives, setLives] = useState(3); // Начальное количество жизней
   const [speed, setSpeed] = useState(5);
-  const [gameStarted, setGameStarted] = useState(false); // Состояние для отслеживания старта игры
+  const [gameStarted, setGameStarted] = useState(false);
 
   useEffect(() => {
     const initialBranches = [
@@ -30,15 +32,17 @@ const GameArea = () => {
         // Удаление веток, которые вышли за экран
         setBranches(prevBranches => prevBranches.filter(branch => branch.top + scrollOffset < window.innerHeight));
 
-        // Добавление новой ветки
-        const lastBranch = branches[branches.length - 1];
-        if (lastBranch && lastBranch.top + scrollOffset > 100) {
-          const newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
-          const newBranchTop = lastBranch.top - 100;
-          setBranches(prevBranches => [
-            ...prevBranches,
-            { side: newBranchSide, top: newBranchTop },
-          ]);
+        // Добавление новой ветки с меньшей частотой
+        if (Math.random() > 0.7) { // Уменьшаем вероятность появления новой ветки
+          const lastBranch = branches[branches.length - 1];
+          if (lastBranch && lastBranch.top + scrollOffset > 100) {
+            const newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
+            const newBranchTop = lastBranch.top - 200; // Увеличиваем интервал между ветками
+            setBranches(prevBranches => [
+              ...prevBranches,
+              { side: newBranchSide, top: newBranchTop },
+            ]);
+          }
         }
       }, 50);
 
@@ -48,15 +52,27 @@ const GameArea = () => {
 
   const handleBranchClick = (side, top) => {
     if (!gameStarted) {
-      setGameStarted(true); // Игра начинается с первого клика
+      setGameStarted(true);
     }
 
-    setSquirrelSide(side);
-    setSquirrelTop(top + scrollOffset - 45); // Корректируем позицию белки, чтобы она сидела ближе к ветке
-    setPoints(prevPoints => prevPoints + 1);
-    setSpeed(prevSpeed => prevSpeed + 0.5);
-
-    setBranches(prevBranches => prevBranches.slice(1));
+    if (side !== squirrelSide) {
+      setLives(prevLives => prevLives - 1); // Уменьшаем жизнь, если клик на неправильную сторону
+      if (lives <= 1) {
+        alert('Game over! No more lives left.');
+        setGameStarted(false); // Останавливаем игру
+        setLives(3); // Сбрасываем жизни для новой игры
+        setPoints(0); // Сбрасываем очки
+        setSpeed(5); // Сбрасываем скорость
+        setScrollOffset(0); // Сбрасываем прокрутку
+        return;
+      }
+    } else {
+      setPoints(prevPoints => prevPoints + 1);
+      setSpeed(prevSpeed => prevSpeed + 0.5);
+      setSquirrelSide(side);
+      setSquirrelTop(top + scrollOffset - 45);
+      setBranches(prevBranches => prevBranches.slice(1));
+    }
   };
 
   return (
@@ -87,6 +103,7 @@ const GameArea = () => {
           style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 3}px)` }}
         />
       </div>
+      <Lives lives={lives} />
       <Score points={points} />
       <div className="branches">
         {branches.map((branch, index) => (

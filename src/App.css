@@ -107,3 +107,18 @@
   height: 40px;
   margin-right: 5px;
 }
+.lives {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  color: #000;
+}
+
+.heart-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
+}

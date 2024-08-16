@@ -1,9 +1,11 @@
 import React from 'react';
+import heartIcon from './assets/heart.png'; // Иконка сердечка
 
 const Lives = ({ lives }) => {
   return (
     <div className="lives">
-      Lives: {lives}
+      <img src={heartIcon} alt="Heart Icon" className="heart-icon" />
+      <span>{lives}</span>
     </div>
   );
 };
