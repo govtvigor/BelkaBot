@@ -4,8 +4,8 @@ import branchImage from './assets/branch.png'
 
 const Branch = ({ side, top, onClick }) => {
   const branchStyles = {
-    left: { left: '20%', transform: `translateY(${top}px) scaleX(-1)` },
-    right: { right: '20%', transform: `translateY(${top}px)` },
+    left: { left: '25%', transform: `translateY(${top}px) scaleX(-1)` },
+    right: { right: '25%', transform: `translateY(${top}px)` },
   };
 
   return (

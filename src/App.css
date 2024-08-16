@@ -54,17 +54,16 @@
 }
 .tree {
   position: absolute;
-  left: 0%;
   transform: translateX(-50%);
   width: 100%;
   height: 200%;
-  
 }
+
 .tree-image {
   position: absolute;
   top: 0;
   left: 0;
-  width: 80%;
+  width: 100%;
   height: auto;
 }
 

@@ -43,7 +43,7 @@ const GameArea = () => {
 
   const handleBranchClick = (side, top) => {
     setSquirrelSide(side);
-    setSquirrelTop(top + scrollOffset - 50);
+    setSquirrelTop(top + scrollOffset - 20); // Белка размещается ближе к ветке
 
     // Удаляем предыдущую ветку только после прыжка на новую
     setBranches(prevBranches => prevBranches.slice(1));
@@ -52,9 +52,25 @@ const GameArea = () => {
   return (
     <div className="game-area">
       {/* Циклическое дерево */}
-      <div className="tree" style={{ transform: `translateY(${scrollOffset % window.innerHeight}px)` }}>
-        <img src={treeImage} alt="Tree" className="tree-image" />
-        <img src={treeImage} alt="Tree" className="tree-image" style={{ top: '-100%' }} />
+      <div className="tree-wrapper">
+        <img
+          src={treeImage}
+          alt="Tree"
+          className="tree-image"
+          style={{ transform: `translateY(${scrollOffset % window.innerHeight}px)` }}
+        />
+        <img
+          src={treeImage}
+          alt="Tree"
+          className="tree-image"
+          style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight}px)` }}
+        />
+        <img
+          src={treeImage}
+          alt="Tree"
+          className="tree-image"
+          style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 2}px)` }}
+        />
       </div>
       <div className="branches">
         {branches.map((branch, index) => (
