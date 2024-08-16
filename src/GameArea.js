@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Squirrel from './Squirrel';
 import Branch from './Branch';
+import Score from './Score';
 import treeImage from './assets/tree.png';
 
 const GameArea = () => {
@@ -8,6 +9,8 @@ const GameArea = () => {
   const [scrollOffset, setScrollOffset] = useState(0);
   const [squirrelSide, setSquirrelSide] = useState('right');
   const [squirrelTop, setSquirrelTop] = useState(500);
+  const [points, setPoints] = useState(0);
+  const [speed, setSpeed] = useState(5); // Начальная скорость
 
   useEffect(() => {
     const initialBranches = [
@@ -20,7 +23,7 @@ const GameArea = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setScrollOffset(prevOffset => prevOffset + 5);
+      setScrollOffset(prevOffset => prevOffset + speed);
 
       // Удаление веток, которые вышли за экран
       setBranches(prevBranches => prevBranches.filter(branch => branch.top + scrollOffset < window.innerHeight));
@@ -38,11 +41,13 @@ const GameArea = () => {
     }, 50);
 
     return () => clearInterval(interval);
-  }, [scrollOffset, branches]);
+  }, [scrollOffset, branches, speed]);
 
   const handleBranchClick = (side, top) => {
     setSquirrelSide(side);
-    setSquirrelTop(top + scrollOffset - 20);
+    setSquirrelTop(top + scrollOffset - 35); // Белка ближе к ветке после прыжка
+    setPoints(prevPoints => prevPoints + 1);
+    setSpeed(prevSpeed => prevSpeed + 0.5); // Увеличение скорости после каждого прыжка
 
     setBranches(prevBranches => prevBranches.slice(1));
   };
@@ -75,6 +80,7 @@ const GameArea = () => {
           style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 3}px)` }}
         />
       </div>
+      <Score points={points} />
       <div className="branches">
         {branches.map((branch, index) => (
           <Branch
