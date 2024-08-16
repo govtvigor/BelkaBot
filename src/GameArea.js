@@ -10,7 +10,8 @@ const GameArea = () => {
   const [squirrelSide, setSquirrelSide] = useState('right');
   const [squirrelTop, setSquirrelTop] = useState(500);
   const [points, setPoints] = useState(0);
-  const [speed, setSpeed] = useState(5); // Начальная скорость
+  const [speed, setSpeed] = useState(5);
+  const [gameStarted, setGameStarted] = useState(false); // Состояние для отслеживания старта игры
 
   useEffect(() => {
     const initialBranches = [
@@ -22,32 +23,38 @@ const GameArea = () => {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setScrollOffset(prevOffset => prevOffset + speed);
+    if (gameStarted) {
+      const interval = setInterval(() => {
+        setScrollOffset(prevOffset => prevOffset + speed);
 
-      // Удаление веток, которые вышли за экран
-      setBranches(prevBranches => prevBranches.filter(branch => branch.top + scrollOffset < window.innerHeight));
+        // Удаление веток, которые вышли за экран
+        setBranches(prevBranches => prevBranches.filter(branch => branch.top + scrollOffset < window.innerHeight));
 
-      // Добавление новой ветки
-      const lastBranch = branches[branches.length - 1];
-      if (lastBranch && lastBranch.top + scrollOffset > 100) {
-        const newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
-        const newBranchTop = lastBranch.top - 100;
-        setBranches(prevBranches => [
-          ...prevBranches,
-          { side: newBranchSide, top: newBranchTop },
-        ]);
-      }
-    }, 50);
+        // Добавление новой ветки
+        const lastBranch = branches[branches.length - 1];
+        if (lastBranch && lastBranch.top + scrollOffset > 100) {
+          const newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
+          const newBranchTop = lastBranch.top - 100;
+          setBranches(prevBranches => [
+            ...prevBranches,
+            { side: newBranchSide, top: newBranchTop },
+          ]);
+        }
+      }, 50);
 
-    return () => clearInterval(interval);
-  }, [scrollOffset, branches, speed]);
+      return () => clearInterval(interval);
+    }
+  }, [scrollOffset, branches, speed, gameStarted]);
 
   const handleBranchClick = (side, top) => {
+    if (!gameStarted) {
+      setGameStarted(true); // Игра начинается с первого клика
+    }
+
     setSquirrelSide(side);
-    setSquirrelTop(top + scrollOffset - 35); // Белка ближе к ветке после прыжка
+    setSquirrelTop(top + scrollOffset - 45); // Корректируем позицию белки, чтобы она сидела ближе к ветке
     setPoints(prevPoints => prevPoints + 1);
-    setSpeed(prevSpeed => prevSpeed + 0.5); // Увеличение скорости после каждого прыжка
+    setSpeed(prevSpeed => prevSpeed + 0.5);
 
     setBranches(prevBranches => prevBranches.slice(1));
   };
