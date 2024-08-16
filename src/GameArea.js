@@ -10,7 +10,6 @@ const GameArea = () => {
   const [squirrelTop, setSquirrelTop] = useState(500);
 
   useEffect(() => {
-    // Инициализация веток
     const initialBranches = [
       { side: 'left', top: 400 },
       { side: 'right', top: 300 },
@@ -43,15 +42,13 @@ const GameArea = () => {
 
   const handleBranchClick = (side, top) => {
     setSquirrelSide(side);
-    setSquirrelTop(top + scrollOffset - 20); // Белка размещается ближе к ветке
+    setSquirrelTop(top + scrollOffset - 20);
 
-    // Удаляем предыдущую ветку только после прыжка на новую
     setBranches(prevBranches => prevBranches.slice(1));
   };
 
   return (
     <div className="game-area">
-      {/* Циклическое дерево */}
       <div className="tree-wrapper">
         <img
           src={treeImage}
@@ -70,6 +67,12 @@ const GameArea = () => {
           alt="Tree"
           className="tree-image"
           style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 2}px)` }}
+        />
+        <img
+          src={treeImage}
+          alt="Tree"
+          className="tree-image"
+          style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 3}px)` }}
         />
       </div>
       <div className="branches">
