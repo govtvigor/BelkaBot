@@ -15,6 +15,9 @@ const GameArea = () => {
   const [speed, setSpeed] = useState(5);
   const [gameStarted, setGameStarted] = useState(false);
 
+  // Добавим состояние, чтобы отслеживать, использована ли уже жизнь для текущей ветки
+  const [currentBranchIndex, setCurrentBranchIndex] = useState(0);
+
   useEffect(() => {
     const initialBranches = [
       { side: 'left', top: 400 },
@@ -27,13 +30,13 @@ const GameArea = () => {
     if (gameStarted) {
       const interval = setInterval(() => {
         setScrollOffset(prevOffset => prevOffset + speed);
-  
+
         // Удаление веток, которые вышли за экран
         setBranches(prevBranches => prevBranches.filter(branch => branch.top + scrollOffset < window.innerHeight));
-  
+
         // Добавление новой ветки, когда последняя ветка поднялась достаточно высоко
         const lastBranch = branches[branches.length - 1];
-        if (lastBranch && lastBranch.top + scrollOffset < window.innerHeight - 200) {  // Уменьшили интервал для более частого появления веток
+        if (lastBranch && lastBranch.top + scrollOffset < window.innerHeight - 200) {
           const newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
           const newBranchTop = lastBranch.top - 250; // Чуть уменьшили интервал между ветками
           setBranches(prevBranches => [
@@ -41,11 +44,20 @@ const GameArea = () => {
             { side: newBranchSide, top: newBranchTop },
           ]);
         }
-  
-        // Потеря жизни, если ветка исчезла и белка не прыгнула
-        const nextBranch = branches[0];
-        if (nextBranch && nextBranch.top + scrollOffset > squirrelTop + 45 && nextBranch.side === squirrelSide) {
+
+        // Проверка текущей ветки
+        const currentBranch = branches[currentBranchIndex];
+
+        if (
+          currentBranch &&
+          currentBranch.top + scrollOffset > window.innerHeight && // Убедимся, что ветка полностью вышла за пределы экрана
+          currentBranch.side === squirrelSide
+        ) {
           setLives(prevLives => prevLives - 1);
+
+          // Переходим к следующей ветке
+          setCurrentBranchIndex(prevIndex => prevIndex + 1);
+
           if (lives <= 1) {
             alert('Game over! No more lives left.');
             setGameStarted(false); // Останавливаем игру
@@ -53,16 +65,16 @@ const GameArea = () => {
             setPoints(0); // Сбрасываем очки
             setSpeed(5); // Сбрасываем скорость
             setScrollOffset(0); // Сбрасываем прокрутку
+            setCurrentBranchIndex(0); // Сбрасываем индекс текущей ветки
             return;
           }
         }
-  
+
       }, 50);
-  
+
       return () => clearInterval(interval);
     }
-  }, [scrollOffset, branches, speed, gameStarted, lives, squirrelSide, squirrelTop]);
-  
+  }, [scrollOffset, branches, speed, gameStarted, lives, squirrelSide, squirrelTop, currentBranchIndex]);
 
   const handleBranchClick = (side, top) => {
     if (!gameStarted) {
@@ -70,14 +82,17 @@ const GameArea = () => {
       return; // Первый клик только запускает игру, жизнь не теряется
     }
 
-    const nextBranch = branches[0];
+    const nextBranch = branches[currentBranchIndex];
 
     if (nextBranch && side === nextBranch.side && top + scrollOffset === nextBranch.top + scrollOffset) {
       setPoints(prevPoints => prevPoints + 1);
       setSpeed(prevSpeed => prevSpeed + 0.5);
       setSquirrelSide(side);
-      setSquirrelTop(top + scrollOffset - 45); // Это свойство отвечает за позицию белки при прыжке
-      setBranches(prevBranches => prevBranches.slice(1)); // Удаление предыдущей ветки
+      setSquirrelTop(top + scrollOffset - 15); // Сделаем белку ближе к ветке
+
+      // Удаление предыдущей ветки и переход к следующей
+      setBranches(prevBranches => prevBranches.slice(1));
+      setCurrentBranchIndex(0); // Сброс индекса ветки после прыжка
     } else {
       setLives(prevLives => prevLives - 1); // Уменьшаем жизнь, если клик на неправильную ветку
       if (lives <= 1) {
@@ -87,6 +102,7 @@ const GameArea = () => {
         setPoints(0); // Сбрасываем очки
         setSpeed(5); // Сбрасываем скорость
         setScrollOffset(0); // Сбрасываем прокрутку
+        setCurrentBranchIndex(0); // Сбрасываем индекс текущей ветки
         return;
       }
     }
