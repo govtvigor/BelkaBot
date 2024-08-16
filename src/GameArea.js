@@ -1,35 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import Squirrel from './Squirrel';
 import Branch from './Branch';
-import treeImage from './assets/tree.png'; // Импорт дерева
+import treeImage from './assets/tree.png';
 
 const GameArea = () => {
-  const [score, setScore] = useState(0);
-  const [position, setPosition] = useState('center'); // Начальная позиция белки по центру
-  const [branches, setBranches] = useState([]); // Список веток
+  const [position, setPosition] = useState('right'); // Белка начинает справа
+  const [branches, setBranches] = useState([]); // Ветки будут храниться здесь
+  const [squirrelTop, setSquirrelTop] = useState(500); // Начальная высота белки
 
   useEffect(() => {
-    // Инициализация игры
-    addNewBranch();
+    // Добавляем первую ветку слева
+    setBranches([{ side: 'left', top: 400 }]); // Первая ветка всегда слева и выше белки
   }, []);
 
-  useEffect(() => {
-    if (branches.length > 0) {
-      const gameLoop = setInterval(() => {
-        // Белка прыгает вверх
-        setPosition(branches[0].side);
-        // Добавляем новую ветку и удаляем первую (как бы поднимаемся вверх)
-        setBranches(prevBranches => prevBranches.slice(1));
-        addNewBranch();
-      }, 1000); // Задаем интервал прыжков
+  const handleBranchClick = (side, top) => {
+    setPosition(side); // Белка прыгает на сторону ветки
+    setSquirrelTop(top); // Белка поднимается вверх на уровень ветки
 
-      return () => clearInterval(gameLoop);
-    }
-  }, [branches]);
+    // Удаляем предыдущую ветку
+    setBranches(prevBranches => prevBranches.slice(1));
 
-  const addNewBranch = () => {
-    const side = Math.random() > 0.5 ? 'left' : 'right';
-    setBranches(prevBranches => [...prevBranches, { side }]);
+    // Добавляем новую ветку выше предыдущей
+    const newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
+    const newBranchTop = top - 100; // Ветка выше предыдущей
+    setBranches(prevBranches => [
+      ...prevBranches,
+      { side: newBranchSide, top: newBranchTop },
+    ]);
   };
 
   return (
@@ -37,9 +34,14 @@ const GameArea = () => {
       <img src={treeImage} alt="Tree" className="tree" />
       <div className="branches">
         {branches.map((branch, index) => (
-          <Branch key={index} side={branch.side} />
+          <Branch
+            key={index}
+            side={branch.side}
+            top={branch.top}
+            onClick={() => handleBranchClick(branch.side, branch.top)}
+          />
         ))}
-        <Squirrel position={position} />
+        <Squirrel position={position} top={squirrelTop} />
       </div>
     </div>
   );
