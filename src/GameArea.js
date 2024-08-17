@@ -14,14 +14,12 @@ const GameArea = () => {
   const [lives, setLives] = useState(3);
   const [speed, setSpeed] = useState(5);
   const [gameStarted, setGameStarted] = useState(false);
-
-  // Добавим состояние, чтобы отслеживать, использована ли уже жизнь для текущей ветки
-  const [currentBranchIndex, setCurrentBranchIndex] = useState(0);
+  const [lifeDeducted, setLifeDeducted] = useState(false); // отслеживание жизни за текущую ветку
 
   useEffect(() => {
     const initialBranches = [
       { side: 'left', top: 400 },
-      { side: 'right', top: 100 },
+      { side: 'right', top: 150 },
     ];
     setBranches(initialBranches);
   }, []);
@@ -31,81 +29,81 @@ const GameArea = () => {
       const interval = setInterval(() => {
         setScrollOffset(prevOffset => prevOffset + speed);
 
-        // Удаление веток, которые вышли за экран
-        setBranches(prevBranches => prevBranches.filter(branch => branch.top + scrollOffset < window.innerHeight));
+        // Проверка первой ветки на выход за экран и отнимание жизни
+        if (branches.length > 0 && branches[0].top + scrollOffset >= window.innerHeight) {
+          if (!lifeDeducted) {
+            setLives(prevLives => prevLives - 1);
+            setLifeDeducted(true); // отметка, что жизнь была отнята за эту ветку
 
-        // Добавление новой ветки, когда последняя ветка поднялась достаточно высоко
-        const lastBranch = branches[branches.length - 1];
-        if (lastBranch && lastBranch.top + scrollOffset < window.innerHeight - 200) {
-          const newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
-          const newBranchTop = lastBranch.top - 250; // Чуть уменьшили интервал между ветками
-          setBranches(prevBranches => [
-            ...prevBranches,
-            { side: newBranchSide, top: newBranchTop },
-          ]);
+            if (lives - 1 <= 0) {
+              alert('Game over! No more lives left.');
+              resetGame();
+              return;
+            }
+          }
+          // Удаление первой ветки и сброс lifeDeducted
+          setBranches(prevBranches => prevBranches.slice(1));
+          setLifeDeducted(false);
         }
 
-        // Проверка текущей ветки
-        const currentBranch = branches[currentBranchIndex];
-
-        if (
-          currentBranch &&
-          currentBranch.top + scrollOffset > window.innerHeight && // Убедимся, что ветка полностью вышла за пределы экрана
-          currentBranch.side === squirrelSide
-        ) {
-          setLives(prevLives => prevLives - 1);
-
-          // Переходим к следующей ветке
-          setCurrentBranchIndex(prevIndex => prevIndex + 1);
-
-          if (lives <= 1) {
-            alert('Game over! No more lives left.');
-            setGameStarted(false); // Останавливаем игру
-            setLives(3); // Сбрасываем жизни для новой игры
-            setPoints(0); // Сбрасываем очки
-            setSpeed(5); // Сбрасываем скорость
-            setScrollOffset(0); // Сбрасываем прокрутку
-            setCurrentBranchIndex(0); // Сбрасываем индекс текущей ветки
-            return;
+        // Добавление новой ветки
+        if (branches.length > 0) {
+          const lastBranch = branches[branches.length - 1];
+          if (lastBranch.top + scrollOffset < window.innerHeight - 200) {
+            const newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
+            const newBranchTop = lastBranch.top - 250;
+            setBranches(prevBranches => [
+              ...prevBranches,
+              { side: newBranchSide, top: newBranchTop },
+            ]);
           }
         }
-
       }, 50);
 
       return () => clearInterval(interval);
     }
-  }, [scrollOffset, branches, speed, gameStarted, lives, squirrelSide, squirrelTop, currentBranchIndex]);
+  }, [scrollOffset, branches, speed, gameStarted, lives, lifeDeducted]);
 
   const handleBranchClick = (side, top) => {
     if (!gameStarted) {
       setGameStarted(true);
-      return; // Первый клик только запускает игру, жизнь не теряется
+      return;
     }
 
-    const nextBranch = branches[currentBranchIndex];
+    const firstBranch = branches[0];
 
-    if (nextBranch && side === nextBranch.side && top + scrollOffset === nextBranch.top + scrollOffset) {
+    if (firstBranch && side === firstBranch.side && top + scrollOffset === firstBranch.top + scrollOffset) {
       setPoints(prevPoints => prevPoints + 1);
       setSpeed(prevSpeed => prevSpeed + 0.5);
       setSquirrelSide(side);
-      setSquirrelTop(top + scrollOffset - 15); // Сделаем белку ближе к ветке
+      setSquirrelTop(top + scrollOffset - 15);
 
-      // Удаление предыдущей ветки и переход к следующей
+      // Удаление текущей ветки после прыжка
       setBranches(prevBranches => prevBranches.slice(1));
-      setCurrentBranchIndex(0); // Сброс индекса ветки после прыжка
+      setLifeDeducted(false); // сброс lifeDeducted, чтобы жизнь не отнималась за следующую ветку
     } else {
-      setLives(prevLives => prevLives - 1); // Уменьшаем жизнь, если клик на неправильную ветку
-      if (lives <= 1) {
+      setLives(prevLives => prevLives - 1);
+      if (lives - 1 <= 0) {
         alert('Game over! No more lives left.');
-        setGameStarted(false); // Останавливаем игру
-        setLives(3); // Сбрасываем жизни для новой игры
-        setPoints(0); // Сбрасываем очки
-        setSpeed(5); // Сбрасываем скорость
-        setScrollOffset(0); // Сбрасываем прокрутку
-        setCurrentBranchIndex(0); // Сбрасываем индекс текущей ветки
+        resetGame();
         return;
       }
     }
+  };
+
+  const resetGame = () => {
+    setLives(3);
+    setPoints(0);
+    setSpeed(5);
+    setScrollOffset(0);
+    setSquirrelTop(500);
+    setGameStarted(false);
+    setLifeDeducted(false); // сброс состояния lifeDeducted
+    setBranches([
+      { side: 'left', top: 400 },
+      { side: 'right', top: 150 },
+    ]);
+    setSquirrelSide('right');
   };
 
   return (
