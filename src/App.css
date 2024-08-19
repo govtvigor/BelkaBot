@@ -1,3 +1,8 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+
 .game-area {
   display: flex;
   flex-direction: column;
@@ -69,6 +74,26 @@
 }
 
 
+@keyframes pulse {
+  0% {
+    width: 50%;
+  }
+  50% {
+    width: 70%;
+  }
+  100% {
+    width: 50%;
+  }
+}
+
+.start-text {
+  position: absolute;
+  z-index: 3;
+  top: 40%;
+  transition: ease-in-out all 1s;
+  height: auto;
+  animation: pulse 3s infinite;
+}
 
 .squirrel img {
   width: 100%;

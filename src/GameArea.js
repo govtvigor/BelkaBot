@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import Squirrel from './Squirrel';
-import Branch from './Branch';
-import Score from './Score';
-import Lives from './Lives';
+import Squirrel from './components/Squirrel/Squirrel';
+import Branch from './components/Branch/Branch';
+import Score from './components/Score/Score';
+import Lives from './components/Lives/Lives';
 import treeImage from './assets/tree.png';
+import startText from "./assets/startText.png";
 
 const GameArea = () => {
   const [branches, setBranches] = useState([]);
@@ -65,7 +66,8 @@ const GameArea = () => {
     }
   }, [scrollOffset, branches, speed, gameStarted, lives, lifeDeducted]);
 
-  const handleBranchClick = (side, top) => {
+
+  const handleScreenClick = () => { //обробник я переніс в GameArea, бо тепер у нас є стартовий текст
     if (!gameStarted) {
       setInMenu(false); // Переход из меню в игровой режим с анимацией
       setTimeout(() => {
@@ -73,6 +75,9 @@ const GameArea = () => {
       }, 1000); // Начинаем игру после завершения анимации
       return;
     }
+  };
+
+  const handleBranchClick = (side, top) => {
 
     const firstBranch = branches[0];
 
@@ -115,10 +120,10 @@ const GameArea = () => {
     <div className={`game-area ${inMenu ? 'menu-mode' : 'game-mode'}`}>
       <div className="tree-wrapper">
         <img
-          src={treeImage}
-          alt="Tree"
-          className="tree-image"
-          style={{ transform: `translateY(${scrollOffset % window.innerHeight}px)` }}
+            src={treeImage}
+            alt="Tree"
+            className="tree-image"
+            style={{transform: `translateY(${scrollOffset % window.innerHeight}px)` }}
         />
         <img
           src={treeImage}

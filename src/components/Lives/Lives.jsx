@@ -1,5 +1,5 @@
 import React from 'react';
-import heartIcon from './assets/heart.png'; // Иконка сердечка
+import heartIcon from '../../assets/heart.png';
 
 const Lives = ({ lives }) => {
   return (
