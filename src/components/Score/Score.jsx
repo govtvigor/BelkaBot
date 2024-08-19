@@ -1,5 +1,6 @@
 import React from 'react';
 import nutIcon from '../../assets/nut.png'; // Иконка ореха
+import './score.scss';
 
 const Score = ({ points }) => {
   return (

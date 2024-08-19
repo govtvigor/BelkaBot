@@ -32,23 +32,7 @@
 
 
 
-.squirrel {
-  width: 50px;
-  height: auto;
-  position: absolute;
-  transition: transform 0.5s ease;
-  background-color: rgba(255, 0, 0, 0.5); /* Временный фон для отладки */
-}
 
-
-
-.squirrel.left {
-  left: 20%;
-}
-
-.squirrel.right {
-  left: 70%;
-}
 
 .score, .lives, .timer {
   margin: 10px;
@@ -79,48 +63,18 @@
   animation: pulse 3s infinite;
 }
 
-.squirrel img {
-  width: 100%;
-  height: auto;
-  
-}
-
-.squirrel.left {
-  left: 20%; /* Смещение для прыжков вверх-влево */
-  transform: translate(-50px, -100px);
-}
-
-.squirrel.right {
-  right: 20%; /* Смещение для прыжков вверх-вправо */
-  transform: translate(-50px, -100px);
-}
 
 
 
-.score {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  align-items: center;
-  font-size: 24px;
-  color: #000;
-}
+
+
 
 .nut-icon {
   width: 40px;
   height: 40px;
   margin-right: 5px;
 }
-.lives {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  display: flex;
-  align-items: center;
-  font-size: 24px;
-  color: #000;
-}
+
 
 .heart-icon {
   width: 30px;

@@ -1,5 +1,6 @@
 import React from 'react';
 import heartIcon from '../../assets/heart.png';
+import './lives.scss';
 
 const Lives = ({ lives }) => {
   return (
