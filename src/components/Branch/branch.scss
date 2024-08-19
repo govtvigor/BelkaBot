@@ -1,0 +1,30 @@
+.branch.left {
+    left: 0;
+    transform: translateX(-20%) translateY(-50%);
+     /* Позиционируем ветку слева от дерева */
+  }
+  
+  .branch.right {
+    right: 0;
+    transform: translateX(20%) translateY(-50%); /* Позиционируем ветку справа от дерева */
+  }
+  .branches {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 255, 0.2); /* Временный фон для отладки */
+  }
+  .branch {
+    width: 120px;
+    height: 50px;
+    position: absolute;
+    
+  }
+  .branch img {
+    width: 120px; /* Уменьшите размер до 30% от ширины контейнера */
+  
+    cursor: pointer;
+    transform: scaleX(1); /* Это значение для правой ветки */
+  }

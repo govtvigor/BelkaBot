@@ -15,7 +15,6 @@ const GameArea = () => {
   const [lives, setLives] = useState(3);
   const [speed, setSpeed] = useState(5);
   const [gameStarted, setGameStarted] = useState(false);
-  const [inMenu, setInMenu] = useState(true); // Отслеживание состояния меню
   const [lifeDeducted, setLifeDeducted] = useState(false); // отслеживание жизни за текущую ветку
 
   useEffect(() => {
@@ -69,10 +68,7 @@ const GameArea = () => {
 
   const handleScreenClick = () => { //обробник я переніс в GameArea, бо тепер у нас є стартовий текст
     if (!gameStarted) {
-      setInMenu(false); // Переход из меню в игровой режим с анимацией
-      setTimeout(() => {
-        setGameStarted(true);
-      }, 1000); // Начинаем игру после завершения анимации
+      setGameStarted(true);
       return;
     }
   };
@@ -107,7 +103,6 @@ const GameArea = () => {
     setScrollOffset(0);
     setSquirrelTop(500);
     setGameStarted(false);
-    setInMenu(true); // Возвращаемся в меню после завершения игры
     setLifeDeducted(false); // сброс состояния lifeDeducted
     setBranches([
       { side: 'left', top: 400 },
@@ -117,7 +112,16 @@ const GameArea = () => {
   };
 
   return (
-    <div className={`game-area ${inMenu ? 'menu-mode' : 'game-mode'}`}>
+    <div className="game-area" onClick={handleScreenClick}>
+      {!gameStarted && (
+          <img
+              src={startText}
+              alt="Start Text"
+              className="start-text"
+              onClick={() => setGameStarted(true)}
+          />
+      )}
+
       <div className="tree-wrapper">
         <img
             src={treeImage}
@@ -144,6 +148,8 @@ const GameArea = () => {
           style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 3}px)` }}
         />
       </div>
+      <Lives lives={lives} />
+      <Score points={points} />
       <div className="branches">
         {branches.map((branch, index) => (
           <Branch
@@ -155,22 +161,8 @@ const GameArea = () => {
         ))}
         <Squirrel position={squirrelSide} top={squirrelTop} />
       </div>
-      {inMenu && (
-        <div className="menu">
-          <div className="stats">
-            <Lives lives={lives} />
-            <Score points={points} />
-          </div>
-          <div className="menu-buttons">
-            <button>Главная</button>
-            <button>Пари</button>
-            <button>Профиль</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
 export default GameArea;
-  
