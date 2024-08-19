@@ -3,19 +3,20 @@ import Squirrel from './components/Squirrel/Squirrel';
 import Branch from './components/Branch/Branch';
 import Score from './components/Score/Score';
 import Lives from './components/Lives/Lives';
+import Menu from './components/Menu/Menu';
 import treeImage from './assets/tree.png';
-import startText from "./assets/startText.png";
+import startText from './assets/startText.png';
 
 const GameArea = () => {
   const [branches, setBranches] = useState([]);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [squirrelSide, setSquirrelSide] = useState('right');
-  const [squirrelTop, setSquirrelTop] = useState(500);
+  const [squirrelTop, setSquirrelTop] = useState(650);
   const [points, setPoints] = useState(0);
   const [lives, setLives] = useState(3);
   const [speed, setSpeed] = useState(5);
   const [gameStarted, setGameStarted] = useState(false);
-  const [inMenu, setInMenu] = useState(true); // Добавляем состояние меню
+  const [inMenu, setInMenu] = useState(true);
   const [lifeDeducted, setLifeDeducted] = useState(false);
 
   useEffect(() => {
@@ -63,14 +64,17 @@ const GameArea = () => {
     }
   }, [scrollOffset, branches, speed, gameStarted, lives, lifeDeducted]);
 
-  const handleScreenClick = () => {
+  const handleScreenClick = (e) => {
     if (!gameStarted) {
-      setInMenu(false);
-      setGameStarted(true);
-      document.getElementsByClassName('start-text').className += ' scaled';
+      if (!e.target.closest('button')) {
+        // Запускаем игру только если клик не был на кнопке
+        setInMenu(false);
+        setTimeout(() => {
+          setGameStarted(true);
+        }, 1000);
+      }
       return;
     }
-    setTimeout(2000);
   };
 
   const handleBranchClick = (side, top) => {
@@ -150,15 +154,7 @@ const GameArea = () => {
       <Lives lives={lives} />
       <Score points={points} />
 
-      {inMenu && (
-        <div className="menu">
-          <div className="menu-buttons">
-            <button>Главная</button>
-            <button>Пари</button>
-            <button>Профиль</button>
-          </div>
-        </div>
-      )}
+      {inMenu && <Menu />}
 
       <div className="branches">
         {branches.map((branch, index) => (

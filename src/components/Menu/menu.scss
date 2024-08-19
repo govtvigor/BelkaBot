@@ -1,0 +1,41 @@
+.menu {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    /* Полупрозрачный черный фон */
+    backdrop-filter: blur(5px);
+    /* Наложение размытия */
+    padding: 10px 0;
+}
+
+
+.menu-buttons {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.menu-buttons button {
+    font-family: 'Press Start 2P', sans-serif;
+    background-color: #222;
+    color: #0f0;
+    /* Зеленый текст в стиле ретро */
+    border: 4px double #0f0;
+    /* Двойная граница, типичная для ретро-дизайна */
+    padding: 10px 20px;
+    margin: 5px;
+    text-transform: uppercase;
+    font-size: 16px;
+    letter-spacing: 2px;
+    box-shadow: 0 4px #333;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    text-shadow: 0 0 2px #0f0, 0 0 5px #0f0;
+    /* Эффект свечения */
+}
