@@ -11,7 +11,7 @@ const GameArea = () => {
   const [branches, setBranches] = useState([]);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [squirrelSide, setSquirrelSide] = useState('right');
-  const [squirrelTop, setSquirrelTop] = useState(675);
+  const [squirrelTop, setSquirrelTop] = useState(625);
   const [points, setPoints] = useState(0);
   const [lives, setLives] = useState(3);
   const [speed, setSpeed] = useState(5);
