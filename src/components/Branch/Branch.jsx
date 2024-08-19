@@ -1,6 +1,5 @@
-
 import React from 'react';
-import branchImage from './assets/branch.png'
+import branchImage from '../../assets/branch.png'
 
 const Branch = ({ side, top, onClick }) => {
   const branchStyles = {

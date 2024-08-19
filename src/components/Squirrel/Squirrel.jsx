@@ -1,5 +1,5 @@
 import React from 'react';
-import squirrelImage from './assets/squirrel.png';
+import squirrelImage from '../../assets/squirrel.png';
 
 const Squirrel = ({ position, top }) => {
   const positionStyles = {

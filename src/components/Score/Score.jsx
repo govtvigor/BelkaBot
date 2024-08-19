@@ -1,5 +1,5 @@
 import React from 'react';
-import nutIcon from './assets/nut.png'; // Иконка ореха
+import nutIcon from '../../assets/nut.png'; // Иконка ореха
 
 const Score = ({ points }) => {
   return (
