@@ -1,4 +1,4 @@
-*{
+* {
   margin: 0;
   padding: 0;
 }
@@ -19,36 +19,34 @@
   justify-content: center;
   align-items: flex-end;
   width: 100%;
-  height: 70%; /* Дерево занимает 70% высоты экрана */
-  background-color: rgba(0, 255, 0, 0.2); /* Временный фон для отладки */
+  height: 70%;
+  /* Дерево занимает 70% высоты экрана */
+  background-color: rgba(0, 255, 0, 0.2);
+  /* Временный фон для отладки */
 }
 
 .tree-image {
   width: 100%;
-  height: auto; /* Сохраняем пропорции изображения */
+  height: auto;
+  /* Сохраняем пропорции изображения */
 }
 
-
-
-
-
-
-
-.score, .lives, .timer {
+.score,
+.lives,
+.timer {
   margin: 10px;
   font-size: 1.5em;
 }
-
-
-
 
 @keyframes pulse {
   0% {
     width: 50%;
   }
+
   50% {
     width: 70%;
   }
+
   100% {
     width: 50%;
   }
@@ -63,12 +61,6 @@
   animation: pulse 3s infinite;
 }
 
-
-
-
-
-
-
 .nut-icon {
   width: 40px;
   height: 40px;
@@ -81,6 +73,7 @@
   height: 30px;
   margin-right: 5px;
 }
+
 .game-area {
   position: relative;
   width: 100%;
@@ -90,14 +83,18 @@
 
 .menu-mode .tree-wrapper,
 .menu-mode .branches {
-  transform: scale(0.5); /* Уменьшенное состояние для меню */
-  transition: transform 1s ease-in-out; /* Плавная анимация */
+  transform: scale(0.5);
+  /* Уменьшенное состояние для меню */
+  transition: transform 1s ease-in-out;
+  /* Плавная анимация */
 }
 
 .game-mode .tree-wrapper,
 .game-mode .branches {
-  transform: scale(1); /* Полный размер для игрового режима */
-  transition: transform 1s ease-in-out; /* Плавная анимация */
+  transform: scale(1);
+  /* Полный размер для игрового режима */
+  transition: transform 1s ease-in-out;
+  /* Плавная анимация */
 }
 
 .menu {
