@@ -1,4 +1,4 @@
-* {
+*{
   margin: 0;
   padding: 0;
 }
@@ -14,39 +14,39 @@
   overflow: hidden;
 }
 
+
+
+
+
+
+
+.score, .lives, .timer {
+  margin: 10px;
+  font-size: 1.5em;
+}
+
+
 .tree-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100%;
-  height: 70%;
-  /* Дерево занимает 70% высоты экрана */
-  background-color: rgba(0, 255, 0, 0.2);
-  /* Временный фон для отладки */
+  height: 100%; /* Увеличиваем высоту дерева, чтобы оно плавно переходило друг в друга */
 }
 
 .tree-image {
+  position: absolute;
   width: 100%;
-  height: auto;
-  /* Сохраняем пропорции изображения */
-}
-
-.score,
-.lives,
-.timer {
-  margin: 10px;
-  font-size: 1.5em;
+  height: 200%;
 }
 
 @keyframes pulse {
   0% {
     width: 50%;
   }
-
   50% {
     width: 70%;
   }
-
   100% {
     width: 50%;
   }
@@ -72,52 +72,4 @@
   width: 30px;
   height: 30px;
   margin-right: 5px;
-}
-
-.game-area {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.menu-mode .tree-wrapper,
-.menu-mode .branches {
-  transform: scale(0.5);
-  /* Уменьшенное состояние для меню */
-  transition: transform 1s ease-in-out;
-  /* Плавная анимация */
-}
-
-.game-mode .tree-wrapper,
-.game-mode .branches {
-  transform: scale(1);
-  /* Полный размер для игрового режима */
-  transition: transform 1s ease-in-out;
-  /* Плавная анимация */
-}
-
-.menu {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.8);
-}
-
-.menu-buttons {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-  padding: 10px 0;
-}
-
-.menu-buttons button {
-  flex: 1;
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 18px;
 }

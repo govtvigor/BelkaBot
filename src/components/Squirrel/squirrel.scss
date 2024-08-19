@@ -3,22 +3,21 @@
     height: auto;
     position: absolute;
     transition: transform 0.5s ease;
-    background-color: rgba(255, 0, 0, 0.5);
-}
-
-.squirrel img {
-    width: 100%;
-    height: auto;
 }
 
 .squirrel.left {
     left: 20%;
-    /* Смещение для прыжков вверх-влево */
     transform: translate(-50px, -100px);
 }
 
 .squirrel.right {
-    right: 20%;
-    /* Смещение для прыжков вверх-вправо */
-    transform: translate(-50px, -100px);
+    left: 70%;
+    transform: translate(50px, -100px);
+}
+
+
+.squirrel img {
+    width: 100px;
+    height: auto;
+
 }
