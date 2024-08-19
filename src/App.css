@@ -9,26 +9,41 @@
   overflow: hidden;
 }
 
+.tree-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  height: 70%; /* Дерево занимает 70% высоты экрана */
+  background-color: rgba(0, 255, 0, 0.2); /* Временный фон для отладки */
+}
+
+.tree-image {
+  width: 100%;
+  height: auto; /* Сохраняем пропорции изображения */
+}
 
 .branches {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 255, 0.2); /* Временный фон для отладки */
 }
 
 .branch {
-  width: 20%;
+  width: 120px;
   height: 50px;
   position: absolute;
 }
-
-
 
 .squirrel {
   width: 50px;
   height: auto;
   position: absolute;
   transition: transform 0.5s ease;
+  background-color: rgba(255, 0, 0, 0.5); /* Временный фон для отладки */
 }
 
 
@@ -52,33 +67,23 @@
   cursor: pointer;
   transform: scaleX(1); /* Это значение для правой ветки */
 }
-.tree-wrapper {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  height: 100%; /* Увеличиваем высоту дерева, чтобы оно плавно переходило друг в друга */
-}
 
-.tree-image {
-  position: absolute;
-  width: 100%;
-  height: 200%;
-}
 
 
 .squirrel img {
-  width: 100px;
+  width: 100%;
   height: auto;
   
 }
 
 .squirrel.left {
-  transform: translate(-50px, -100px); /* Смещение для прыжков вверх-влево */
+  left: 20%; /* Смещение для прыжков вверх-влево */
+  transform: translate(-50px, -100px);
 }
 
 .squirrel.right {
-  transform: translate(50px, -100px); /* Смещение для прыжков вверх-вправо */
+  right: 20%; /* Смещение для прыжков вверх-вправо */
+  transform: translate(-50px, -100px);
 }
 
 
@@ -121,4 +126,47 @@
   width: 30px;
   height: 30px;
   margin-right: 5px;
+}
+.game-area {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.menu-mode .tree-wrapper,
+.menu-mode .branches {
+  transform: scale(0.5); /* Уменьшенное состояние для меню */
+  transition: transform 1s ease-in-out; /* Плавная анимация */
+}
+
+.game-mode .tree-wrapper,
+.game-mode .branches {
+  transform: scale(1); /* Полный размер для игрового режима */
+  transition: transform 1s ease-in-out; /* Плавная анимация */
+}
+
+.menu {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.menu-buttons {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.menu-buttons button {
+  flex: 1;
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 18px;
 }
