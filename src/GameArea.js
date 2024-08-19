@@ -15,7 +15,8 @@ const GameArea = () => {
   const [lives, setLives] = useState(3);
   const [speed, setSpeed] = useState(5);
   const [gameStarted, setGameStarted] = useState(false);
-  const [lifeDeducted, setLifeDeducted] = useState(false); // отслеживание жизни за текущую ветку
+  const [inMenu, setInMenu] = useState(true); // Добавляем состояние меню
+  const [lifeDeducted, setLifeDeducted] = useState(false);
 
   useEffect(() => {
     const initialBranches = [
@@ -30,11 +31,10 @@ const GameArea = () => {
       const interval = setInterval(() => {
         setScrollOffset(prevOffset => prevOffset + speed);
 
-        // Проверка первой ветки на выход за экран и отнимание жизни
         if (branches.length > 0 && branches[0].top + scrollOffset >= window.innerHeight) {
           if (!lifeDeducted) {
             setLives(prevLives => prevLives - 1);
-            setLifeDeducted(true); // отметка, что жизнь была отнята за эту ветку
+            setLifeDeducted(true);
 
             if (lives - 1 <= 0) {
               alert('Game over! No more lives left.');
@@ -42,12 +42,10 @@ const GameArea = () => {
               return;
             }
           }
-          // Удаление первой ветки и сброс lifeDeducted
           setBranches(prevBranches => prevBranches.slice(1));
           setLifeDeducted(false);
         }
 
-        // Добавление новой ветки
         if (branches.length > 0) {
           const lastBranch = branches[branches.length - 1];
           if (lastBranch.top + scrollOffset < window.innerHeight - 200) {
@@ -65,16 +63,17 @@ const GameArea = () => {
     }
   }, [scrollOffset, branches, speed, gameStarted, lives, lifeDeducted]);
 
-
-  const handleScreenClick = () => { //обробник я переніс в GameArea, бо тепер у нас є стартовий текст
+  const handleScreenClick = () => {
     if (!gameStarted) {
+      setInMenu(false);
       setGameStarted(true);
+      document.getElementsByClassName('start-text').className += ' scaled';
       return;
     }
+    setTimeout(2000);
   };
 
   const handleBranchClick = (side, top) => {
-
     const firstBranch = branches[0];
 
     if (firstBranch && side === firstBranch.side && top + scrollOffset === firstBranch.top + scrollOffset) {
@@ -83,9 +82,8 @@ const GameArea = () => {
       setSquirrelSide(side);
       setSquirrelTop(top + scrollOffset - 15);
 
-      // Удаление текущей ветки после прыжка
       setBranches(prevBranches => prevBranches.slice(1));
-      setLifeDeducted(false); // сброс lifeDeducted, чтобы жизнь не отнималась за следующую ветку
+      setLifeDeducted(false);
     } else {
       setLives(prevLives => prevLives - 1);
       if (lives - 1 <= 0) {
@@ -103,7 +101,8 @@ const GameArea = () => {
     setScrollOffset(0);
     setSquirrelTop(500);
     setGameStarted(false);
-    setLifeDeducted(false); // сброс состояния lifeDeducted
+    setInMenu(true);
+    setLifeDeducted(false);
     setBranches([
       { side: 'left', top: 400 },
       { side: 'right', top: 150 },
@@ -112,22 +111,21 @@ const GameArea = () => {
   };
 
   return (
-    <div className="game-area" onClick={handleScreenClick}>
+    <div className={`game-area ${inMenu ? 'menu-mode' : 'game-mode'}`} onClick={handleScreenClick}>
       {!gameStarted && (
-          <img
-              src={startText}
-              alt="Start Text"
-              className="start-text"
-              onClick={() => setGameStarted(true)}
-          />
+        <img
+          src={startText}
+          alt="Start Text"
+          className="start-text"
+        />
       )}
 
       <div className="tree-wrapper">
         <img
-            src={treeImage}
-            alt="Tree"
-            className="tree-image"
-            style={{transform: `translateY(${scrollOffset % window.innerHeight}px)` }}
+          src={treeImage}
+          alt="Tree"
+          className="tree-image"
+          style={{ transform: `translateY(${scrollOffset % window.innerHeight}px)` }}
         />
         <img
           src={treeImage}
@@ -148,8 +146,20 @@ const GameArea = () => {
           style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 3}px)` }}
         />
       </div>
+
       <Lives lives={lives} />
       <Score points={points} />
+
+      {inMenu && (
+        <div className="menu">
+          <div className="menu-buttons">
+            <button>Главная</button>
+            <button>Пари</button>
+            <button>Профиль</button>
+          </div>
+        </div>
+      )}
+
       <div className="branches">
         {branches.map((branch, index) => (
           <Branch
