@@ -11,13 +11,14 @@ const GameArea = () => {
   const [branches, setBranches] = useState([]);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [squirrelSide, setSquirrelSide] = useState('right');
-  const [squirrelTop, setSquirrelTop] = useState(650);
+  const [squirrelTop, setSquirrelTop] = useState(675);
   const [points, setPoints] = useState(0);
   const [lives, setLives] = useState(3);
   const [speed, setSpeed] = useState(5);
   const [gameStarted, setGameStarted] = useState(false);
   const [inMenu, setInMenu] = useState(true);
   const [lifeDeducted, setLifeDeducted] = useState(false);
+  const [isMenuClick, setIsMenuClick] = useState(false);
 
   useEffect(() => {
     const initialBranches = [
@@ -30,11 +31,11 @@ const GameArea = () => {
   useEffect(() => {
     if (gameStarted) {
       const interval = setInterval(() => {
-        setScrollOffset(prevOffset => prevOffset + speed);
+        setScrollOffset((prevOffset) => prevOffset + speed);
 
         if (branches.length > 0 && branches[0].top + scrollOffset >= window.innerHeight) {
           if (!lifeDeducted) {
-            setLives(prevLives => prevLives - 1);
+            setLives((prevLives) => prevLives - 1);
             setLifeDeducted(true);
 
             if (lives - 1 <= 0) {
@@ -43,7 +44,7 @@ const GameArea = () => {
               return;
             }
           }
-          setBranches(prevBranches => prevBranches.slice(1));
+          setBranches((prevBranches) => prevBranches.slice(1));
           setLifeDeducted(false);
         }
 
@@ -52,7 +53,7 @@ const GameArea = () => {
           if (lastBranch.top + scrollOffset < window.innerHeight - 200) {
             const newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
             const newBranchTop = lastBranch.top - 250;
-            setBranches(prevBranches => [
+            setBranches((prevBranches) => [
               ...prevBranches,
               { side: newBranchSide, top: newBranchTop },
             ]);
@@ -64,32 +65,35 @@ const GameArea = () => {
     }
   }, [scrollOffset, branches, speed, gameStarted, lives, lifeDeducted]);
 
-  const handleScreenClick = (e) => {
-    if (!gameStarted) {
-      if (!e.target.closest('button')) {
-        // Запускаем игру только если клик не был на кнопке
-        setInMenu(false);
-        setTimeout(() => {
-          setGameStarted(true);
-        }, 1000);
-      }
+  const handleScreenClick = () => {
+    if (!gameStarted && !isMenuClick) {
+      setInMenu(false);
+      setTimeout(() => {
+        setGameStarted(true);
+      }, 1000);
       return;
     }
+    setIsMenuClick(false); // Сбрасываем после обработки
+  };
+
+  const handleMenuClick = (event) => {
+    event.stopPropagation(); // Останавливаем распространение события
+    setIsMenuClick(true); // Устанавливаем состояние, если клик был на меню
   };
 
   const handleBranchClick = (side, top) => {
     const firstBranch = branches[0];
 
     if (firstBranch && side === firstBranch.side && top + scrollOffset === firstBranch.top + scrollOffset) {
-      setPoints(prevPoints => prevPoints + 1);
-      setSpeed(prevSpeed => prevSpeed + 0.5);
+      setPoints((prevPoints) => prevPoints + 1);
+      setSpeed((prevSpeed) => prevSpeed + 0.5);
       setSquirrelSide(side);
       setSquirrelTop(top + scrollOffset - 15);
 
-      setBranches(prevBranches => prevBranches.slice(1));
+      setBranches((prevBranches) => prevBranches.slice(1));
       setLifeDeducted(false);
     } else {
-      setLives(prevLives => prevLives - 1);
+      setLives((prevLives) => prevLives - 1);
       if (lives - 1 <= 0) {
         alert('Game over! No more lives left.');
         resetGame();
@@ -115,58 +119,60 @@ const GameArea = () => {
   };
 
   return (
-    <div className={`game-area ${inMenu ? 'menu-mode' : 'game-mode'}`} onClick={handleScreenClick}>
-      {!gameStarted && (
-        <img
-          src={startText}
-          alt="Start Text"
-          className="start-text"
-        />
-      )}
-
-      <div className="tree-wrapper">
-        <img
-          src={treeImage}
-          alt="Tree"
-          className="tree-image"
-          style={{ transform: `translateY(${scrollOffset % window.innerHeight}px)` }}
-        />
-        <img
-          src={treeImage}
-          alt="Tree"
-          className="tree-image"
-          style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight}px)` }}
-        />
-        <img
-          src={treeImage}
-          alt="Tree"
-          className="tree-image"
-          style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 2}px)` }}
-        />
-        <img
-          src={treeImage}
-          alt="Tree"
-          className="tree-image"
-          style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 3}px)` }}
-        />
-      </div>
-
-      <Lives lives={lives} />
-      <Score points={points} />
-
-      {inMenu && <Menu />}
-
-      <div className="branches">
-        {branches.map((branch, index) => (
-          <Branch
-            key={index}
-            side={branch.side}
-            top={branch.top + scrollOffset}
-            onClick={() => handleBranchClick(branch.side, branch.top)}
+    <div className="game-container">
+      <div className={`game-area ${inMenu ? 'menu-mode' : 'game-mode'}`} onClick={handleScreenClick}>
+        {!gameStarted && (
+          <img
+            src={startText}
+            alt="Start Text"
+            className="start-text"
           />
-        ))}
-        <Squirrel position={squirrelSide} top={squirrelTop} />
+        )}
+
+        <div className="tree-wrapper">
+          <img
+            src={treeImage}
+            alt="Tree"
+            className="tree-image"
+            style={{ transform: `translateY(${scrollOffset % window.innerHeight}px)` }}
+          />
+          <img
+            src={treeImage}
+            alt="Tree"
+            className="tree-image"
+            style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight}px)` }}
+          />
+          <img
+            src={treeImage}
+            alt="Tree"
+            className="tree-image"
+            style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 2}px)` }}
+          />
+          <img
+            src={treeImage}
+            alt="Tree"
+            className="tree-image"
+            style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 3}px)` }}
+          />
+        </div>
+
+        <Lives lives={lives} />
+        <Score points={points} />
+
+        <div className="branches">
+          {branches.map((branch, index) => (
+            <Branch
+              key={index}
+              side={branch.side}
+              top={branch.top + scrollOffset}
+              onClick={() => handleBranchClick(branch.side, branch.top)}
+            />
+          ))}
+          <Squirrel position={squirrelSide} top={squirrelTop} />
+        </div>
       </div>
+
+      {inMenu && <Menu onClick={handleMenuClick} />} {/* Передаем обработчик кликов в меню */}
     </div>
   );
 };
