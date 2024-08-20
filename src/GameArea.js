@@ -119,61 +119,60 @@ const GameArea = () => {
   };
 
   return (
-    <div className="game-container">
-      <div className={`game-area ${inMenu ? 'menu-mode' : 'game-mode'}`} onClick={handleScreenClick}>
-        {!gameStarted && (
-          <img
-            src={startText}
-            alt="Start Text"
-            className="start-text"
-          />
-        )}
-
-        <div className="tree-wrapper">
-          <img
-            src={treeImage}
-            alt="Tree"
-            className="tree-image"
-            style={{ transform: `translateY(${scrollOffset % window.innerHeight}px)` }}
-          />
-          <img
-            src={treeImage}
-            alt="Tree"
-            className="tree-image"
-            style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight}px)` }}
-          />
-          <img
-            src={treeImage}
-            alt="Tree"
-            className="tree-image"
-            style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 2}px)` }}
-          />
-          <img
-            src={treeImage}
-            alt="Tree"
-            className="tree-image"
-            style={{ transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 3}px)` }}
-          />
-        </div>
-
-        <Lives lives={lives} />
-        <Score points={points} />
-
-        <div className="branches">
-          {branches.map((branch, index) => (
-            <Branch
-              key={index}
-              side={branch.side}
-              top={branch.top + scrollOffset}
-              onClick={() => handleBranchClick(branch.side, branch.top)}
+      <div className="game-container">
+        <div className={`game-area ${inMenu ? 'menu-mode' : 'game-mode'}`} onClick={handleScreenClick}>
+          {!gameStarted && (
+              <img
+                  className="start-text"
+                  src={startText}
+                  alt="Start Text"
+              />
+          )}
+          <div className="tree-wrapper">
+            <img
+                src={treeImage}
+                alt="Tree"
+                className="tree-image"
+                style={{transform: `translateY(${scrollOffset % window.innerHeight}px)`}}
             />
-          ))}
-          <Squirrel position={squirrelSide} top={squirrelTop} />
-        </div>
-      </div>
+            <img
+                src={treeImage}
+                alt="Tree"
+                className="tree-image"
+                style={{transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight}px)`}}
+            />
+            <img
+                src={treeImage}
+                alt="Tree"
+                className="tree-image"
+                style={{transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 2}px)`}}
+            />
+            <img
+                src={treeImage}
+                alt="Tree"
+                className="tree-image"
+                style={{transform: `translateY(${(scrollOffset % window.innerHeight) - window.innerHeight * 3}px)`}}
+            />
+          </div>
 
-      {inMenu && <Menu onClick={handleMenuClick} />} {/* Передаем обработчик кликов в меню */}
-    </div>
+          <Lives lives={lives}/>
+          <Score points={points}/>
+
+          <div className="branches">
+            {branches.map((branch, index) => (
+                <Branch
+                    key={index}
+                    side={branch.side}
+                    top={branch.top + scrollOffset}
+                    onClick={() => handleBranchClick(branch.side, branch.top)}
+                />
+            ))}
+            <Squirrel position={squirrelSide} top={squirrelTop}/>
+          </div>
+        </div>
+
+        {inMenu && <Menu onClick={handleMenuClick}/>} {/* Передаем обработчик кликов в меню */}
+      </div>
   );
 };
 

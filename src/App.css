@@ -1,90 +1,94 @@
-*{
-  margin: 0;
-  padding: 0;
+* {
+    margin: 0;
+    padding: 0;
 }
 
 .game-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
 .game-area {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
 }
+
 .score, .lives, .timer {
-  margin: 10px;
-  font-size: 1.5em;
+    margin: 10px;
+    font-size: 1.5em;
 }
 
 
 .tree-wrapper {
-  position: absolute;
-  top: 50%; /* Центрирование по вертикали */
-  left: 50%; /* Центрирование по горизонтали */
-  width: 60%; /* Начальная ширина дерева */
-  height: 100%; /* Начальная высота дерева */
-  transform: translate(-50%, -50%); /* Центрирование с помощью translate */
-  transition: width 1.5s ease-in-out, height 1.5s ease-in-out; /* Плавная анимация изменения размера */
+    position: absolute;
+    top: 50%; /* Центрирование по вертикали */
+    left: 50%; /* Центрирование по горизонтали */
+    width: 60%; /* Начальная ширина дерева */
+    height: 100%; /* Начальная высота дерева */
+    transform: translate(-50%, -50%); /* Центрирование с помощью translate */
+    transition: width 1.5s ease-in-out, height 1.5s ease-in-out; /* Плавная анимация изменения размера */
 }
 
 .tree-image {
- 
-  position: absolute;
-  width: 100%;
-  height: 200%;
+
+    position: absolute;
+    width: 100%;
+    height: 200%;
 }
+
 .scaled {
-  transform: scale(2) rotateY(360deg);
-  transition: 1.5s ease-in-out;
+    transform: scale(2) rotateY(360deg);
+    transition: 1.5s ease-in-out;
 }
 
 @keyframes pulse {
-  0% {
-    width: 50%;
-  }
-  50% {
-    width: 70%;
-  }
-  100% {
-    width: 50%;
-  }
+    0% {
+        width: 50%;
+    }
+    50% {
+        width: 70%;
+    }
+    100% {
+        width: 50%;
+    }
 }
 
 .start-text {
-  position: absolute;
-  z-index: 3;
-  top: 40%;
-  left: 22%;
-  transition: ease-in-out all 1s;
-  height: auto;
-  animation: pulse 3s infinite;
+    position: absolute;
+    z-index: 3;
+    top: 40%;
+    transition: ease-in-out all 1s;
+    height: auto;
+    animation: pulse 3s infinite;
 }
 
 .nut-icon {
-  width: 40px;
-  height: 40px;
-  margin-right: 5px;
+    width: 40px;
+    height: 40px;
+    margin-right: 5px;
 }
 
 
 .heart-icon {
-  width: 30px;
-  height: 30px;
-  margin-right: 5px;
+    width: 30px;
+    height: 30px;
+    margin-right: 5px;
 }
 
 .menu-mode .tree-wrapper,
-.menu-mode .branches{
-  width: 60%; /* Уменьшенное состояние для меню */
-  height: 100%;
+.menu-mode .branches {
+    width: 60%; /* Уменьшенное состояние для меню */
+    height: 100%;
 }
 
 .game-mode .tree-wrapper,
 .menu-mode .branches {
-  width: 100%; /* Полный размер для игрового режима */
-  height: 200%;
+    width: 100%; /* Полный размер для игрового режима */
+    height: 200%;
 }
 
