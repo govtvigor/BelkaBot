@@ -16,6 +16,7 @@
     flex: 1;
     position: relative;
     overflow: hidden;
+    background: #00bfff;
 }
 
 .score, .lives, .timer {
@@ -26,6 +27,7 @@
 
 .tree-wrapper {
     position: absolute;
+    z-index: 2;
     top: 50%; /* Центрирование по вертикали */
     left: 50%; /* Центрирование по горизонтали */
     width: 60%; /* Начальная ширина дерева */
@@ -35,7 +37,6 @@
 }
 
 .tree-image {
-
     position: absolute;
     width: 100%;
     height: 200%;
