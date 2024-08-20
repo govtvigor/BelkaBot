@@ -28,10 +28,8 @@
 .tree-wrapper {
     position: absolute;
     z-index: 2;
-    top: 50%; /* Центрирование по вертикали */
+    top: 130%; /* Центрирование по вертикали */
     left: 50%; /* Центрирование по горизонтали */
-    width: 60%; /* Начальная ширина дерева */
-    height: 100%; /* Начальная высота дерева */
     transform: translate(-50%, -50%); /* Центрирование с помощью translate */
     transition: width 1.5s ease-in-out, height 1.5s ease-in-out; /* Плавная анимация изменения размера */
 }
@@ -39,8 +37,31 @@
 .tree-image {
     position: absolute;
     width: 100%;
-    height: 200%;
+    height: 20%;
+    transition: opacity 1s ease-out;
 }
+.tree-image-hidden {
+    opacity: 0;
+}
+.tree-image-main {
+    position: absolute;
+    width: 100%;
+    height: 120%;
+    z-index: 1;
+    bottom: 668px;
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+}
+.tree-image.fade-in {
+    opacity: 1;
+  }
+  
+  .tree-image.fade-out {
+    opacity: 0;
+  }
+  .tree-image-main.fade-in {
+    opacity: 1;
+    transform: scale(1);
+  }
 
 .scaled {
     transform: scale(2) rotateY(360deg);
@@ -83,7 +104,7 @@
 
 .menu-mode .tree-wrapper,
 .menu-mode .branches {
-    width: 60%; /* Уменьшенное состояние для меню */
+    width: 100%; /* Уменьшенное состояние для меню */
     height: 100%;
 }
 
