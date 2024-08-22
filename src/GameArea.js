@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import Squirrel from './components/Squirrel/Squirrel';
+import Squirrel from './components/sprites/Squirrel/Squirrel';
 import Branch from './components/Branch/Branch';
 import Score from './components/Score/Score';
 import Lives from './components/Lives/Lives';
 import Menu from './components/Menu/Menu';
-import CloudBig from './components/Clouds/CloudBig';
-import CloudSmall from './components/Clouds/CloudSmall';
+import CloudBig from './components/sprites/Clouds/CloudBig';
+import CloudSmall from './components/sprites/Clouds/CloudSmall';
+import ButterflyBlue from "./components/sprites/Butterflies/ButterflyBlue";
+import ButterflyGreen from "./components/sprites/Butterflies/ButterflyGreen";
 import mainTreeImage from './assets/mainTree.png';
 import groundTreeImage from './assets/groundTree.png';
 import startText from './assets/startText.png';
@@ -26,6 +28,7 @@ const GameArea = () => {
   const [lifeDeducted, setLifeDeducted] = useState(false);
   const [isMenuClick, setIsMenuClick] = useState(false);
   const [clouds, setClouds] = useState([]);
+  const [butterflies, setButterflies] = useState([]);
 
   useEffect(() => {
     const initialClouds = generateRandomClouds();
@@ -59,16 +62,40 @@ const GameArea = () => {
     }
   }, [gameStarted]);
 
+  const generateRandomButterfly = () => {
+    const top = -50; // Початок за межами екрану, щоб метелик летів зверху вниз
+    const left = Math.floor(Math.random() * window.innerWidth);
+    const isBlueButterfly = Math.random() > 0.5;
+
+    return {
+      id: `${isBlueButterfly ? 'blue' : 'green'}-${Date.now()}`,
+      top,
+      left,
+      isBlueButterfly,
+    };
+  };
+
   useEffect(() => {
     if (gameStarted) {
       const interval = setInterval(() => {
         setScrollOffset((prevOffset) => prevOffset + speed);
 
         setClouds((prevClouds) =>
-          prevClouds.map((cloud) => ({
-            ...cloud,
-            top: cloud.top + speed,
-          })).filter(cloud => cloud.top < window.innerHeight)
+            prevClouds.map((cloud) => ({
+              ...cloud,
+              top: cloud.top + speed,
+            })).filter(cloud => cloud.top < window.innerHeight)
+        );
+
+        setButterflies((prevButterflies) =>
+            prevButterflies.map((butterfly) => {
+              const newLeft = butterfly.left + (Math.sin(butterfly.top / 50) * 5); // Горизонтальний рух
+              return {
+                ...butterfly,
+                top: butterfly.top + speed,
+                left: newLeft
+              };
+            }).filter(butterfly => butterfly.top < window.innerHeight)
         );
 
         if (branches.length > 0 && branches[0].top + scrollOffset >= window.innerHeight) {
@@ -106,12 +133,14 @@ const GameArea = () => {
         if (Math.random() < 0.02) {
           setClouds((prevClouds) => [...prevClouds, ...generateRandomClouds()]);
         }
+        if (Math.random() < 0.02) {
+          setButterflies((prevButterflies) => [...prevButterflies, generateRandomButterfly()]);
+        }
       }, 50);
 
       return () => clearInterval(interval);
     }
   }, [scrollOffset, branches, speed, gameStarted, lives, lifeDeducted]);
-
 
 
   const handleTimeUp = () => {
@@ -129,31 +158,28 @@ const GameArea = () => {
     setTimeout(() => {
       const firstBranch = generateRandomBranch();
       setBranches([firstBranch]);
-
+  
       const interval = setInterval(() => {
         setBranches(prevBranches => {
           const lastBranch = prevBranches[prevBranches.length - 1];
           if (!lastBranch) return prevBranches;
-
+  
           let newBranchTop = lastBranch.top - 250;
           let newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
-
-          // Убедимся, что newBranchTop используется уникально внутри цикла
+  
           while (prevBranches.some(branch => Math.abs(newBranchTop - branch.top) < 250)) {
             newBranchTop -= 250;
           }
-
+  
           return [...prevBranches, { side: newBranchSide, top: newBranchTop }];
         });
-
+  
         if (!gameStarted) {
           clearInterval(interval);
         }
       }, 1000); // Интервал появления веток 1 секунда
     }, 1000); // Первая ветка появляется через 1 секунду после старта игры
   };
-
-
 
   const generateRandomClouds = () => {
     const cloudsArray = [];
@@ -196,40 +222,21 @@ const GameArea = () => {
       setSpeed((prevSpeed) => prevSpeed + 0.5);
       setSquirrelSide(side);
       setSquirrelTop(firstBranch.top + scrollOffset - 15);
-  
-      // Добавляем время при клике на правильную ветку
-      setTimeLeft((prevTime) => Math.min(prevTime + 1, 60)); // Максимальное значение - 60 секунд
-  
+
+      setTimeLeft((prevTime) => Math.min(prevTime + 1, 60));
+
       // Удаление первой ветки
       setBranches((prevBranches) => prevBranches.slice(1));
       setLifeDeducted(false);
     } else {
-      // Обработка неправильного клика
       setLives((prevLives) => prevLives - 1);
       if (lives - 1 <= 0) {
         alert('Game over! No more lives left.');
         resetGame();
         return;
       }
-  
-      // Белка прыгает на неправильную ветку
-      setSquirrelSide(side);
-      setSquirrelTop(top + scrollOffset - 15);
-  
-      // Удаление всех веток ниже той, на которую прыгнула белка
-      const branchIndex = branches.findIndex(branch => branch.top === top);
-      if (branchIndex !== -1) {
-        setBranches(branches.slice(branchIndex + 1));
-      }
-  
-      setLifeDeducted(false);
     }
   };
-  
-
-
-
-
 
   const resetGame = () => {
     setLives(3);
@@ -242,7 +249,6 @@ const GameArea = () => {
     setLifeDeducted(false);
     setBranches([]);
     setSquirrelSide('right');
-    setTimeLeft(30);
   };
 
   return (
@@ -308,7 +314,7 @@ const GameArea = () => {
         </div>
 
         <Lives lives={lives} />
-        <Timer timeLeft={timeLeft} /> {/* Передаем оставшееся время в таймер */}
+        <Timer timeLeft={timeLeft} />
         <Score points={points} />
 
         {clouds.map((cloud) =>
@@ -317,6 +323,14 @@ const GameArea = () => {
           ) : (
             <CloudSmall key={cloud.id} top={cloud.top} left={cloud.left} />
           )
+        )}
+
+        {butterflies.map((butterfly) =>
+            butterfly.isBlueButterfly ? (
+                <ButterflyBlue key={butterfly.id} top={butterfly.top} left={butterfly.left} />
+            ) : (
+                <ButterflyGreen key={butterfly.id} top={butterfly.top} left={butterfly.left} />
+            )
         )}
 
         <div className="branches">
@@ -328,10 +342,9 @@ const GameArea = () => {
               onClick={() => handleBranchClick(branch.side, branch.top)}
             />
           ))}
-          
+          <Squirrel position={squirrelSide} top={squirrelTop} isInGame={gameStarted} />
 
         </div>
-        <Squirrel position={squirrelSide} top={squirrelTop} isInGame={gameStarted} />
       </div>
 
       {inMenu && <Menu onClick={handleMenuClick} />}

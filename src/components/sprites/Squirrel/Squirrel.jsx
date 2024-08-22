@@ -1,5 +1,5 @@
 import React from 'react';
-import squirrelImage from '../../assets/squirt.png';
+import squirrelImage from '../../../assets/squirt.png';
 import './squirrel.scss';
 
 const Squirrel = ({ position, top, isInGame }) => {

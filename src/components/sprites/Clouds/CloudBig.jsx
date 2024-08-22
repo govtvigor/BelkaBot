@@ -1,5 +1,5 @@
 import React from 'react';
-import cloudBig from '../../assets/cloudBig.png';
+import cloudBig from '../../../assets/cloudBig.png';
 import './clouds.scss';
 
 const CloudBig = ({ top, left }) => {
