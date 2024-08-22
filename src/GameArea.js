@@ -106,7 +106,7 @@ const GameArea = () => {
         if (Math.random() < 0.02) {
           setClouds((prevClouds) => [...prevClouds, ...generateRandomClouds()]);
         }
-      }, 40);
+      }, 50);
 
       return () => clearInterval(interval);
     }
@@ -314,9 +314,10 @@ const GameArea = () => {
               onClick={() => handleBranchClick(branch.side, branch.top)}
             />
           ))}
-          <Squirrel position={squirrelSide} top={squirrelTop} isInGame={gameStarted} />
+          
 
         </div>
+        <Squirrel position={squirrelSide} top={squirrelTop} isInGame={gameStarted} />
       </div>
 
       {inMenu && <Menu onClick={handleMenuClick} />}
