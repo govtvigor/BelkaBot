@@ -190,28 +190,42 @@ const GameArea = () => {
 
   const handleBranchClick = (side, top) => {
     const firstBranch = branches[0];
-
+  
     if (firstBranch && side === firstBranch.side && Math.abs(top - firstBranch.top) < 50) {
       setPoints((prevPoints) => prevPoints + 1);
       setSpeed((prevSpeed) => prevSpeed + 0.5);
       setSquirrelSide(side);
       setSquirrelTop(firstBranch.top + scrollOffset - 15);
-
-      // Добавляем время при клике на ветку
+  
+      // Добавляем время при клике на правильную ветку
       setTimeLeft((prevTime) => Math.min(prevTime + 1, 60)); // Максимальное значение - 60 секунд
-
+  
       // Удаление первой ветки
       setBranches((prevBranches) => prevBranches.slice(1));
       setLifeDeducted(false);
     } else {
+      // Обработка неправильного клика
       setLives((prevLives) => prevLives - 1);
       if (lives - 1 <= 0) {
         alert('Game over! No more lives left.');
         resetGame();
         return;
       }
+  
+      // Белка прыгает на неправильную ветку
+      setSquirrelSide(side);
+      setSquirrelTop(top + scrollOffset - 15);
+  
+      // Удаление всех веток ниже той, на которую прыгнула белка
+      const branchIndex = branches.findIndex(branch => branch.top === top);
+      if (branchIndex !== -1) {
+        setBranches(branches.slice(branchIndex + 1));
+      }
+  
+      setLifeDeducted(false);
     }
   };
+  
 
 
 
