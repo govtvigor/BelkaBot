@@ -1,9 +1,10 @@
 import React from 'react';
+import './timer.scss';
 
-const Timer = ({ timer }) => {
+const Timer = ({ timeLeft }) => {
   return (
     <div className="timer">
-      Time left: {timer}s
+      <span>{timeLeft} s</span>
     </div>
   );
 };

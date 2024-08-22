@@ -9,9 +9,12 @@ import CloudSmall from './components/Clouds/CloudSmall';
 import mainTreeImage from './assets/mainTree.png';
 import groundTreeImage from './assets/groundTree.png';
 import startText from './assets/startText.png';
+import Timer from './components/Timer/Timer';
+
 
 const GameArea = () => {
   const [branches, setBranches] = useState([]);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [squirrelSide, setSquirrelSide] = useState('right');
   const [squirrelTop, setSquirrelTop] = useState(550);
@@ -31,21 +34,48 @@ const GameArea = () => {
 
   useEffect(() => {
     if (gameStarted) {
+      const speedInterval = setInterval(() => {
+        setSpeed((prevSpeed) => prevSpeed + 0.1); // Автоматическое увеличение скорости каждые несколько секунд
+      }, 2000); // Интервал, через который увеличивается скорость
+
+      return () => clearInterval(speedInterval);
+    }
+  }, [gameStarted]);
+
+  useEffect(() => {
+    if (gameStarted) {
+      const timerInterval = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            clearInterval(timerInterval);
+            handleTimeUp(); // Вызов функции окончания игры
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timerInterval);
+    }
+  }, [gameStarted]);
+
+  useEffect(() => {
+    if (gameStarted) {
       const interval = setInterval(() => {
         setScrollOffset((prevOffset) => prevOffset + speed);
-  
+
         setClouds((prevClouds) =>
           prevClouds.map((cloud) => ({
             ...cloud,
-            top: cloud.top + speed, 
+            top: cloud.top + speed,
           })).filter(cloud => cloud.top < window.innerHeight)
         );
-  
+
         if (branches.length > 0 && branches[0].top + scrollOffset >= window.innerHeight) {
           if (!lifeDeducted) {
             setLives((prevLives) => prevLives - 1);
             setLifeDeducted(true);
-  
+
             if (lives - 1 <= 0) {
               alert('Game over! No more lives left.');
               resetGame();
@@ -55,35 +85,39 @@ const GameArea = () => {
           setBranches((prevBranches) => prevBranches.slice(1));
           setLifeDeducted(false);
         }
-  
+
         if (branches.length > 0) {
           const lastBranch = branches[branches.length - 1];
           if (lastBranch) {
             let newBranchTop = lastBranch.top - 250;
             let newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
-  
+
             while (branches.some(branch => Math.abs(newBranchTop - branch.top) < 250)) {
               newBranchTop -= 250;
             }
-  
+
             setBranches((prevBranches) => [
               ...prevBranches,
               { side: newBranchSide, top: newBranchTop },
             ]);
           }
         }
-  
+
         if (Math.random() < 0.02) {
           setClouds((prevClouds) => [...prevClouds, ...generateRandomClouds()]);
         }
-      }, 50);
-  
+      }, 40);
+
       return () => clearInterval(interval);
     }
   }, [scrollOffset, branches, speed, gameStarted, lives, lifeDeducted]);
-  
-  
 
+
+
+  const handleTimeUp = () => {
+    alert('Time is up! Game over.');
+    resetGame();
+  };
 
   const generateRandomBranch = () => {
     const side = Math.random() > 0.5 ? 'left' : 'right';
@@ -95,30 +129,31 @@ const GameArea = () => {
     setTimeout(() => {
       const firstBranch = generateRandomBranch();
       setBranches([firstBranch]);
-  
+
       const interval = setInterval(() => {
         setBranches(prevBranches => {
           const lastBranch = prevBranches[prevBranches.length - 1];
           if (!lastBranch) return prevBranches;
-  
+
           let newBranchTop = lastBranch.top - 250;
           let newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
-  
+
+          // Убедимся, что newBranchTop используется уникально внутри цикла
           while (prevBranches.some(branch => Math.abs(newBranchTop - branch.top) < 250)) {
             newBranchTop -= 250;
           }
-  
+
           return [...prevBranches, { side: newBranchSide, top: newBranchTop }];
         });
-  
+
         if (!gameStarted) {
           clearInterval(interval);
         }
       }, 1000); // Интервал появления веток 1 секунда
     }, 1000); // Первая ветка появляется через 1 секунду после старта игры
   };
-  
-  
+
+
 
   const generateRandomClouds = () => {
     const cloudsArray = [];
@@ -155,13 +190,16 @@ const GameArea = () => {
 
   const handleBranchClick = (side, top) => {
     const firstBranch = branches[0];
-  
+
     if (firstBranch && side === firstBranch.side && Math.abs(top - firstBranch.top) < 50) {
       setPoints((prevPoints) => prevPoints + 1);
       setSpeed((prevSpeed) => prevSpeed + 0.5);
       setSquirrelSide(side);
       setSquirrelTop(firstBranch.top + scrollOffset - 15);
-  
+
+      // Добавляем время при клике на ветку
+      setTimeLeft((prevTime) => Math.min(prevTime + 1, 60)); // Максимальное значение - 60 секунд
+
       // Удаление первой ветки
       setBranches((prevBranches) => prevBranches.slice(1));
       setLifeDeducted(false);
@@ -174,9 +212,10 @@ const GameArea = () => {
       }
     }
   };
-  
-  
-  
+
+
+
+
 
   const resetGame = () => {
     setLives(3);
@@ -189,6 +228,7 @@ const GameArea = () => {
     setLifeDeducted(false);
     setBranches([]);
     setSquirrelSide('right');
+    setTimeLeft(30);
   };
 
   return (
@@ -254,6 +294,7 @@ const GameArea = () => {
         </div>
 
         <Lives lives={lives} />
+        <Timer timeLeft={timeLeft} /> {/* Передаем оставшееся время в таймер */}
         <Score points={points} />
 
         {clouds.map((cloud) =>
