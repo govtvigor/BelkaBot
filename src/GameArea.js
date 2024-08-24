@@ -38,8 +38,8 @@ const GameArea = () => {
   useEffect(() => {
     if (gameStarted) {
       const speedInterval = setInterval(() => {
-        setSpeed((prevSpeed) => prevSpeed + 0.1); // Автоматическое увеличение скорости каждые несколько секунд
-      }, 2000); // Интервал, через который увеличивается скорость
+        setSpeed((prevSpeed) => prevSpeed + 0.1);
+      }, 2000);
 
       return () => clearInterval(speedInterval);
     }
@@ -51,7 +51,7 @@ const GameArea = () => {
         setTimeLeft((prevTime) => {
           if (prevTime <= 1) {
             clearInterval(timerInterval);
-            handleTimeUp(); // Вызов функции окончания игры
+            handleTimeUp();
             return 0;
           }
           return prevTime - 1;
@@ -63,7 +63,7 @@ const GameArea = () => {
   }, [gameStarted]);
 
   const generateRandomButterfly = () => {
-    const top = -50; // Початок за межами екрану, щоб метелик летів зверху вниз
+    const top = -50;
     const left = Math.floor(Math.random() * window.innerWidth);
     const isBlueButterfly = Math.random() > 0.5;
 
@@ -89,7 +89,7 @@ const GameArea = () => {
 
         setButterflies((prevButterflies) =>
             prevButterflies.map((butterfly) => {
-              const newLeft = butterfly.left + (Math.sin(butterfly.top / 50) * 5); // Горизонтальний рух
+              const newLeft = butterfly.left + (Math.sin(butterfly.top / 50) * 5);
               return {
                 ...butterfly,
                 top: butterfly.top + speed,
@@ -113,6 +113,7 @@ const GameArea = () => {
           setLifeDeducted(false);
         }
 
+        // Логіка для генерації нових гілок
         if (branches.length > 0) {
           const lastBranch = branches[branches.length - 1];
           if (lastBranch) {
@@ -142,7 +143,6 @@ const GameArea = () => {
     }
   }, [scrollOffset, branches, speed, gameStarted, lives, lifeDeducted]);
 
-
   const handleTimeUp = () => {
     alert('Time is up! Game over.');
     resetGame();
@@ -158,22 +158,22 @@ const GameArea = () => {
     setTimeout(() => {
       const firstBranch = generateRandomBranch();
       setBranches([firstBranch]);
-  
+
       const interval = setInterval(() => {
         setBranches(prevBranches => {
           const lastBranch = prevBranches[prevBranches.length - 1];
           if (!lastBranch) return prevBranches;
-  
+
           let newBranchTop = lastBranch.top - 250;
           let newBranchSide = Math.random() > 0.5 ? 'left' : 'right';
-  
+
           while (prevBranches.some(branch => Math.abs(newBranchTop - branch.top) < 250)) {
             newBranchTop -= 250;
           }
-  
+
           return [...prevBranches, { side: newBranchSide, top: newBranchTop }];
         });
-  
+
         if (!gameStarted) {
           clearInterval(interval);
         }
@@ -197,6 +197,7 @@ const GameArea = () => {
     }
     return cloudsArray;
   };
+
   const handleScreenClick = () => {
     if (!gameStarted && !isMenuClick) {
       setInMenu(false);
@@ -216,7 +217,7 @@ const GameArea = () => {
 
   const handleBranchClick = (side, top) => {
     const firstBranch = branches[0];
-  
+
     if (firstBranch && side === firstBranch.side && Math.abs(top - firstBranch.top) < 50) {
       setPoints((prevPoints) => prevPoints + 1);
       setSpeed((prevSpeed) => prevSpeed + 0.5);
