@@ -250,6 +250,7 @@ const GameArea = () => {
     setLifeDeducted(false);
     setBranches([]);
     setSquirrelSide('right');
+    setTimeLeft(30);
   };
 
   return (
@@ -343,7 +344,10 @@ const GameArea = () => {
               onClick={() => handleBranchClick(branch.side, branch.top)}
             />
           ))}
-          <Squirrel position={squirrelSide} top={squirrelTop} isInGame={gameStarted} />
+          <div className="squirrel-container">
+            <Squirrel position={squirrelSide}  isInGame={gameStarted} />
+          </div>
+          
 
         </div>
       </div>

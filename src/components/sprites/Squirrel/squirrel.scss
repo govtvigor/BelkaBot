@@ -1,26 +1,30 @@
 .squirrel {
-    width: 50px;
     height: auto;
     position: absolute;
     transition: top 1s ease-out, transform 0.5s ease;
 }
 
-.squirrel.left {
-    left: 20%;
-    transform: translate(-50px, -100px);
+.squirrel.in-game {
+    transition: top 1s ease-out; 
 }
-
-.squirrel.right {
-    right: 20%;
-    transform: translate(50px, -100px);
+.squirrel-container {
+    width: 100%;
+    position: relative;
+    height: 100vh;
+    z-index: -1;
 }
 
 
 .squirrel img {
     width: 90px;
     height: auto;
-
 }
-.game-area .game-mode .squirrel {
-    top: 90%;
-}
+.squirrel.left {
+    left: 15%; 
+    transform: translateX(-50%) scaleX(1); 
+  }
+  
+  .squirrel.right {
+    right: 15%; 
+    transform: translateX(50%) scaleX(-1); 
+  }
