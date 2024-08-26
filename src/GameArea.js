@@ -12,6 +12,7 @@ import mainTreeImage from './assets/mainTree.png';
 import groundTreeImage from './assets/groundTree.png';
 import startText from './assets/startText.png';
 import Timer from './components/Timer/Timer';
+import Bonus from './components/sprites/Bonus/Bonus';
 
 
 const GameArea = () => {
@@ -29,6 +30,11 @@ const GameArea = () => {
   const [isMenuClick, setIsMenuClick] = useState(false);
   const [clouds, setClouds] = useState([]);
   const [butterflies, setButterflies] = useState([]);
+  const [bonusActive, setBonusActive] = useState(false); // Новый стейт для бонуса
+  const [bonusPosition, setBonusPosition] = useState(null); // Позиция бонуса на ветке
+  const [bonusTimer, setBonusTimer] = useState(0); // Таймер для x2 бонуса
+  const [bonuses, setBonuses] = useState([]);
+
 
   useEffect(() => {
     const initialClouds = generateRandomClouds();
@@ -81,21 +87,21 @@ const GameArea = () => {
         setScrollOffset((prevOffset) => prevOffset + speed);
 
         setClouds((prevClouds) =>
-            prevClouds.map((cloud) => ({
-              ...cloud,
-              top: cloud.top + speed,
-            })).filter(cloud => cloud.top < window.innerHeight)
+          prevClouds.map((cloud) => ({
+            ...cloud,
+            top: cloud.top + speed,
+          })).filter(cloud => cloud.top < window.innerHeight)
         );
 
         setButterflies((prevButterflies) =>
-            prevButterflies.map((butterfly) => {
-              const newLeft = butterfly.left + (Math.sin(butterfly.top / 50) * 5);
-              return {
-                ...butterfly,
-                top: butterfly.top + speed,
-                left: newLeft
-              };
-            }).filter(butterfly => butterfly.top < window.innerHeight)
+          prevButterflies.map((butterfly) => {
+            const newLeft = butterfly.left + (Math.sin(butterfly.top / 50) * 5);
+            return {
+              ...butterfly,
+              top: butterfly.top + speed,
+              left: newLeft
+            };
+          }).filter(butterfly => butterfly.top < window.innerHeight)
         );
 
         if (branches.length > 0 && branches[0].top + scrollOffset >= window.innerHeight) {
@@ -113,7 +119,6 @@ const GameArea = () => {
           setLifeDeducted(false);
         }
 
-        // Логіка для генерації нових гілок
         if (branches.length > 0) {
           const lastBranch = branches[branches.length - 1];
           if (lastBranch) {
@@ -128,6 +133,12 @@ const GameArea = () => {
               ...prevBranches,
               { side: newBranchSide, top: newBranchTop },
             ]);
+
+            // Проверка и добавление бонуса каждые 15 веток
+            if ((branches.length + 1) % 15 === 0) {
+              setBonuses(prevBonuses => [...prevBonuses, { top: newBranchTop, side: newBranchSide }]);
+              console.log(`Бонус добавлен на ветку ${branches.length + 1}`);
+            }
           }
         }
 
@@ -137,11 +148,32 @@ const GameArea = () => {
         if (Math.random() < 0.02) {
           setButterflies((prevButterflies) => [...prevButterflies, generateRandomButterfly()]);
         }
+
+        if (bonusActive) {
+          setBonusTimer((prevTimer) => {
+            if (prevTimer > 1) {
+              return prevTimer - 1;
+            } else {
+              setBonusActive(false);
+              return 0;
+            }
+          });
+        }
       }, 50);
 
       return () => clearInterval(interval);
     }
-  }, [scrollOffset, branches, speed, gameStarted, lives, lifeDeducted]);
+  }, [scrollOffset, branches, speed, gameStarted, lives, lifeDeducted, bonusActive]);
+
+
+
+
+
+
+
+
+
+
 
   const handleTimeUp = () => {
     alert('Time is up! Game over.');
@@ -217,32 +249,37 @@ const GameArea = () => {
 
   const handleBranchClick = (side, top) => {
     const firstBranch = branches[0];
-  
+
     if (firstBranch && side === firstBranch.side && Math.abs(top - firstBranch.top) < 50) {
-      // Игрок нажал на правильную ветку
-      setPoints((prevPoints) => prevPoints + 1);
+      const pointsToAdd = bonusActive ? 2 : 1; // Удвоенные очки при активном бонусе
+      setPoints((prevPoints) => prevPoints + pointsToAdd);
       setSpeed((prevSpeed) => prevSpeed + 0.5);
       setSquirrelSide(side);
       setSquirrelTop(firstBranch.top + scrollOffset - 15);
-  
+
       setTimeLeft((prevTime) => Math.min(prevTime + 1, 60));
-  
+
+      // Проверка на сбор бонуса
+      if (bonuses.some(bonus => Math.abs(top - bonus.top) < 50 && side === bonus.side)) {
+        setBonusActive(true);
+        setBonusTimer(10); // Активировать бонус на 10 секунд
+        setBonuses(prevBonuses => prevBonuses.filter(bonus => !(Math.abs(top - bonus.top) < 50 && side === bonus.side)));
+      }
+
       // Удаление первой ветки
       setBranches((prevBranches) => prevBranches.slice(1));
       setLifeDeducted(false);
     } else {
-      // Игрок нажал на неправильную ветку
       setLives((prevLives) => prevLives - 1);
       setSquirrelSide(side);
       setSquirrelTop(top + scrollOffset - 15);
-  
-      // Удаление всех веток ниже выбранной ветки
+
       setBranches((prevBranches) =>
         prevBranches.filter((branch) => branch.top + scrollOffset < top + scrollOffset)
       );
-  
+
       setLifeDeducted(false);
-  
+
       if (lives - 1 <= 0) {
         alert('Game over! No more lives left.');
         resetGame();
@@ -250,7 +287,11 @@ const GameArea = () => {
       }
     }
   };
-  
+
+
+
+
+
 
   const resetGame = () => {
     setLives(3);
@@ -341,11 +382,11 @@ const GameArea = () => {
         )}
 
         {butterflies.map((butterfly) =>
-            butterfly.isBlueButterfly ? (
-                <ButterflyBlue key={butterfly.id} top={butterfly.top} left={butterfly.left} />
-            ) : (
-                <ButterflyGreen key={butterfly.id} top={butterfly.top} left={butterfly.left} />
-            )
+          butterfly.isBlueButterfly ? (
+            <ButterflyBlue key={butterfly.id} top={butterfly.top} left={butterfly.left} />
+          ) : (
+            <ButterflyGreen key={butterfly.id} top={butterfly.top} left={butterfly.left} />
+          )
         )}
 
         <div className="branches">
@@ -357,12 +398,27 @@ const GameArea = () => {
               onClick={() => handleBranchClick(branch.side, branch.top)}
             />
           ))}
-          
-            <Squirrel position={squirrelSide}  isInGame={gameStarted} />
-          
-          
 
+          {bonuses.map((bonus, index) => (
+            <Bonus
+              key={index}
+              top={bonus.top + scrollOffset}
+              left={bonus.side === 'left' ? '15%' : '85%'}
+            />
+          ))}
+
+          <Squirrel position={squirrelSide} isInGame={gameStarted} />
         </div>
+
+
+
+
+
+
+
+
+
+
       </div>
 
       {inMenu && <Menu onClick={handleMenuClick} />}

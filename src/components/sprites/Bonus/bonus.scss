@@ -1,0 +1,15 @@
+.bonus {
+    position: absolute;
+    width: 100px; 
+    height: 100px;
+    transition: transform 0.5s ease;
+    pointer-events: none; 
+    z-index: 20;
+  }
+  
+  .bonus img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  
