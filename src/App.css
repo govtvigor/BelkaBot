@@ -19,7 +19,7 @@
     background: #00bfff;
 }
 
-.score, .lives, .timer {
+.score, .lives {
     margin: 10px;
     font-size: 1.5em;
 }

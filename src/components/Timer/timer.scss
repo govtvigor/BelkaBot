@@ -1,13 +1,29 @@
 .timer {
-    position: absolute;
-    top: 40px; /* Под иконкой жизней */
-    left: 10px;
-    font-size: 24px;
-    font-weight: bold;
-    color: white;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 5px 10px;
-    border-radius: 5px;
-    text-align: center;
-  }
-  
+  position: absolute;
+  top: 50px; /* Под иконкой жизней */
+  left: 10px;
+  font-size: 18px;
+  color: #0f0;
+  background-color: #1c1c1c; /* Темно-серый фон для контраста */
+  padding: 5px 10px; /* Уменьшенный паддинг для более компактного вида */
+  border-radius: 8px; /* Слегка скругленные углы */
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8); /* Увеличена тень для большего объема */
+  border: 4px solid rgb(11, 101, 11);
+  font-family: 'Press Start 2P', sans-serif; /* Ретро-шрифт */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// /* Дополнительный стиль для текста таймера */
+// .timer-text {
+//   display: block;
+//   animation: blink-animation 1s steps(5, start) infinite; /* Мерцание текста */
+// }
+
+// @keyframes blink-animation {
+//   to {
+//     visibility: hidden;
+//   }
+// }

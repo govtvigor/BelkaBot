@@ -217,20 +217,32 @@ const GameArea = () => {
 
   const handleBranchClick = (side, top) => {
     const firstBranch = branches[0];
-
+  
     if (firstBranch && side === firstBranch.side && Math.abs(top - firstBranch.top) < 50) {
+      // Игрок нажал на правильную ветку
       setPoints((prevPoints) => prevPoints + 1);
       setSpeed((prevSpeed) => prevSpeed + 0.5);
       setSquirrelSide(side);
       setSquirrelTop(firstBranch.top + scrollOffset - 15);
-
+  
       setTimeLeft((prevTime) => Math.min(prevTime + 1, 60));
-
+  
       // Удаление первой ветки
       setBranches((prevBranches) => prevBranches.slice(1));
       setLifeDeducted(false);
     } else {
+      // Игрок нажал на неправильную ветку
       setLives((prevLives) => prevLives - 1);
+      setSquirrelSide(side);
+      setSquirrelTop(top + scrollOffset - 15);
+  
+      // Удаление всех веток ниже выбранной ветки
+      setBranches((prevBranches) =>
+        prevBranches.filter((branch) => branch.top + scrollOffset < top + scrollOffset)
+      );
+  
+      setLifeDeducted(false);
+  
       if (lives - 1 <= 0) {
         alert('Game over! No more lives left.');
         resetGame();
@@ -238,6 +250,7 @@ const GameArea = () => {
       }
     }
   };
+  
 
   const resetGame = () => {
     setLives(3);
@@ -344,9 +357,9 @@ const GameArea = () => {
               onClick={() => handleBranchClick(branch.side, branch.top)}
             />
           ))}
-          <div className="squirrel-container">
+          
             <Squirrel position={squirrelSide}  isInGame={gameStarted} />
-          </div>
+          
           
 
         </div>
