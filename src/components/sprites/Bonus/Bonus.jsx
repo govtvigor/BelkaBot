@@ -1,7 +1,5 @@
-
-
 import React from 'react';
-import bonusImage from '../../../assets/nut.png';
+import bonusImage from '../../../assets/bonus.png';
 import './bonus.scss';
 
 const Bonus = ({ top, left }) => {

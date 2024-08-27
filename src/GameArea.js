@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Squirrel from './components/sprites/Squirrel/Squirrel';
 import Branch from './components/Branch/Branch';
 import Score from './components/Score/Score';
@@ -30,10 +30,12 @@ const GameArea = () => {
   const [isMenuClick, setIsMenuClick] = useState(false);
   const [clouds, setClouds] = useState([]);
   const [butterflies, setButterflies] = useState([]);
-  const [bonusActive, setBonusActive] = useState(false); // Новый стейт для бонуса
-  const [bonusPosition, setBonusPosition] = useState(null); // Позиция бонуса на ветке
-  const [bonusTimer, setBonusTimer] = useState(0); // Таймер для x2 бонуса
+  const [bonusActive, setBonusActive] = useState(false); 
+  const [bonusTimer, setBonusTimer] = useState(0); 
   const [bonuses, setBonuses] = useState([]);
+  const bonusTimeoutRef = useRef(null);
+  const bonusActiveRef = useRef(false); 
+
 
 
   useEffect(() => {
@@ -80,6 +82,36 @@ const GameArea = () => {
       isBlueButterfly,
     };
   };
+
+  const handleBonusActivation = () => {
+    console.log('Bonus started!');
+    setBonusActive(true);
+    bonusActiveRef.current = true;
+
+    if (bonusTimeoutRef.current) {
+      clearTimeout(bonusTimeoutRef.current);
+    }
+
+    bonusTimeoutRef.current = setTimeout(() => {
+      setBonusActive(false);
+      bonusActiveRef.current = false; 
+      console.log('Bonus ended');
+    }, 5000); 
+  };
+
+
+ 
+  useEffect(() => {
+    return () => {
+      
+      if (bonusTimeoutRef.current) {
+        console.log('Cleaning up bonus timeout');
+        clearTimeout(bonusTimeoutRef.current);
+        bonusTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
 
   useEffect(() => {
     if (gameStarted) {
@@ -166,15 +198,6 @@ const GameArea = () => {
   }, [scrollOffset, branches, speed, gameStarted, lives, lifeDeducted, bonusActive]);
 
 
-
-
-
-
-
-
-
-
-
   const handleTimeUp = () => {
     alert('Time is up! Game over.');
     resetGame();
@@ -251,25 +274,36 @@ const GameArea = () => {
     const firstBranch = branches[0];
 
     if (firstBranch && side === firstBranch.side && Math.abs(top - firstBranch.top) < 50) {
-      const pointsToAdd = bonusActive ? 2 : 1; // Удвоенные очки при активном бонусе
-      setPoints((prevPoints) => prevPoints + pointsToAdd);
+      
+      const collectedBonusIndex = bonuses.findIndex(
+        (bonus) => Math.abs(top - bonus.top) < 50 && side === bonus.side
+      );
+
+      if (collectedBonusIndex !== -1) {
+        handleBonusActivation();
+        console.log("Bonus collected! Bonus timer set to 5 seconds.");
+        setBonuses((prevBonuses) =>
+          prevBonuses.filter((_, index) => index !== collectedBonusIndex)
+        );
+      }
+
+     
+      setPoints((prevPoints) => {
+        const pointsToAdd = bonusActiveRef.current ? 2 : 1; 
+        return prevPoints + pointsToAdd;
+      });
+
       setSpeed((prevSpeed) => prevSpeed + 0.5);
       setSquirrelSide(side);
       setSquirrelTop(firstBranch.top + scrollOffset - 15);
 
       setTimeLeft((prevTime) => Math.min(prevTime + 1, 60));
 
-      // Проверка на сбор бонуса
-      if (bonuses.some(bonus => Math.abs(top - bonus.top) < 50 && side === bonus.side)) {
-        setBonusActive(true);
-        setBonusTimer(10); // Активировать бонус на 10 секунд
-        setBonuses(prevBonuses => prevBonuses.filter(bonus => !(Math.abs(top - bonus.top) < 50 && side === bonus.side)));
-      }
-
-      // Удаление первой ветки
+      // Remove the first branch after successful jump
       setBranches((prevBranches) => prevBranches.slice(1));
       setLifeDeducted(false);
     } else {
+      // Incorrect jump handling
       setLives((prevLives) => prevLives - 1);
       setSquirrelSide(side);
       setSquirrelTop(top + scrollOffset - 15);
@@ -281,7 +315,7 @@ const GameArea = () => {
       setLifeDeducted(false);
 
       if (lives - 1 <= 0) {
-        alert('Game over! No more lives left.');
+        alert("Game over! No more lives left.");
         resetGame();
         return;
       }
@@ -403,21 +437,13 @@ const GameArea = () => {
             <Bonus
               key={index}
               top={bonus.top + scrollOffset}
-              left={bonus.side === 'left' ? '15%' : '85%'}
+              left={bonus.side === 'left' ? '5%' : '55%'}
             />
           ))}
 
           <Squirrel position={squirrelSide} isInGame={gameStarted} />
+
         </div>
-
-
-
-
-
-
-
-
-
 
       </div>
 
