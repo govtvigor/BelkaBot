@@ -46,7 +46,7 @@ const GameArea = () => {
   useEffect(() => {
     if (gameStarted) {
       const speedInterval = setInterval(() => {
-        setSpeed((prevSpeed) => Math.min(prevSpeed + 0.2, 40));
+        setSpeed((prevSpeed) => Math.min(prevSpeed + 0.1, 40));
       }, 2000);
 
       return () => clearInterval(speedInterval);
