@@ -30,11 +30,11 @@ const GameArea = () => {
   const [isMenuClick, setIsMenuClick] = useState(false);
   const [clouds, setClouds] = useState([]);
   const [butterflies, setButterflies] = useState([]);
-  const [bonusActive, setBonusActive] = useState(false); 
-  const [bonusTimer, setBonusTimer] = useState(0); 
+  const [bonusActive, setBonusActive] = useState(false);
+  const [bonusTimer, setBonusTimer] = useState(0);
   const [bonuses, setBonuses] = useState([]);
   const bonusTimeoutRef = useRef(null);
-  const bonusActiveRef = useRef(false); 
+  const bonusActiveRef = useRef(false);
 
 
 
@@ -46,12 +46,13 @@ const GameArea = () => {
   useEffect(() => {
     if (gameStarted) {
       const speedInterval = setInterval(() => {
-        setSpeed((prevSpeed) => prevSpeed + 0.1);
+        setSpeed((prevSpeed) => Math.min(prevSpeed + 0.2, 40));
       }, 2000);
 
       return () => clearInterval(speedInterval);
     }
   }, [gameStarted]);
+
 
   useEffect(() => {
     if (gameStarted) {
@@ -84,28 +85,32 @@ const GameArea = () => {
   };
 
   const handleBonusActivation = () => {
-    console.log('Bonus started!');
     setBonusActive(true);
     bonusActiveRef.current = true;
-
     if (bonusTimeoutRef.current) {
       clearTimeout(bonusTimeoutRef.current);
     }
 
     bonusTimeoutRef.current = setTimeout(() => {
       setBonusActive(false);
-      bonusActiveRef.current = false; 
-      console.log('Bonus ended');
-    }, 5000); 
+      bonusActiveRef.current = false;
+    }, 5000);
   };
 
+  useEffect(() => {
+    if (points > 0) {
+      const baseIncrement = 1;
+      const decrement = Math.floor(points / 50) * 0.1;
+      const timeIncrement = Math.max(baseIncrement - decrement, 0.1);
+      setTimeLeft((prevTime) => Math.min(prevTime + timeIncrement, 60));
+    }
+  }, [points]);
 
- 
+
   useEffect(() => {
     return () => {
-      
+
       if (bonusTimeoutRef.current) {
-        console.log('Cleaning up bonus timeout');
         clearTimeout(bonusTimeoutRef.current);
         bonusTimeoutRef.current = null;
       }
@@ -166,10 +171,10 @@ const GameArea = () => {
               { side: newBranchSide, top: newBranchTop },
             ]);
 
-            // Проверка и добавление бонуса каждые 15 веток
+            
             if ((branches.length + 1) % 15 === 0) {
               setBonuses(prevBonuses => [...prevBonuses, { top: newBranchTop, side: newBranchSide }]);
-              console.log(`Бонус добавлен на ветку ${branches.length + 1}`);
+              
             }
           }
         }
@@ -205,7 +210,7 @@ const GameArea = () => {
 
   const generateRandomBranch = () => {
     const side = Math.random() > 0.5 ? 'left' : 'right';
-    const top = -50; // Ветка появляется за пределами экрана сверху
+    const top = -50; 
     return { side, top };
   };
 
@@ -232,8 +237,8 @@ const GameArea = () => {
         if (!gameStarted) {
           clearInterval(interval);
         }
-      }, 1000); // Интервал появления веток 1 секунда
-    }, 1000); // Первая ветка появляется через 1 секунду после старта игры
+      }, 1000); 
+    }, 1000); 
   };
 
   const generateRandomClouds = () => {
@@ -258,7 +263,7 @@ const GameArea = () => {
       setInMenu(false);
       setTimeout(() => {
         setGameStarted(true);
-        startBranchGeneration(); // Начинаем генерацию веток через 1 секунду
+        startBranchGeneration(); 
       }, 1000);
       return;
     }
@@ -281,39 +286,33 @@ const GameArea = () => {
 
       if (collectedBonusIndex !== -1) {
         handleBonusActivation();
-        console.log("Bonus collected! Bonus timer set to 5 seconds.");
         setBonuses((prevBonuses) =>
           prevBonuses.filter((_, index) => index !== collectedBonusIndex)
         );
       }
 
-     
       setPoints((prevPoints) => {
-        const pointsToAdd = bonusActiveRef.current ? 2 : 1; 
-        return prevPoints + pointsToAdd;
+        const pointsToAdd = bonusActiveRef.current ? 2 : 1;
+        const newPoints = prevPoints + pointsToAdd;
+        return newPoints;
       });
 
-      setSpeed((prevSpeed) => prevSpeed + 0.5);
+     
+      setSpeed((prevSpeed) => Math.min(prevSpeed + 0.4, 40)); 
+      
       setSquirrelSide(side);
       setSquirrelTop(firstBranch.top + scrollOffset - 15);
-
-      setTimeLeft((prevTime) => Math.min(prevTime + 1, 60));
-
-      // Remove the first branch after successful jump
       setBranches((prevBranches) => prevBranches.slice(1));
       setLifeDeducted(false);
     } else {
-      // Incorrect jump handling
+     
       setLives((prevLives) => prevLives - 1);
       setSquirrelSide(side);
       setSquirrelTop(top + scrollOffset - 15);
-
       setBranches((prevBranches) =>
         prevBranches.filter((branch) => branch.top + scrollOffset < top + scrollOffset)
       );
-
       setLifeDeducted(false);
-
       if (lives - 1 <= 0) {
         alert("Game over! No more lives left.");
         resetGame();
@@ -321,11 +320,6 @@ const GameArea = () => {
       }
     }
   };
-
-
-
-
-
 
   const resetGame = () => {
     setLives(3);
@@ -436,8 +430,8 @@ const GameArea = () => {
           {bonuses.map((bonus, index) => (
             <Bonus
               key={index}
-              top={bonus.top + scrollOffset}
-              left={bonus.side === 'left' ? '5%' : '55%'}
+              top={bonus.top + scrollOffset - 15}
+              left={bonus.side === 'left' ? '5%' : '45%'}
             />
           ))}
 

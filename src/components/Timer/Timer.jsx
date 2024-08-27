@@ -4,7 +4,7 @@ import './timer.scss';
 const Timer = ({ timeLeft }) => {
   return (
     <div className="timer">
-      <span className="timer-text">{timeLeft}s</span>
+      <span className="timer-text">{Math.floor(timeLeft)}s</span>
     </div>
   );
 };
