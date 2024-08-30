@@ -1,5 +1,3 @@
-// src/hooks/useGameLogic.ts
-
 import { useReducer, useEffect, useRef, useCallback } from 'react';
 import { gameReducer, initialState } from '../reducers/gameReducer';
 import {
@@ -11,50 +9,77 @@ import {
   setSquirrelSide,
   addBranch,
   removeBranch,
-  updateScrollOffset
+  updateScrollOffset,
+  setLifeDeducted,
+  bonusActive,
+  setSquirrelTop,
 } from '../actions/gameActions';
+import { useButterflies } from './useButterflies';
+import { useClouds } from './useClouds';
 
 export const useGameLogic = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const animationFrameId = useRef<number | null>(null);
+  const lastFrameTime = useRef<number>(0); // Зберігаємо час останнього кадру
   const bonusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const bonusActiveRef = useRef(false);
-  const shouldAddBranchRef = useRef<boolean>(true); // Флаг для контроля генерации веток
+  const shouldAddBranchRef = useRef<boolean>(true);
 
+  const { butterflies, updateButterflies } = useButterflies(state.gameStarted);
+  const { clouds, updateClouds } = useClouds(state.gameStarted);
+
+  // Генерація початкових 10 гілок
   const generateInitialBranches = () => {
-    dispatch(addBranch({ side: 'left', top: window.innerHeight - 150 }));
-    for (let i = 1; i < 100; i++) {
+    for (let i = 0; i < 10; i++) {
       const newBranchSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
       const newBranchTop = window.innerHeight - 150 - i * 150;
       dispatch(addBranch({ side: newBranchSide, top: newBranchTop }));
     }
   };
 
-  useEffect(() => {
-    if (state.gameStarted) {
-      generateInitialBranches();
-
-      const gameLoop = () => {
-        // Обновление смещения вниз
-        if (state.scrollOffset > 0) {
-          dispatch(updateScrollOffset(state.scrollOffset - 1));
+  // Оптимізований цикл анімації з використанням requestAnimationFrame
+  const gameLoop = useCallback(
+      (currentTime: number) => {
+        if (!lastFrameTime.current) {
+          lastFrameTime.current = currentTime;
         }
 
-        // Удаляем ветку, если она вышла за пределы экрана
-        if (state.branches.length > 0 && state.branches[0].top + state.scrollOffset > window.innerHeight) {
-          dispatch(removeBranch());
-          shouldAddBranchRef.current = true; // Устанавливаем флаг для добавления новой ветки
-        }
+        const deltaTime = currentTime - lastFrameTime.current; // Час, що пройшов між кадрами
+        if (deltaTime >= 16) { // Оновлення кожні ~16 мс для 60 FPS
+          lastFrameTime.current = currentTime;
 
-        // Добавляем новую ветку, если предыдущая была удалена и флаг установлен
-        if (shouldAddBranchRef.current && state.branches.length > 0 && state.branches[state.branches.length - 1].top + state.scrollOffset < window.innerHeight) {
-          shouldAddBranchRef.current = false; // Сбрасываем флаг после добавления новой ветки
-          const newBranchSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
-          dispatch(addBranch({ side: newBranchSide, top: -150 })); // Добавляем новую ветку сверху экрана
+          // Оновлюємо хмари та метеликів
+          updateClouds();
+          updateButterflies();
+
+          // Видалення гілок, що вийшли за межі екрана
+          if (state.branches.length > 0 && state.branches[0].top + state.scrollOffset > window.innerHeight) {
+            dispatch(removeBranch());
+            shouldAddBranchRef.current = true;
+          }
+
+          // Додаємо нові гілки, якщо необхідно
+          if (shouldAddBranchRef.current && state.branches.length > 0 && state.branches[state.branches.length - 1].top + state.scrollOffset < window.innerHeight) {
+            shouldAddBranchRef.current = false;
+            const newBranchSide: 'left' | 'right' = state.branches[state.branches.length - 1].side === 'left' ? 'right' : 'left'; // Чередуємо сторону
+            const newBranchTop = state.branches[state.branches.length - 1].top - 150;
+            dispatch(addBranch({ side: newBranchSide, top: newBranchTop }));
+          }
+
+          // Оновлюємо положення камери та білки
+          if (state.scrollOffset > 0) {
+            dispatch(updateScrollOffset(state.scrollOffset - 2)); // Плавне прокручування
+          }
         }
 
         animationFrameId.current = requestAnimationFrame(gameLoop);
-      };
+      },
+      [state.branches, state.scrollOffset, updateClouds, updateButterflies]
+  );
+
+  useEffect(() => {
+    if (state.gameStarted) {
+      generateInitialBranches();
 
       animationFrameId.current = requestAnimationFrame(gameLoop);
 
@@ -64,8 +89,9 @@ export const useGameLogic = () => {
         }
       };
     }
-  }, [state.gameStarted]); // Минимальные зависимости, чтобы избежать лишних рендеров
+  }, [state.gameStarted, gameLoop]);
 
+  // Таймер гри
   useEffect(() => {
     if (state.gameStarted) {
       const timerInterval = setInterval(() => {
@@ -81,47 +107,52 @@ export const useGameLogic = () => {
   };
 
   const handleBranchClick = useCallback(
-    (side: 'left' | 'right', top: number) => {
-      // Получаем индекс самой нижней ветки, видимой на экране
-      const bottomBranchIndex = state.branches.findIndex(
-        (branch) => branch.top + state.scrollOffset >= window.innerHeight - 150
-      );
+      (side: 'left' | 'right', top: number) => {
+        const clickedBranchIndex = state.branches.findIndex(
+            (branch) => branch.side === side && Math.abs(branch.top - top) < 50
+        );
 
-      if (
-        bottomBranchIndex !== -1 &&
-        side === state.branches[bottomBranchIndex].side &&
-        Math.abs(state.branches[bottomBranchIndex].top - top) < 50
-      ) {
-        dispatch(addPoints(bonusActiveRef.current ? 2 : 1));
-        dispatch(setSquirrelSide(side));
+        if (clickedBranchIndex !== -1) {
+          dispatch(addPoints(bonusActiveRef.current ? 2 : 1));
+          dispatch(setSquirrelSide(side));
 
-        // Смещаем дерево и ветки вниз
-        dispatch(updateScrollOffset(state.scrollOffset + 150));
+          const targetBranch = state.branches[clickedBranchIndex];
+          const newScrollOffset = state.scrollOffset + (window.innerHeight - targetBranch.top);
 
-        // Удаляем ветку, если она была достигнута белкой
-        if (bottomBranchIndex === 0) {
+          dispatch(updateScrollOffset(newScrollOffset));
+          dispatch(setSquirrelTop(targetBranch.top)); // Оновлюємо позицію білки
+
+          // Видаляємо гілку, на яку білка стрибнула
           dispatch(removeBranch());
-          shouldAddBranchRef.current = true; // Устанавливаем флаг для добавления новой ветки
+          shouldAddBranchRef.current = true;
+
+          // Додаємо нові гілки по мірі проходження
+          if (state.branches.length < 20 && shouldAddBranchRef.current) {
+            shouldAddBranchRef.current = false;
+            for (let i = 0; i < 10; i++) {
+              const newBranchSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
+              const newBranchTop = state.branches[state.branches.length - 1].top - (i + 1) * 150;
+              dispatch(addBranch({ side: newBranchSide, top: newBranchTop }));
+            }
+          }
+        } else {
+          dispatch(deductLife());
+          if (state.lives - 1 <= 0) {
+            alert('Game over! No more lives left.');
+            dispatch(resetGame());
+          }
         }
-      } else {
-        // Если игрок кликнул не на правильную ветку, отнимаем жизнь
-        dispatch(deductLife());
-        if (state.lives - 1 <= 0) {
-          alert('Game over! No more lives left.');
-          dispatch(resetGame());
-        }
-      }
-    },
-    [state.branches, state.scrollOffset, state.lives] // Добавляем правильные зависимости
+      },
+      [state.branches, state.scrollOffset, state.lives]
   );
 
   const handleBonusActivation = useCallback(() => {
-    dispatch({ type: 'BONUS_ACTIVE', payload: true });
+    dispatch(bonusActive(true));
     bonusActiveRef.current = true;
     if (bonusTimeoutRef.current) clearTimeout(bonusTimeoutRef.current);
 
     bonusTimeoutRef.current = setTimeout(() => {
-      dispatch({ type: 'BONUS_ACTIVE', payload: false });
+      dispatch(bonusActive(false));
       bonusActiveRef.current = false;
     }, 5000);
   }, []);
@@ -136,10 +167,12 @@ export const useGameLogic = () => {
 
   return {
     state,
+    butterflies,
+    clouds,
     handleGameStart,
     handleBranchClick,
     handleBonusActivation,
-    handlePointsAddition, 
+    handlePointsAddition,
     resetGame: resetGameHandler,
   };
 };

@@ -1,5 +1,21 @@
 // src/reducers/gameReducer.ts
 
+import {
+  addBranch,
+  addPoints,
+  bonusActive,
+  decreaseTime,
+  deductLife,
+  removeBranch,
+  resetGame,
+  setLifeDeducted,
+  setMenu,
+  setSquirrelSide, setSquirrelTop,
+  startGame,
+  updateScrollOffset,
+  updateSpeed,
+} from "../actions/gameActions";
+
 export interface Branch {
   side: 'left' | 'right';
   top: number;
@@ -23,6 +39,7 @@ export interface GameState {
   scrollOffset: number;
   bonuses: Bonus[];
   lifeDeducted: boolean;
+  squirrelTop: number;
 }
 
 export const initialState: GameState = {
@@ -38,22 +55,24 @@ export const initialState: GameState = {
   scrollOffset: 0,
   bonuses: [],
   lifeDeducted: false,
+  squirrelTop: 500,
 };
 
 export type GameAction =
-  | { type: 'START_GAME' }
-  | { type: 'UPDATE_SPEED' }
-  | { type: 'DECREASE_TIME' }
-  | { type: 'RESET_GAME' }
-  | { type: 'DEDUCT_LIFE' }
-  | { type: 'ADD_POINTS'; payload: number }
-  | { type: 'BONUS_ACTIVE'; payload: boolean }
-  | { type: 'SET_MENU'; payload: boolean }
-  | { type: 'SET_SQUIRREL_SIDE'; payload: 'left' | 'right' }
-  | { type: 'ADD_BRANCH'; payload: Branch }
-  | { type: 'REMOVE_BRANCH' }
-  | { type: 'UPDATE_SCROLL_OFFSET'; payload: number }
-  | { type: 'SET_LIFE_DEDUCTED'; payload: boolean };
+    | ReturnType<typeof startGame>
+    | ReturnType<typeof updateSpeed>
+    | ReturnType<typeof decreaseTime>
+    | ReturnType<typeof resetGame>
+    | ReturnType<typeof deductLife>
+    | ReturnType<typeof addPoints>
+    | ReturnType<typeof bonusActive>
+    | ReturnType<typeof setMenu>
+    | ReturnType<typeof setSquirrelSide>
+    | ReturnType<typeof addBranch>
+    | ReturnType<typeof removeBranch>
+    | ReturnType<typeof updateScrollOffset>
+    | ReturnType<typeof setLifeDeducted>
+    | ReturnType<typeof setSquirrelTop>;
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -83,6 +102,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, scrollOffset: action.payload };
     case 'SET_LIFE_DEDUCTED':
       return { ...state, lifeDeducted: action.payload };
+    case 'SET_SQUIRREL_TOP': // Додано тут
+      return { ...state, squirrelTop: action.payload };
     default:
       return state;
   }

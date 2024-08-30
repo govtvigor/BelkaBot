@@ -4,32 +4,33 @@ import React from 'react';
 import squirrelImage from '../../../assets/squirt.png';
 import './squirrel.scss';
 
-// Define the props interface for the Squirrel component
 interface SquirrelProps {
   position: 'left' | 'right';
+  top: number;  // Додаємо властивість top для позиції по вертикалі
   isInGame: boolean;
+
 }
 
-const Squirrel: React.FC<SquirrelProps> = ({ position, isInGame }) => {
+const Squirrel: React.FC<SquirrelProps> = ({ position, top, isInGame }) => {
   const positionStyles = {
     left: isInGame
-      ? { left: '15%', transform: `translate(-50%, -50%) scaleX(1)` }
-      : { left: '35%', transform: `translate(-50%, -50%) scaleX(1)` }, // Centered in menu mode
+        ? { left: '15%', transform: `translate(-50%, -50%) scaleX(1)` }
+        : { left: '35%', transform: `translate(-50%, -50%) scaleX(1)` },
     right: isInGame
-      ? { left: '80%', transform: `translate(-50%, -50%) scaleX(-1)` }
-      : { right: '25%', transform: `translateY(-50%) scaleX(-1)` }, // Centered in menu mode
+        ? { left: '80%', transform: `translate(-50%, -50%) scaleX(-1)` }
+        : { right: '25%', transform: `translateY(-50%) scaleX(-1)` },
   };
 
-  const topPosition = isInGame ? 'calc(90vh - 50px)' : '570px'; 
+  const topPosition = isInGame ? `${top}px` : '570px'; // Використовуємо top з пропсів
   const squirrelClass = isInGame ? 'squirrel in-game' : 'squirrel in-menu';
 
   return (
-    <div
-      className={squirrelClass}
-      style={{ ...positionStyles[position], position: 'absolute', top: topPosition }}
-    >
-      <img src={squirrelImage} alt="Squirrel" />
-    </div>
+      <div
+          className={squirrelClass}
+          style={{ ...positionStyles[position], position: 'absolute', top: topPosition }}
+      >
+        <img src={squirrelImage} alt="Squirrel" />
+      </div>
   );
 };
 
