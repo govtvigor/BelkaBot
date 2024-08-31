@@ -1,5 +1,3 @@
-// src/hooks/useButterflies.ts
-
 import { useState, useEffect } from 'react';
 
 interface Butterfly {
@@ -10,7 +8,7 @@ interface Butterfly {
 }
 
 const generateRandomButterfly = (): Butterfly => {
-  const top = -50;
+  const top = Math.random() * window.innerHeight; // Додаємо випадкову висоту
   const left = Math.floor(Math.random() * window.innerWidth);
   const isBlueButterfly = Math.random() > 0.5;
 
@@ -22,28 +20,42 @@ const generateRandomButterfly = (): Butterfly => {
   };
 };
 
-export const useButterflies = () => {
+export const useButterflies = (gameStarted: boolean) => {
   const [butterflies, setButterflies] = useState<Butterfly[]>([]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setButterflies((prevButterflies) =>
-        prevButterflies
-          .map((butterfly) => ({
-            ...butterfly,
-            top: butterfly.top + 5, // Adjust speed as needed
-            left: butterfly.left + Math.sin(butterfly.top / 50) * 5,
-          }))
-          .filter((butterfly) => butterfly.top < window.innerHeight)
-      );
+    if (gameStarted) {
+      const interval = setInterval(() => {
+        setButterflies((prevButterflies) =>
+            prevButterflies
+                .map((butterfly) => ({
+                  ...butterfly,
+                  left: butterfly.left + Math.sin(Date.now() / 500) * 2,
+                  top: butterfly.top + Math.cos(Date.now() / 500) * 2,
+                }))
+                .filter((butterfly) => butterfly.top < window.innerHeight)
+        );
 
-      if (Math.random() < 0.02) {
-        setButterflies((prevButterflies) => [...prevButterflies, generateRandomButterfly()]);
-      }
-    }, 50);
+        if (Math.random() < 0.02) {
+          setButterflies((prevButterflies) => [
+            ...prevButterflies,
+            generateRandomButterfly(),
+          ]);
+        }
+      }, 1000 / 60); // 60 FPS
 
-    return () => clearInterval(interval);
-  }, []);
+      return () => clearInterval(interval);
+    }
+  }, [gameStarted]);
+  const updateButterflies = () => {
+    setButterflies((prevButterflies) =>
+        prevButterflies.map((butterfly) => ({
+          ...butterfly,
+          top: butterfly.top + 5,
+          left: butterfly.left + Math.sin(butterfly.top / 50) * 5,
+        }))
+    );
+  };
 
-  return { butterflies };
+  return { butterflies, updateButterflies };
 };

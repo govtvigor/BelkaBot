@@ -23,9 +23,8 @@ import { Branch as BranchType, Bonus as BonusType } from './reducers/gameReducer
 
 const GameArea: React.FC = () => {
   const { state, handleGameStart, handleBranchClick, resetGame } = useGameLogic();
-  const { clouds } = useClouds();
-  const { butterflies } = useButterflies();
-  
+  const { clouds } = useClouds(state.gameStarted);
+  const { butterflies } = useButterflies(state.gameStarted);
   const [currentScreen, setCurrentScreen] = useState<'game' | 'profile'>('game');
 
   const handleMenuClick = (screen: 'game' | 'profile') => {
@@ -115,7 +114,7 @@ const GameArea: React.FC = () => {
             />
           ))}
 
-          <Squirrel position={state.squirrelSide} isInGame={state.gameStarted} />
+          <Squirrel position={state.squirrelSide} isInGame={state.gameStarted}  top={state.squirrelTop}/>
         </div>
       </div>
 

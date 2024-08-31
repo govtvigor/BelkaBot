@@ -7,7 +7,7 @@ import './bonus.scss';
 // Define the props interface for the Bonus component
 interface BonusProps {
   top: number;
-  left: string | number; // Assuming 'left' can be a string or a number
+  left: string | number;
 }
 
 const Bonus: React.FC<BonusProps> = ({ top, left }) => {
