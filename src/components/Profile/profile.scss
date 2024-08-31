@@ -1,0 +1,18 @@
+.profile {
+    background: #00bfff;
+    font-family: 'Press Start 2P', sans-serif;
+    height: 100vh;
+    &-header {
+        display: flex;
+        justify-content: space-between;
+    }
+}
+
+.profile-lives-icon {
+    width: 30px;
+    height: 30px;
+}
+.gm-icon {
+    width: 30px;
+    height: 30px;
+}

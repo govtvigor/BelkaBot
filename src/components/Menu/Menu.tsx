@@ -1,20 +1,21 @@
 // src/components/Menu/Menu.tsx
 
 import React from 'react';
-import './menu.scss';
+import './menu.scss'; // Основной стиль меню
+import './profileMenu.scss'; // Специальный стиль для профиля
 
-// Define the props interface for the Menu component
 interface MenuProps {
-  onClick: () => void;
+  onMenuClick: (screen: 'game' | 'profile') => void;
+  variant?: 'default' | 'profile'; // Пропс для выбора варианта стиля
 }
 
-const Menu: React.FC<MenuProps> = ({ onClick }) => {
+const Menu: React.FC<MenuProps> = ({ onMenuClick, variant = 'default' }) => {
   return (
-    <div className="menu">
+    <div className={`menu ${variant === 'profile' ? 'menu-profile' : ''}`}>
       <div className="menu-buttons">
-        <button onClick={onClick}>Home</button>
-        <button onClick={onClick}>Bet</button>
-        <button onClick={onClick}>Profile</button>
+        <button onClick={() => onMenuClick('game')}>Home</button>
+        <button onClick={() => onMenuClick('game')}>Bet</button>
+        <button onClick={() => onMenuClick('profile')}>Profile</button>
       </div>
     </div>
   );

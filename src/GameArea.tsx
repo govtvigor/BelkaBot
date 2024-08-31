@@ -1,11 +1,12 @@
 // src/components/GameArea.tsx
 
-import React from 'react';
+import React, { useState } from 'react';
 import Squirrel from './components/sprites/Squirrel/Squirrel';
 import Branch from './components/Branch/Branch';
 import Score from './components/Score/Score';
 import Lives from './components/Lives/Lives';
 import Menu from './components/Menu/Menu';
+import Profile from './components/Profile/Profile'; // Импортируем новый компонент Profile
 import CloudBig from './components/sprites/Clouds/CloudBig';
 import CloudSmall from './components/sprites/Clouds/CloudSmall';
 import ButterflyBlue from "./components/sprites/Butterflies/ButterflyBlue";
@@ -24,6 +25,16 @@ const GameArea: React.FC = () => {
   const { state, handleGameStart, handleBranchClick, resetGame } = useGameLogic();
   const { clouds } = useClouds();
   const { butterflies } = useButterflies();
+  
+  const [currentScreen, setCurrentScreen] = useState<'game' | 'profile'>('game');
+
+  const handleMenuClick = (screen: 'game' | 'profile') => {
+    setCurrentScreen(screen);
+  };
+
+  if (currentScreen === 'profile') {
+    return <Profile onMenuClick={handleMenuClick} />;
+  }
 
   return (
     <div className="game-container">
@@ -32,9 +43,7 @@ const GameArea: React.FC = () => {
           <img className="start-text" src={startText} alt="Start Text" />
         )}
 
-        {/* Логика отображения дерева и фона */}
         <div className="tree-wrapper">
-          {/* Восстанавливаем нижнюю часть дерева (ground tree) в главном меню */}
           {!state.gameStarted && (
             <img
               src={groundTreeImage}
@@ -48,13 +57,12 @@ const GameArea: React.FC = () => {
             />
           )}
 
-          {/* Основное дерево для бесконечного эффекта */}
           <img
             src={mainTreeImage}
             alt="Main Tree"
             className="tree-image-main"
             style={{
-              transform: `translateY(${state.scrollOffset % window.innerHeight}px)`, // Используем модуль для бесконечного эффекта
+              transform: `translateY(${state.scrollOffset % window.innerHeight}px)`,
               transition: 'transform 0.2s ease-out',
             }}
           />
@@ -63,7 +71,7 @@ const GameArea: React.FC = () => {
             alt="Main Tree"
             className="tree-image-main"
             style={{
-              transform: `translateY(${(state.scrollOffset % window.innerHeight) - window.innerHeight}px)`, // Дублируем для бесконечного дерева
+              transform: `translateY(${(state.scrollOffset % window.innerHeight) - window.innerHeight}px)`,
               transition: 'transform 0.2s ease-out',
             }}
           />
@@ -73,7 +81,6 @@ const GameArea: React.FC = () => {
         <Timer timeLeft={state.timeLeft} />
         <Score points={state.points} />
 
-        {/* Отображение облаков и бабочек */}
         {clouds.map((cloud) =>
           cloud.isBigCloud ? (
             <CloudBig key={cloud.id} top={cloud.top} left={cloud.left} />
@@ -90,18 +97,16 @@ const GameArea: React.FC = () => {
           )
         )}
 
-        {/* Отображение веток */}
         <div className="branches">
           {state.branches.map((branch: BranchType, index: number) => (
             <Branch
               key={index}
               side={branch.side}
-              top={branch.top + state.scrollOffset} // Смещение веток вниз
+              top={branch.top + state.scrollOffset}
               onClick={() => handleBranchClick(branch.side, branch.top)}
             />
           ))}
 
-          {/* Отображение бонусов */}
           {state.bonuses.map((bonus: BonusType, index: number) => (
             <Bonus
               key={index}
@@ -114,7 +119,11 @@ const GameArea: React.FC = () => {
         </div>
       </div>
 
-      {state.inMenu && <Menu onClick={handleGameStart} />}
+      {state.inMenu && (
+        <div>
+          <Menu onMenuClick={handleMenuClick} />
+        </div>
+      )}
     </div>
   );
 };
