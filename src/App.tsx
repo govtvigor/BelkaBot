@@ -16,7 +16,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <TonConnectUIProvider manifestUrl={`${window.location.origin}/tonconnect-manifest.json`}>
+    <TonConnectUIProvider manifestUrl="https://belka-bot-igors-projects-2a126fbf.vercel.app/tonconnect-manifest.json">
       <div className="App">
         <GameArea />
       </div>
