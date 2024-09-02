@@ -20,7 +20,7 @@ import { useClouds } from './useClouds';
 export const useGameLogic = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const animationFrameId = useRef<number | null>(null);
-  const lastFrameTime = useRef<number>(0); // Зберігаємо час останнього кадру
+  const lastFrameTime = useRef<number>(0);
   const bonusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const bonusActiveRef = useRef(false);
   const shouldAddBranchRef = useRef<boolean>(true);
@@ -33,9 +33,42 @@ export const useGameLogic = () => {
     for (let i = 0; i < 10; i++) {
       const newBranchSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
       const newBranchTop = window.innerHeight - 150 - i * 150;
-      dispatch(addBranch({ side: newBranchSide, top: newBranchTop }));
+
+      // Перевіряємо, чи немає гілки на тій самій висоті
+      if (!state.branches.some(branch => branch.top === newBranchTop)) {
+        dispatch(addBranch({ side: newBranchSide, top: newBranchTop }));
+      }
     }
   };
+
+  // Анімація стрибка білки до першої гілки
+  const animateSquirrelToFirstBranch = useCallback(() => {
+    const targetBranch = state.branches[0];
+    if (!targetBranch) return;
+
+    const duration = 500; // Тривалість анімації в мілісекундах
+    let start: number | undefined;
+
+    const animate = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const progress = timestamp - start;
+      const proportion = Math.min(progress / duration, 1);
+
+      // Обчислити нову позицію білки
+      const newTop = window.innerHeight - proportion * (window.innerHeight - targetBranch.top);
+      dispatch(setSquirrelTop(newTop));
+
+      // Плавний рух камери
+      const newScrollOffset = window.innerHeight - newTop;
+      dispatch(updateScrollOffset(newScrollOffset));
+
+      if (proportion < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [state.branches]);
 
   // Оптимізований цикл анімації з використанням requestAnimationFrame
   const gameLoop = useCallback(
@@ -61,14 +94,9 @@ export const useGameLogic = () => {
           // Додаємо нові гілки, якщо необхідно
           if (shouldAddBranchRef.current && state.branches.length > 0 && state.branches[state.branches.length - 1].top + state.scrollOffset < window.innerHeight) {
             shouldAddBranchRef.current = false;
-            const newBranchSide: 'left' | 'right' = state.branches[state.branches.length - 1].side === 'left' ? 'right' : 'left'; // Чередуємо сторону
+            const newBranchSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
             const newBranchTop = state.branches[state.branches.length - 1].top - 150;
             dispatch(addBranch({ side: newBranchSide, top: newBranchTop }));
-          }
-
-          // Оновлюємо положення камери та білки
-          if (state.scrollOffset > 0) {
-            dispatch(updateScrollOffset(state.scrollOffset - 2)); // Плавне прокручування
           }
         }
 
@@ -81,6 +109,9 @@ export const useGameLogic = () => {
     if (state.gameStarted) {
       generateInitialBranches();
 
+      // Плавно підняти білку і камеру до першої гілки
+      animateSquirrelToFirstBranch();
+
       animationFrameId.current = requestAnimationFrame(gameLoop);
 
       return () => {
@@ -89,21 +120,52 @@ export const useGameLogic = () => {
         }
       };
     }
-  }, [state.gameStarted, gameLoop]);
+  }, [state.gameStarted, gameLoop, animateSquirrelToFirstBranch]);
 
-  // Таймер гри
+  // Логіка для додавання нових гілок в процесі гри
   useEffect(() => {
-    if (state.gameStarted) {
-      const timerInterval = setInterval(() => {
-        dispatch(decreaseTime());
-      }, 1000);
+    if (shouldAddBranchRef.current && state.branches.length > 0) {
+      shouldAddBranchRef.current = false;
 
-      return () => clearInterval(timerInterval);
+      const lastBranch = state.branches[state.branches.length - 1];
+      const newBranchSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
+      const newBranchTop = lastBranch.top - 150;
+
+      // Додаємо нову гілку, якщо на цій висоті немає жодної гілки
+      if (!state.branches.some(branch => branch.top === newBranchTop)) {
+        dispatch(addBranch({ side: newBranchSide, top: newBranchTop }));
+      }
     }
-  }, [state.gameStarted]);
+  }, [state.branches]);
+
+  // Плавне переміщення камери і білки
+  const smoothScrollTo = useCallback((targetScrollOffset: number, targetSquirrelTop: number) => {
+    const startScrollOffset = state.scrollOffset;
+    const startSquirrelTop = state.squirrelTop;
+    const duration = 500; // тривалість анімації у мілісекундах
+    const startTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const elapsedTime = currentTime - startTime;
+      const progress = Math.min(elapsedTime / duration, 1); // прогрес анімації від 0 до 1
+
+      const newScrollOffset = startScrollOffset + (targetScrollOffset - startScrollOffset) * progress;
+      const newSquirrelTop = startSquirrelTop + (targetSquirrelTop - startSquirrelTop) * progress;
+
+      dispatch(updateScrollOffset(newScrollOffset));
+      dispatch(setSquirrelTop(newSquirrelTop));
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [state.scrollOffset, state.squirrelTop]);
 
   const handleGameStart = () => {
     dispatch(startGame());
+    animateSquirrelToFirstBranch();
   };
 
   const handleBranchClick = useCallback(
@@ -119,22 +181,14 @@ export const useGameLogic = () => {
           const targetBranch = state.branches[clickedBranchIndex];
           const newScrollOffset = state.scrollOffset + (window.innerHeight - targetBranch.top);
 
+          smoothScrollTo(newScrollOffset, targetBranch.top);
+
           dispatch(updateScrollOffset(newScrollOffset));
           dispatch(setSquirrelTop(targetBranch.top)); // Оновлюємо позицію білки
 
           // Видаляємо гілку, на яку білка стрибнула
           dispatch(removeBranch());
           shouldAddBranchRef.current = true;
-
-          // Додаємо нові гілки по мірі проходження
-          if (state.branches.length < 20 && shouldAddBranchRef.current) {
-            shouldAddBranchRef.current = false;
-            for (let i = 0; i < 10; i++) {
-              const newBranchSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
-              const newBranchTop = state.branches[state.branches.length - 1].top - (i + 1) * 150;
-              dispatch(addBranch({ side: newBranchSide, top: newBranchTop }));
-            }
-          }
         } else {
           dispatch(deductLife());
           if (state.lives - 1 <= 0) {
@@ -143,7 +197,7 @@ export const useGameLogic = () => {
           }
         }
       },
-      [state.branches, state.scrollOffset, state.lives]
+      [state.branches, state.scrollOffset, state.lives, smoothScrollTo]
   );
 
   const handleBonusActivation = useCallback(() => {
