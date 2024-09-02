@@ -3,8 +3,16 @@
     font-family: 'Press Start 2P', sans-serif;
     height: 100vh;
     &-header {
+        padding-top: 15px;
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        .header-leftside {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            width: 50%;
+        }
     }
 }
 
@@ -12,7 +20,13 @@
     width: 30px;
     height: 30px;
 }
-.gm-icon {
-    width: 30px;
-    height: 30px;
+.gm {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    font-size: 20px;
+    &-icon {
+        width: 30px;
+        height: 30px;
+    }
 }

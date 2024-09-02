@@ -1,10 +1,14 @@
+// src/App.tsx
+
 import React, { useEffect } from 'react';
 import GameArea from './GameArea';
 import './App.css';
+import { TonConnectUIProvider } from '@tonconnect/ui-react';
 
-function App() {
+
+const App: React.FC = () => {
   useEffect(() => {
-    if (window.Telegram.WebApp) {
+    if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
       tg.ready();
       // Вы можете добавить здесь другие взаимодействия с Telegram WebApp API
@@ -12,10 +16,12 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <GameArea />
-    </div>
+    <TonConnectUIProvider manifestUrl={`${window.location.origin}/tonconnect-manifest.json`}>
+      <div className="App">
+        <GameArea />
+      </div>
+    </TonConnectUIProvider>
   );
-}
+};
 
 export default App;
