@@ -46,9 +46,10 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     if (tonConnectUI) {
       tonConnectUI.onStatusChange((wallet) => {
         if (wallet) {
-          const walletAddressBase64 = wallet.account.address.toString(); // Base64-формат
-          console.log("Сохраняем адрес кошелька в формате Base64:", walletAddressBase64);
-          saveUserToFirestore(walletAddressBase64); // Сохраняем пользователя в Firestore с адресом в формате Base64
+          const walletAddress = wallet.account.address.toString(); // raw address
+  
+          console.log("Сохраняем адрес кошелька в формате Non-bouncable:", walletAddress);
+          saveUserToFirestore(walletAddress); // Save the raw address; formatting happens inside the function
         }
       });
     }

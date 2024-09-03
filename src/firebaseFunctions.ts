@@ -1,15 +1,19 @@
 // src/firebaseFunctions.ts
 import { db, doc, setDoc, getDoc } from './firebase';
+import { formatTonAddress } from './utils/convertAddress';
 
 export async function saveUserToFirestore(walletAddress: string) {
   try {
-    const userRef = doc(db, 'users', walletAddress);
+    // Format the address to non-bounceable format
+    const formattedAddress = formatTonAddress(walletAddress);
+
+    const userRef = doc(db, 'users', formattedAddress);
     const userSnapshot = await getDoc(userRef);
 
     if (!userSnapshot.exists()) {
-      // Если пользователь не существует, создаем нового
+      // If the user doesn't exist, create a new one
       await setDoc(userRef, {
-        walletAddress: walletAddress.toString(),
+        walletAddress: formattedAddress, // Use the formatted address for storage
         gmStreak: 0,
         lives: 3,
         totalPoints: 0
