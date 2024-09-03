@@ -1,12 +1,11 @@
-// src/components/Profile/Profile.tsx
-
 import React, { useState, useEffect } from 'react';
-import Menu from '../Menu/Menu'; // Импортируем Menu для возврата на экран игры
-import './profile.scss'; // Стили для вашего компонента профиля
+import Menu from '../Menu/Menu';
+import './profile.scss';
 import heartIcon from '../../assets/heart.png';
-import fireIconGrey from '../../assets/fireIcon-gray.png'; // Иконка для неактивного состояния
-import fireIconActive from '../../assets/fireIcon.png'; // Иконка для активного состояния
-import { TonConnectButton } from '@tonconnect/ui-react';
+import fireIconGrey from '../../assets/fireIcon-gray.png';
+import fireIconActive from '../../assets/fireIcon.png';
+import { TonConnectButton, useTonConnectUI } from '@tonconnect/ui-react';
+import { saveUserToFirestore } from '../../firebaseFunctions';
 
 interface ProfileProps {
   onMenuClick: (screen: 'game' | 'profile') => void;
@@ -15,9 +14,12 @@ interface ProfileProps {
 const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [totalScore, setTotalScore] = useState<number>(0);
   const [isGMChecked, setIsGMChecked] = useState<boolean>(false);
-  const [gmStreak, setGMStreak] = useState<number>(0); // Добавляем состояние для счётчика дней подряд
+  const [gmStreak, setGMStreak] = useState<number>(0);
   const [lives, setLives] = useState<number>(3);
   const [stars, setStars] = useState<number>(100);
+
+  // Инициализация TonConnectUI
+  const [tonConnectUI, initializeTonConnectUI] = useTonConnectUI();
 
   useEffect(() => {
     // Загрузка общего счета из локального хранилища или другого источника
@@ -39,6 +41,20 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       setGMStreak(parseInt(savedStreak, 10));
     }
   }, []);
+
+  useEffect(() => {
+    if (tonConnectUI) {
+      tonConnectUI.onStatusChange((wallet) => {
+        if (wallet) {
+          const walletAddressBase64 = wallet.account.address.toString(); // Base64-формат
+          console.log("Сохраняем адрес кошелька в формате Base64:", walletAddressBase64);
+          saveUserToFirestore(walletAddressBase64); // Сохраняем пользователя в Firestore с адресом в формате Base64
+        }
+      });
+    }
+  }, [tonConnectUI]);
+  
+  
 
   const updateTotalScore = (newScore: number) => {
     const updatedScore = totalScore + newScore;
@@ -90,7 +106,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
               className="gm-icon"
             />
             {isGMChecked ? (
-              <div>{gmStreak}</div> // Отображаем количество дней подряд
+              <div>{gmStreak}</div>
             ) : (
               <span>GM</span>
             )}

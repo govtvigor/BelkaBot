@@ -11,6 +11,7 @@ const App: React.FC = () => {
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
       tg.ready();
+      
       // Вы можете добавить здесь другие взаимодействия с Telegram WebApp API
     }
   }, []);
