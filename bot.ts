@@ -15,36 +15,39 @@ const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
 // Маршрут для создания инвойса
 app.post("/api/create-invoice", async (req: Request, res: Response) => {
-  const { chatId, livesCost } = req.body;
-
-  if (!chatId) {
-    console.error("Chat ID is missing in the request body.");
-    return res.status(400).json({ error: "Chat ID is missing" });
-  }
-
-  try {
-    // Отправка инвойса пользователю через Telegram Stars
-    await bot.sendInvoice(
-      chatId,
-      "Extra Life",
-      "Purchase an additional life for your game.",
-      "UniquePayloadIdentifier", // Уникальный идентификатор инвойса
-      "", // Telegram Stars Token (должен быть указан)
-      "XTR", // Валюта
-      [
-        {
-          label: "Extra Life",
-          amount: livesCost * 100 // Сумма в минимальных единицах (например, копейках)
-        }
-      ]
-    );
-
-    res.status(200).json({ message: "Invoice sent successfully" });
-  } catch (error) {
-    console.error("Error sending invoice:", error);
-    res.status(500).json({ error: "Failed to send invoice" });
-  }
-});
+    const { chatId, livesCost } = req.body;
+  
+    if (!chatId) {
+      console.error("Chat ID is missing in the request body.");
+      return res.status(400).json({ error: "Chat ID is missing" });
+    }
+  
+    try {
+      // Attempt to send the invoice
+      await bot.sendInvoice(
+        chatId,
+        "Extra Life",
+        "Purchase an additional life for your game.",
+        "UniquePayloadIdentifier", // Payload for invoice
+        "", // No provider token needed for Telegram Stars
+        "XTR", // Currency for Telegram Stars (ensure this is correct)
+        [
+          {
+            label: "Extra Life",
+            amount: livesCost * 100 // Amount in the smallest units
+          }
+        ]
+      );
+  
+      // If the invoice is successfully sent
+      res.status(200).json({ message: "Invoice sent successfully" });
+    } catch (error) {
+      // Log the error details for debugging
+      console.error("Error sending invoice:", error.response?.data || error.message);
+      res.status(500).json({ error: "Failed to send invoice" });
+    }
+  });
+  
 app.get('/api/get-user', (req, res) => {
     // Используйте здесь идентификацию пользователя через API Telegram
     const chatId = "123456"; // Замените на фактическое получение chat_id через ваш бот
