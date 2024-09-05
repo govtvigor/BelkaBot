@@ -30,7 +30,7 @@ app.post("/api/create-invoice", async (req: Request, res: Response) => {
         "Purchase an additional life for your game.",
         "UniquePayloadIdentifier", // Payload for invoice
         "", // No provider token needed for Telegram Stars
-        "XTR", // Currency for Telegram Stars (ensure this is correct)
+        "XTR", // Currency for Telegram Stars
         [
           {
             label: "Extra Life",
@@ -42,11 +42,14 @@ app.post("/api/create-invoice", async (req: Request, res: Response) => {
       // If the invoice is successfully sent
       res.status(200).json({ message: "Invoice sent successfully" });
     } catch (error) {
+      const err = error as any; // Cast to any to access properties
+  
       // Log the error details for debugging
-      console.error("Error sending invoice:", error.response?.data || error.message);
+      console.error("Error sending invoice:", err.response?.data || err.message);
       res.status(500).json({ error: "Failed to send invoice" });
     }
   });
+  
   
 app.get('/api/get-user', (req, res) => {
     // Используйте здесь идентификацию пользователя через API Telegram
