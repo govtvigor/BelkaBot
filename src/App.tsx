@@ -22,7 +22,6 @@ const App: React.FC = () => {
     <TonConnectUIProvider manifestUrl="https://belka-bot.vercel.app/tonconnect-manifest.json">
       <ChatIdContext.Provider value={chatId}>
         <div className="App">
-          <h1>Chat ID: {chatId}</h1> {/* Display the chatId for debugging */}
           <GameArea />
         </div>
       </ChatIdContext.Provider>
