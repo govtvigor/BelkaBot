@@ -23,6 +23,11 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
 
   // Get chatId from context
   const userChatId = useContext(ChatIdContext);
+  useEffect(() => {
+    if (userChatId) {
+      saveUserByChatId(userChatId); // Save chatId when it's available
+    }
+  }, [userChatId]);
   
 
   const handleGMClick = () => {
@@ -54,7 +59,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         if (wallet) {
           const walletAddress = wallet.account.address.toString();
           console.log(`Wallet connected: ${walletAddress}`);
-
+  
           if (userChatId) {
             console.log(`Chat ID: ${userChatId}`);
             await updateUserWallet(userChatId, walletAddress);
