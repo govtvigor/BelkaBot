@@ -78,22 +78,19 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 // Обработка получения сообщений для сохранения chatId
 bot.onText(/\/(start|play)/, async (msg: Message) => {
     const chatId = msg.chat.id.toString();
-    console.log(`Start/Play command received for chatId: ${chatId}`);
-  
-    // Send the chat ID as a query parameter in the web app URL
     bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
       reply_markup: {
         inline_keyboard: [
           [
             {
               text: 'Play',
-              web_app: { url: `https://belka-bot.vercel.app/?chatId=${chatId}` } // Ensure chat ID is sent in URL
+              web_app: { url: `https://belka-bot.vercel.app/?chatId=${chatId}` }  // Ensure chat ID is appended in URL
             }
           ]
         ]
       }
     });
-  });
+});
   
 
 // Обработка успешных платежей
