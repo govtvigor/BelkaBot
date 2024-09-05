@@ -2,6 +2,11 @@
     background: #00bfff;
     font-family: 'Press Start 2P', sans-serif;
     height: 100vh;
+    &_lives {
+        display: flex;
+        font-size: 20px;
+        align-items: center;
+    }
     &-header {
         padding-top: 15px;
         display: flex;
@@ -17,16 +22,15 @@
 }
 
 .profile-lives-icon {
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
 }
 .gm {
     display: flex;
-    justify-content: space-evenly;
     align-items: center;
     font-size: 20px;
     &-icon {
-        width: 30px;
-        height: 30px;
+        width: 35px;
+        height: 35px;
     }
 }

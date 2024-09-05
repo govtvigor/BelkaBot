@@ -15,7 +15,7 @@
         "*": ["types/*"]                      // Allowing to map imports to paths
       }
     },
-    "include": ["src/**/*"],                  // Include all files in the `src` folder
+    "include": ["src/**/*", "successful-payment.js"],                  // Include all files in the `src` folder
     "exclude": ["node_modules", "build"]      // Exclude `node_modules` and `build` directories
   }
   
