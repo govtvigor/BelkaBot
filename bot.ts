@@ -1,33 +1,40 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const TelegramBot = require('node-telegram-bot-api');
-require("dotenv").config();
+import TelegramBot, { Message, PreCheckoutQuery } from 'node-telegram-bot-api';
+import express, { Request, Response } from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import dotenv from 'dotenv';
 
-// Инициализация Express
+dotenv.config();
+
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 
-// Инициализация бота Telegram
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
-// API маршрут для создания инвойса
-app.post("/api/create-invoice", async (req, res) => {
+// Маршрут для создания инвойса
+app.post("/api/create-invoice", async (req: Request, res: Response) => {
   const { chatId, livesCost } = req.body;
 
+  if (!chatId) {
+    console.error("Chat ID is missing in the request body.");
+    return res.status(400).json({ error: "Chat ID is missing" });
+  }
+
   try {
-    // Отправка инвойса пользователю
+    // Отправка инвойса пользователю через Telegram Stars
     await bot.sendInvoice(
       chatId,
       "Extra Life",
       "Purchase an additional life for your game.",
-      "{}",
-      "", // Оставьте пустым для Telegram Stars
+      "UniquePayloadIdentifier", // Уникальный идентификатор инвойса
+      "", // Telegram Stars Token (должен быть указан)
       "XTR", // Валюта
       [
         {
           label: "Extra Life",
-          amount: livesCost * 10 // Сумма в минимальных единицах валюты (например, копейках)
+          amount: livesCost * 100 // Сумма в минимальных единицах (например, копейках)
         }
       ]
     );
@@ -38,9 +45,29 @@ app.post("/api/create-invoice", async (req, res) => {
     res.status(500).json({ error: "Failed to send invoice" });
   }
 });
+app.get('/api/get-user', (req, res) => {
+    // Используйте здесь идентификацию пользователя через API Telegram
+    const chatId = "123456"; // Замените на фактическое получение chat_id через ваш бот
+    res.json({ chat_id: chatId });
+  });
+app.post('/api/validate-init-data', (req: Request, res: Response) => {
+    const { initData } = req.body;
+  
+    // Тут можно добавить логику валидации initData
+  
+    // Парсим initData, если это строка (если оно пришло как строка, нужно парсить)
+    const initParams = new URLSearchParams(initData);
+    const userId = initParams.get('user_id');
+  
+    if (userId) {
+      res.json({ chatId: userId });
+    } else {
+      res.status(400).json({ error: 'Invalid initData' });
+    }
+  });
 
 // Маршрут для проверки работы сервера
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
   res.send("Server and Bot are running!");
 });
 
@@ -48,49 +75,32 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-// Логика обработки сообщений и платежей бота Telegram
-bot.onText(/\/(start|play)/, (msg) => {
-  const chatId = msg.chat.id;
-  const gameUrl = 'https://belka-bot.vercel.app/'; // URL вашей игры
-
-  // Отправка сообщения с кнопкой для открытия веб-приложения
-  bot.sendMessage(chatId, "Click 'Play' to start the game!", {
-    reply_markup: {
-      inline_keyboard: [
-        [{
-          text: 'Play',
-          web_app: { url: gameUrl }
-        }]
-      ]
-    }
+// Обработка получения сообщений для сохранения chatId
+bot.onText(/\/(start|play)/, async (msg: Message) => {
+    const chatId = msg.chat.id.toString();
+    console.log(`Start/Play command received for chatId: ${chatId}`);
+  
+    // Send the chat ID as a query parameter in the web app URL
+    bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: 'Play',
+              web_app: { url: `https://belka-bot.vercel.app/?chatId=${chatId}` } // Ensure chat ID is sent in URL
+            }
+          ]
+        ]
+      }
+    });
   });
-});
-
-bot.onText(/\/pay/, (msg) => {
-  const chatId = msg.chat.id;
-
-  // Отправка инвойса для оплаты
-  bot.sendInvoice(
-    chatId,
-    "Extra Life",
-    "Purchase an additional life for your game.",
-    "{}",
-    "", // Provider token must be empty for Telegram Stars
-    "XTR", // Currency
-    [{
-      label: "Extra Life",
-      amount: 10 * 10 // Amount in smallest unit
-    }]
-  ).catch((error) => {
-    console.error("Error sending invoice:", error);
-  });
-});
+  
 
 // Обработка успешных платежей
-bot.on('message', (msg) => {
-  if (msg.successful_payment) {
-    const paymentInfo = msg.successful_payment;
+bot.on('message', (msg: Message) => {
+  if (msg.successful_payment && msg.from) {
     const userId = msg.from.id;
+    const paymentInfo = msg.successful_payment;
 
     console.log(`User ${userId} made a payment:`, paymentInfo);
     bot.sendMessage(userId, "✅ Payment accepted! You’ve purchased an extra life.");
@@ -98,7 +108,7 @@ bot.on('message', (msg) => {
 });
 
 // Обработка pre-checkout запросов
-bot.on('pre_checkout_query', (query) => {
+bot.on('pre_checkout_query', (query: PreCheckoutQuery) => {
   bot.answerPreCheckoutQuery(query.id, true).catch((error) => {
     console.error("Pre-checkout query error:", error);
   });

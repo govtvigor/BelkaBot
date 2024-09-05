@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Menu from "../Menu/Menu";
 import "./profile.scss";
 import heartIcon from "../../assets/heart.png";
 import fireIconGrey from "../../assets/fireIcon-gray.png";
 import fireIconActive from "../../assets/fireIcon.png";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
-import { saveUserToFirestore, getChatIdFromApi } from "../../firebaseFunctions"; // New function to get chat ID from your API
+import { saveUserByChatId, updateUserWallet } from "../../firebaseFunctions";
+import { ChatIdContext } from "../../App"; // Get chatId from context
 
 interface ProfileProps {
   onMenuClick: (screen: "game" | "profile") => void;
@@ -16,10 +17,13 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [isGMChecked, setIsGMChecked] = useState<boolean>(false);
   const [gmStreak, setGMStreak] = useState<number>(0);
   const [lives, setLives] = useState<number>(3);
-  const [stars, setStars] = useState<number>(100); // User's current Stars balance
-  const [userChatId, setUserChatId] = useState<string | null>(null); // State to hold user chat ID
+  const [stars, setStars] = useState<number>(100);
+  const [tonConnectUI] = useTonConnectUI();
+  
 
-  const [tonConnectUI, initializeTonConnectUI] = useTonConnectUI();
+  // Get chatId from context
+  const userChatId = useContext(ChatIdContext);
+  
 
   const handleGMClick = () => {
     const today = new Date().toDateString();
@@ -43,91 +47,59 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     }
   };
 
-  useEffect(() => {
-    const savedScore = localStorage.getItem("totalScore");
-    if (savedScore) {
-      setTotalScore(parseInt(savedScore, 10));
-    }
-
-    const lastGMDate = localStorage.getItem("lastGMDate");
-    const savedStreak = localStorage.getItem("gmStreak");
-    const today = new Date().toDateString();
-
-    if (lastGMDate === today) {
-      setIsGMChecked(true);
-    }
-
-    if (savedStreak) {
-      setGMStreak(parseInt(savedStreak, 10));
-    }
-  }, []);
-
+  // Save wallet address when connected
   useEffect(() => {
     if (tonConnectUI) {
       tonConnectUI.onStatusChange(async (wallet) => {
         if (wallet) {
           const walletAddress = wallet.account.address.toString();
-          const chatId = await getChatIdFromApi(walletAddress); // Получаем chatId
-          await saveUserToFirestore(walletAddress, chatId); // Сохраняем пользователя с chatId
-          setUserChatId(chatId);
+          console.log(`Wallet connected: ${walletAddress}`);
+
+          if (userChatId) {
+            console.log(`Chat ID: ${userChatId}`);
+            await updateUserWallet(userChatId, walletAddress);
+          } else {
+            console.error("Chat ID is null, cannot save wallet address.");
+          }
         }
       });
     }
-  }, [tonConnectUI]);
-  
+  }, [tonConnectUI, userChatId]);
 
-  const createInvoice = async (invoiceDetails: {
-    title: string;
-    description: string;
-    currency: string;
-    amount: number;
-  }) => {
-    const response = await fetch("/api/create-invoice", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(invoiceDetails),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to create invoice");
-    }
-
-    return response.json(); // Return the invoice details
-  };
-
+  // Logic for purchasing lives
   const handleBuyLives = async () => {
     const livesCost = 10;
-  
+
     if (stars >= livesCost) {
       try {
-        // Отправка запроса на сервер для создания инвойса
-        const response = await fetch("/api/create-invoice", {
+        if (!userChatId) {
+          alert("Error: Chat ID is missing. Please try again.");
+          return;
+        }
+
+        const response = await fetch("http://localhost:5000/api/create-invoice", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ chatId: userChatId, livesCost }), // Отправляем chatId и стоимость жизней
+          body: JSON.stringify({ chatId: userChatId, livesCost }),
         });
-  
+
         if (!response.ok) {
           throw new Error("Failed to create invoice");
         }
-  
+
         const result = await response.json();
         console.log("Invoice created:", result);
-        alert("Инвойс успешно создан. Проверьте Telegram для оплаты."); // Оповещаем пользователя
+        alert("Invoice successfully created. Check Telegram to complete payment.");
       } catch (error) {
         console.error("Error creating invoice:", error);
-        alert("Не удалось создать инвойс. Попробуйте еще раз.");
+        alert("Failed to create invoice. Please try again.");
       }
     } else {
-      alert("У вас недостаточно звезд!"); // "You do not have enough stars!"
+      alert("You do not have enough stars!");
     }
   };
-  
-  
 
   return (
     <div className="profile">

@@ -1,59 +1,68 @@
-import { db, doc, setDoc, getDoc } from './firebase'; // Ensure ./firebase exports initialized Firestore (db)
+import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from './firebase';
 import { formatTonAddress } from './utils/convertAddress';
 
-export async function saveUserToFirestore(walletAddress: string, chatId: string | null = null) {
+// Функция для сохранения пользователя в Firestore по chatId
+export async function saveUserByChatId(chatId: string) {
   try {
-    const formattedAddress = formatTonAddress(walletAddress);
-    const userRef = doc(db, 'users', formattedAddress);
+    const userRef = doc(db, 'users', chatId); // chatId как идентификатор
     const userSnapshot = await getDoc(userRef);
 
     if (!userSnapshot.exists()) {
-      // Создаем новый документ, если пользователя нет
+      // Создаем нового пользователя, если его нет
       await setDoc(userRef, {
-        walletAddress: formattedAddress,
+        chatId: chatId,
         gmStreak: 0,
         lives: 3,
         totalPoints: 0,
-        chatId, // Сохраняем chatId сразу при создании
+        walletAddress: null // Кошелёк еще не подключен
       });
-      console.log('New user added to Firestore.');
+      console.log('New user added with chatId:', chatId);
     } else {
-      console.log('User already exists in Firestore.');
-      
-      // Обновляем chatId, если он изменился
-      if (chatId && userSnapshot.data().chatId !== chatId) {
-        await setDoc(userRef, { chatId }, { merge: true });
-        console.log('User chatId updated in Firestore.');
-      }
+      console.log('User already exists with chatId:', chatId);
     }
   } catch (error) {
-    console.error('Error saving user to Firestore:', error);
+    console.error('Error saving user by chatId:', error);
+  }
+}
+
+export async function updateUserWallet(chatId: string | null, walletAddress: string) {
+  if (!chatId) {
+    console.error("Chat ID отсутствует.");
+    return;
+  }
+
+  if (!walletAddress) {
+    console.error("Адрес кошелька отсутствует.");
+    return;
+  }
+
+  try {
+    const userRef = doc(db, 'users', chatId);
+
+    // Обновляем оба параметра: chatId и walletAddress
+    await updateDoc(userRef, {
+      walletAddress: formatTonAddress(walletAddress)  // Сохраняем только адрес кошелька
+    });
+
+    console.log('Кошелек успешно обновлен для chatId:', chatId);
+  } catch (error) {
+    console.error('Ошибка при обновлении данных пользователя:', error);
   }
 }
 
 
-export const getUserFromFirestore = async (walletAddress: string) => {
-  const userDoc = doc(db, 'users', walletAddress);
-  const docSnap = await getDoc(userDoc);
-
-  if (docSnap.exists()) {
-    return docSnap.data(); // Return user data
-  } else {
-    console.log("User not found!");
-    return null;
-  }
-};
-
-// Modified function to get the chat ID
+// Получение chatId по адресу кошелька
 export const getChatIdFromApi = async (walletAddress: string): Promise<string | null> => {
   try {
-    const formattedAddress = formatTonAddress(walletAddress); // Форматируем адрес
-    const userDoc = doc(db, 'users', formattedAddress);  // Ссылка на документ пользователя
-    const docSnap = await getDoc(userDoc); // Получаем снимок документа
+    const formattedAddress = formatTonAddress(walletAddress);
+    const usersCollection = collection(db, 'users');
+    const q = query(usersCollection, where('walletAddress', '==', formattedAddress));
+    const querySnapshot = await getDocs(q);
 
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      return data?.chatId || null; // Возвращаем 'chatId' или null, если он отсутствует
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
+      const data = userDoc.data();
+      return data.chatId || null;
     } else {
       console.error('No such document!');
       return null;
@@ -63,5 +72,3 @@ export const getChatIdFromApi = async (walletAddress: string): Promise<string | 
     return null;
   }
 };
-
-
