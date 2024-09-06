@@ -16,8 +16,6 @@ const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 // Маршрут для создания инвойса
 app.post("/api/create-invoice", async (req: Request, res: Response) => {
   const { chatId, livesCost } = req.body;
-  alert("Chat ID: " + chatId);
-  alert("Lives Cost: " + livesCost);
   if (!chatId) {
     console.error("Chat ID is missing in the request body.");
     return res.status(400).json({ error: "Chat ID is missing" });
