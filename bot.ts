@@ -5,7 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 dotenv.config();
-const NGROK_URL = 'https://71f4-2001-718-2-ce-bce1-704d-1285-6b3a.ngrok-free.app';
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -53,15 +53,11 @@ app.post("/api/create-invoice", async (req: Request, res: Response) => {
 
   
   
-app.get('/api/get-user', (req, res) => {
-    // Используйте здесь идентификацию пользователя через API Telegram
-    const chatId = "123456"; // Замените на фактическое получение chat_id через ваш бот
-    res.json({ chat_id: chatId });
-  });
+
 app.post('/api/validate-init-data', (req: Request, res: Response) => {
     const { initData } = req.body;
   
-    // Тут можно добавить логику валидации initData
+    
   
     // Парсим initData, если это строка (если оно пришло как строка, нужно парсить)
     const initParams = new URLSearchParams(initData);
@@ -74,12 +70,12 @@ app.post('/api/validate-init-data', (req: Request, res: Response) => {
     }
   });
 
-// Маршрут для проверки работы сервера
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Server and Bot are running!");
 });
 
-// Запуск сервера
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
@@ -101,7 +97,7 @@ bot.onText(/\/(start|play)/, async (msg: Message) => {
 });
   
 
-// Обработка успешных платежей
+
 bot.on('message', (msg: Message) => {
   if (msg.successful_payment && msg.from) {
     const userId = msg.from.id;
@@ -110,11 +106,11 @@ bot.on('message', (msg: Message) => {
     console.log(`User ${userId} made a payment:`, paymentInfo);
     bot.sendMessage(userId, "✅ Payment accepted! You’ve purchased an extra life.");
 
-    // Add logic to give the user the extra life or whatever digital goods they purchased.
+    
   }
 });
 
-// Обработка pre-checkout запросов
+
 bot.on('pre_checkout_query', (query: PreCheckoutQuery) => {
   bot.answerPreCheckoutQuery(query.id, true).catch((error) => {
       console.error("Pre-checkout query error:", error);
