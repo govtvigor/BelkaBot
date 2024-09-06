@@ -23,36 +23,31 @@ app.post("/api/create-invoice", async (req: Request, res: Response) => {
   }
 
   try {
-    // Generate a unique payload identifier
-    const uniquePayload = `invoice_${chatId}_${Date.now()}`;
+    // Create unique payload for each invoice
+    const payload = `invoice_${chatId}_${Date.now()}`;
 
+    // Sending the invoice to the user
     await bot.sendInvoice(
       chatId,
-      "Buy Extra Lives", // Title of the invoice
-      "Purchase extra lives for your game.", // Description
-      uniquePayload, // Unique payload identifier for the transaction
-      "", // No provider token for Telegram Stars
-      "XTR", // Currency code for Telegram Stars
+      "Extra Life",                        // Title
+      "Purchase an additional life",       // Description
+      payload,                             // Unique payload
+      "",                                  // No provider token needed for Telegram Stars
+      "XTR",                               // Currency for Telegram Stars
       [
         {
-          label: "Extra Life", // Label shown in payment dialog
-          amount: livesCost * 100 // Convert cost to the smallest unit (like cents)
+          label: "Extra Life",
+          amount: livesCost * 100           // Amount in smallest units
         }
       ],
-      {
-        need_name: false,  // Optional, if you need any additional info
-        need_phone_number: false,
-        need_email: false,
-        need_shipping_address: false
-      }
     );
 
+    // If successful, respond with a success message
     res.status(200).json({ message: "Invoice sent successfully" });
   } catch (error) {
     const err = error as any;
-    // Improved error logging to track the specific issue
-    console.error("Error sending invoice:", err.response?.data || err.message, err.stack);
-    res.status(500).json({ error: "Failed to send invoice", details: err.message });
+    console.error("Error sending invoice:", err.response?.data || err.message);
+    res.status(500).json({ error: "Failed to send invoice" });
   }
 });
 
@@ -114,12 +109,14 @@ bot.on('message', (msg: Message) => {
 
     console.log(`User ${userId} made a payment:`, paymentInfo);
     bot.sendMessage(userId, "✅ Payment accepted! You’ve purchased an extra life.");
+
+    // Add logic to give the user the extra life or whatever digital goods they purchased.
   }
 });
 
 // Обработка pre-checkout запросов
 bot.on('pre_checkout_query', (query: PreCheckoutQuery) => {
   bot.answerPreCheckoutQuery(query.id, true).catch((error) => {
-    console.error("Pre-checkout query error:", error);
+      console.error("Pre-checkout query error:", error);
   });
 });
