@@ -76,35 +76,39 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     const livesCost = 10;
 
     if (stars >= livesCost) {
-      try {
-        if (!userChatId) {
-          alert("Error: Chat ID is missing. Please try again.");
-          return;
+        try {
+            if (!userChatId) {
+                alert("Error: Chat ID is missing. Please try again.");
+                return;
+            }
+
+            alert("Chat ID: " + userChatId);
+            alert("Lives Cost: " + livesCost);
+
+            const response = await fetch("http://localhost:5000/api/create-invoice", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ chatId: userChatId, livesCost }),
+            });
+
+            alert("Response status: " + response.status);
+
+            if (!response.ok) {
+                throw new Error("Failed to create invoice");
+            }
+
+            const result = await response.json();
+            alert("Invoice created: " + JSON.stringify(result));
+        } catch (error) {
+            alert("Error creating invoice: " + error);
         }
-
-        const response = await fetch("http://localhost:5000/api/create-invoice", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ chatId: userChatId, livesCost }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to create invoice");
-        }
-
-        const result = await response.json();
-        console.log("Invoice created:", result);
-        alert("Invoice successfully created. Check Telegram to complete payment.");
-      } catch (error) {
-        console.error("Error creating invoice:", error);
-        alert("Failed to create invoice. Please try again.");
-      }
     } else {
-      alert("You do not have enough stars!");
+        alert("You do not have enough stars!");
     }
-  };
+};
+
 
   return (
     <div className="profile">
