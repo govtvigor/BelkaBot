@@ -8,13 +8,9 @@ dotenv.config();
 
 
 const app = express();
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  next();
-});
-app.use(bodyParser.json());
+app.use(cors());
+app.use(express.json());
+
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
@@ -82,7 +78,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 
-const PORT = 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Обработка получения сообщений для сохранения chatId

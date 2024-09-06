@@ -85,7 +85,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
             alert("Chat ID: " + userChatId);  // Ensure chatId is defined here
             alert("Lives Cost: " + livesCost);
 
-            const response = await fetch("http://localhost:3000/api/create-invoice", {
+            const response = await fetch("http://localhost:5000/api/create-invoice", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
