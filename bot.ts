@@ -5,7 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 dotenv.config();
-
+const NGROK_URL = 'https://71f4-2001-718-2-ce-bce1-704d-1285-6b3a.ngrok-free.app';
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
