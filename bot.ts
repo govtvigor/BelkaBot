@@ -9,7 +9,7 @@ dotenv.config();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
 
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
@@ -17,7 +17,8 @@ const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
 // Маршрут для создания инвойса
 app.post("/api/create-invoice", async (req: Request, res: Response) => {
-  console.error("Received request:", req.body); 
+  console.log("Received request:", req.body);
+  res.send(req.body); 
   const { chatId, livesCost } = req.body;
   if (!chatId) {
     console.error("Chat ID is missing in the request body.");
