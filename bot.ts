@@ -5,9 +5,14 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 dotenv.config();
+const corsOptions = {
+  origin: '*', // Allow all origins, but you can specify specific ones
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization',
+};
 
 const app = express();
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
@@ -15,6 +20,7 @@ const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
 // Маршрут для создания инвойса
 app.post("/api/create-invoice", async (req: Request, res: Response) => {
+  console.log("Received request:", req.body); 
   const { chatId, livesCost } = req.body;
   if (!chatId) {
     console.error("Chat ID is missing in the request body.");
