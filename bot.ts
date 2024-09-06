@@ -15,40 +15,47 @@ const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
 // Маршрут для создания инвойса
 app.post("/api/create-invoice", async (req: Request, res: Response) => {
-    const { chatId, livesCost } = req.body;
-  
-    if (!chatId) {
-      console.error("Chat ID is missing in the request body.");
-      return res.status(400).json({ error: "Chat ID is missing" });
-    }
-  
-    try {
-      // Attempt to send the invoice
-      await bot.sendInvoice(
-        chatId,
-        "Extra Life",
-        "Purchase an additional life for your game.",
-        "UniquePayloadIdentifier", // Payload for invoice
-        "", // No provider token needed for Telegram Stars
-        "XTR", // Currency for Telegram Stars
-        [
-          {
-            label: "Extra Life",
-            amount: livesCost * 100 // Amount in the smallest units
-          }
-        ]
-      );
-  
-      // If the invoice is successfully sent
-      res.status(200).json({ message: "Invoice sent successfully" });
-    } catch (error) {
-      const err = error as any; // Cast to any to access properties
-  
-      // Log the error details for debugging
-      console.error("Error sending invoice:", err.response?.data || err.message);
-      res.status(500).json({ error: "Failed to send invoice" });
-    }
-  });
+  const { chatId, livesCost } = req.body;
+
+  if (!chatId) {
+    console.error("Chat ID is missing in the request body.");
+    return res.status(400).json({ error: "Chat ID is missing" });
+  }
+
+  try {
+    // Generate a unique payload identifier
+    const uniquePayload = `invoice_${chatId}_${Date.now()}`;
+
+    await bot.sendInvoice(
+      chatId,
+      "Buy Extra Lives", // Title of the invoice
+      "Purchase extra lives for your game.", // Description
+      uniquePayload, // Unique payload identifier for the transaction
+      "", // No provider token for Telegram Stars
+      "XTR", // Currency code for Telegram Stars
+      [
+        {
+          label: "Extra Life", // Label shown in payment dialog
+          amount: livesCost * 100 // Convert cost to the smallest unit (like cents)
+        }
+      ],
+      {
+        need_name: false,  // Optional, if you need any additional info
+        need_phone_number: false,
+        need_email: false,
+        need_shipping_address: false
+      }
+    );
+
+    res.status(200).json({ message: "Invoice sent successfully" });
+  } catch (error) {
+    const err = error as any;
+    // Improved error logging to track the specific issue
+    console.error("Error sending invoice:", err.response?.data || err.message, err.stack);
+    res.status(500).json({ error: "Failed to send invoice", details: err.message });
+  }
+});
+
   
   
 app.get('/api/get-user', (req, res) => {
