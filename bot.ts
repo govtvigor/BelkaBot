@@ -5,14 +5,15 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 dotenv.config();
-const corsOptions = {
-  origin: '*', // Allow all origins, but you can specify specific ones
-  methods: 'GET,POST,PUT,DELETE',
-  allowedHeaders: 'Content-Type,Authorization',
-};
+
 
 const app = express();
-app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  next();
+});
 app.use(bodyParser.json());
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
@@ -81,7 +82,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 
-const PORT = process.env.PORT || 5000;
+const PORT = 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Обработка получения сообщений для сохранения chatId

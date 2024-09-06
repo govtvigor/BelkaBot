@@ -82,15 +82,15 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
                 return;
             }
 
-            alert("Chat ID: " + userChatId);
+            alert("Chat ID: " + userChatId);  // Ensure chatId is defined here
             alert("Lives Cost: " + livesCost);
 
-            const response = await fetch("http://localhost:5000/api/create-invoice", {
+            const response = await fetch("http://localhost:3000/api/create-invoice", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ chatId: userChatId, livesCost }),
+                body: JSON.stringify({ chatId: userChatId, livesCost }),  // Ensure chatId is passed correctly
             });
 
             alert("Response status: " + response.status);
@@ -108,6 +108,8 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         alert("You do not have enough stars!");
     }
 };
+
+
 
 
   return (
