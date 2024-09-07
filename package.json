@@ -25,11 +25,11 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-scripts": "^5.0.1",
-    "react-app-rewired": "^2.1.8",
     "resolve-url-loader": "^5.0.0",
     "sass": "^1.77.8",
     "sass-loader": "^16.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "react-app-rewired": "^2.2.1"
   },
   "scripts": {
     "start": "react-app-rewired start",
@@ -58,7 +58,6 @@
   "devDependencies": {
     "@babel/plugin-transform-private-property-in-object": "^7.24.7",
     "@types/node-telegram-bot-api": "^0.64.7",
-    "customize-cra": "^1.0.0",
-    "react-app-rewired": "^2.2.1"
+    "customize-cra": "^1.0.0"
   }
 }
