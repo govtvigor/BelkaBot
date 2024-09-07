@@ -82,7 +82,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           return;
         }
 
-        const response = await fetch("https://b7ee-2001-718-2-ce-10b6-d205-a483-e33d.ngrok-free.app", {
+        const response = await fetch("http://localhost:5001/api/create-invoice", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
