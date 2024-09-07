@@ -103,6 +103,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         alert("Invoice link created: " + invoiceLink);
 
         // Open the invoice in the Telegram Web App
+        window.Telegram.WebApp.ready();
         window.Telegram.WebApp.openInvoice(invoiceLink, (invoiceStatus) => {
           if (invoiceStatus === "paid") {
             alert("Star Payment Success!");
