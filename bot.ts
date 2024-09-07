@@ -10,10 +10,15 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*'); // You can restrict this to your specific domain
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  next();
+  res.header('Access-Control-Allow-Origin', 'https://belka-bot.vercel.app'); // Specify exact origin
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Add methods you need
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200); // Respond OK for preflight
+  } else {
+    next();
+  }
 });
 app.use(bodyParser.json());
 
