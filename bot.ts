@@ -17,41 +17,44 @@ const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
 // Маршрут для создания инвойса
 app.post("/api/create-invoice", async (req: Request, res: Response) => {
-  console.log("Received request:", req.body);
-  res.send(req.body); 
-  const { chatId, livesCost } = req.body;
+  const { title, description, prices, chatId } = req.body;
+
   if (!chatId) {
-    console.error("Chat ID is missing in the request body.");
     return res.status(400).json({ error: "Chat ID is missing" });
   }
 
   try {
-    // Create unique payload for each invoice
-    const payload = `invoice_${chatId}_${Date.now()}`;
+    // Generate the invoice link
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/createInvoiceLink`;
+    const requestBody = {
+      title,
+      description,
+      payload: `invoice_${chatId}_${Date.now()}`,
+      currency: "XTR",
+      prices
+    };
 
-    // Sending the invoice to the user
-    await bot.sendInvoice(
-      chatId,
-      "Extra Life",                        // Title
-      "Purchase an additional life",       // Description
-      payload,                             // Unique payload
-      "",                                  // No provider token needed for Telegram Stars
-      "XTR",                               // Currency for Telegram Stars
-      [
-        {
-          label: "Extra Life",
-          amount: livesCost * 100           // Amount in smallest units
-        }
-      ],
-    );
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
 
-    // If successful, respond with a success message
-    res.status(200).json({ message: "Invoice sent successfully" });
+    const data = await response.json();
+    
+    if (data.ok) {
+      // Return the invoice link
+      res.status(200).json({ invoiceLink: data.result });
+    } else {
+      res.status(500).json({ error: data.description });
+    }
   } catch (error) {
-    const err = error as any;
-    console.error("Error sending invoice:", err.response?.data || err.message);
-    res.status(500).json({ error: "Failed to send invoice" });
+    res.status(500).json({ error: "Failed to create invoice" });
   }
+});
+
+app.get("/", (req: Request, res: Response) => {
+  res.send("Server and Bot are running!");
 });
 
   
@@ -79,7 +82,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 
-const PORT = process.env.PORT || 5000;
+const PORT = 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Обработка получения сообщений для сохранения chatId

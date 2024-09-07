@@ -76,39 +76,46 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     const livesCost = 10;
 
     if (stars >= livesCost) {
-        try {
-            if (!userChatId) {
-                alert("Error: Chat ID is missing. Please try again.");
-                return;
-            }
-
-            alert("Chat ID: " + userChatId);  // Ensure chatId is defined here
-            alert("Lives Cost: " + livesCost);
-
-            const response = await fetch("http://localhost:5000/api/create-invoice", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ chatId: userChatId, livesCost }),  // Ensure chatId is passed correctly
-            });
-
-            alert("Response status: " + response.status);
-
-            if (!response.ok) {
-                throw new Error("Failed to create invoice");
-            }
-
-            const result = await response.json();
-            alert("Invoice created: " + JSON.stringify(result));
-        } catch (error) {
-            alert("Error creating invoice: " + error);
+      try {
+        if (!userChatId) {
+          alert("Error: Chat ID is missing. Please try again.");
+          return;
         }
-    } else {
-        alert("You do not have enough stars!");
-    }
-};
 
+        const response = await fetch("http://localhost:5001/api/create-invoice", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: "Extra Life",
+            description: "Purchase an additional life",
+            prices: [{ label: "Extra Life", amount: livesCost * 100 }],
+            chatId: userChatId
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create invoice");
+        }
+
+        const { invoiceLink } = await response.json();
+        alert("Invoice link created: " + invoiceLink);
+
+        // Open the invoice in the Telegram Web App
+        window.Telegram.WebApp.openInvoice(invoiceLink, (invoiceStatus) => {
+          if (invoiceStatus === "paid") {
+            alert("Star Payment Success!");
+          }
+        });
+
+      } catch (error) {
+        alert("Error creating invoice: " + error);
+      }
+    } else {
+      alert("You do not have enough stars!");
+    }
+  };
 
 
 
