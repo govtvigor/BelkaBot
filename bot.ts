@@ -8,28 +8,7 @@ dotenv.config();
 
 
 const app = express();
-app.use(cors({
-  origin: 'https://belka-bot.vercel.app',  // Specify your Vercel app as allowed origin
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-app.options("/api/create-invoice", (req, res) => {
-  res.header('Access-Control-Allow-Origin', 'https://belka-bot.vercel.app');
-  res.header('Access-Control-Allow-Methods', 'POST');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.sendStatus(200);  // Respond OK to preflight request
-});
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://belka-bot.vercel.app'); // Specify exact origin
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Add methods you need
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200); // Respond OK for preflight
-  } else {
-    next();
-  }
-});
+app.use(cors());
 app.use(bodyParser.json());
 
 

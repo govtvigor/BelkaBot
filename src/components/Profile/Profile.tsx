@@ -82,7 +82,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           return;
         }
 
-        const response = await fetch("https://e58b-2001-718-2-ce-10b6-d205-a483-e33d.ngrok-free.app/api/create-invoice", {
+        const response = await fetch("http://localhost:5001/api/create-invoice", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -90,7 +90,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           body: JSON.stringify({
             title: "Extra Life",
             description: "Purchase an additional life",
-            prices: [{ label: "Extra Life", amount: livesCost * 100 }],
+            prices: [{ label: "Extra Life", amount: livesCost * 10 }],
             chatId: userChatId
           })
         });
