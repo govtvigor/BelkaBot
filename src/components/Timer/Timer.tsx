@@ -1,9 +1,6 @@
-// src/components/Timer/Timer.tsx
-
 import React from 'react';
 import './timer.scss';
 
-// Define the props interface for the Timer component
 interface TimerProps {
   timeLeft: number;
 }

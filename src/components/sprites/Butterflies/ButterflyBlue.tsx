@@ -1,10 +1,8 @@
-// src/components/sprites/Butterflies/ButterflyBlue.tsx
-
 import React from 'react';
 import butterflyBlue from '../../../assets/buttefly2.png';
 import './butterflies.scss';
 
-// Define the props interface for the ButterflyBlue component
+
 interface ButterflyBlueProps {
   top: number;
   left: number;

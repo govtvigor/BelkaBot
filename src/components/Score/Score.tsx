@@ -1,10 +1,7 @@
-// src/components/Score/Score.tsx
-
 import React from 'react';
-import nutIcon from '../../assets/nut.png'; // Nut icon
+import nutIcon from '../../assets/nut.png'; 
 import './score.scss';
 
-// Define the props interface for the Score component
 interface ScoreProps {
   points: number;
 }

@@ -60,26 +60,6 @@ app.get("/", (req: Request, res: Response) => {
   
   
 
-app.post('/api/validate-init-data', (req: Request, res: Response) => {
-    const { initData } = req.body;
-  
-    
-  
-    // Парсим initData, если это строка (если оно пришло как строка, нужно парсить)
-    const initParams = new URLSearchParams(initData);
-    const userId = initParams.get('user_id');
-  
-    if (userId) {
-      res.json({ chatId: userId });
-    } else {
-      res.status(400).json({ error: 'Invalid initData' });
-    }
-  });
-
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Server and Bot are running!");
-});
 
 
 const PORT = 5001;

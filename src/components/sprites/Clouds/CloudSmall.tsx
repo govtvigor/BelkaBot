@@ -1,10 +1,7 @@
-// src/components/sprites/Clouds/CloudSmall.tsx
-
 import React from 'react';
 import cloudSmall from '../../../assets/cloudSmall.png';
 import './clouds.scss';
 
-// Define the props interface for the CloudSmall component
 interface CloudSmallProps {
   top: number;
   left: number;

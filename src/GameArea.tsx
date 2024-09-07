@@ -1,5 +1,3 @@
-// src/components/GameArea.tsx
-
 import React, { useState } from 'react';
 import Squirrel from './components/sprites/Squirrel/Squirrel';
 import Branch from './components/Branch/Branch';

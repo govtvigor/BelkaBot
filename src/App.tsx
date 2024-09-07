@@ -3,7 +3,7 @@ import GameArea from './GameArea';
 import './App.css';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 
-// Create context for chatId
+
 export const ChatIdContext = createContext<string | null>(null);
 
 const App: React.FC = () => {

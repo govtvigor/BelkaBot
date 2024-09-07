@@ -6,7 +6,7 @@ import fireIconGrey from "../../assets/fireIcon-gray.png";
 import fireIconActive from "../../assets/fireIcon.png";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
 import { saveUserByChatId, updateUserWallet } from "../../firebaseFunctions";
-import { ChatIdContext } from "../../App"; // Get chatId from context
+import { ChatIdContext } from "../../App"; 
 
 interface ProfileProps {
   onMenuClick: (screen: "game" | "profile") => void;
@@ -21,11 +21,11 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [tonConnectUI] = useTonConnectUI();
   
 
-  // Get chatId from context
+
   const userChatId = useContext(ChatIdContext);
   useEffect(() => {
     if (userChatId) {
-      saveUserByChatId(userChatId); // Save chatId when it's available
+      saveUserByChatId(userChatId); 
     }
   }, [userChatId]);
   
@@ -52,7 +52,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     }
   };
 
-  // Save wallet address when connected
+  
   useEffect(() => {
     if (tonConnectUI) {
       tonConnectUI.onStatusChange(async (wallet) => {
@@ -71,7 +71,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     }
   }, [tonConnectUI, userChatId]);
 
-  // Logic for purchasing lives
+  
   const handleBuyLives = async () => {
     const livesCost = 10;
 
@@ -102,7 +102,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         const { invoiceLink } = await response.json();
         alert("Invoice link created: " + invoiceLink);
 
-        // Open the invoice in the Telegram Web App
+       
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.openInvoice(invoiceLink, (invoiceStatus) => {
           if (invoiceStatus === "paid") {

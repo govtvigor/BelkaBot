@@ -2,7 +2,7 @@ import React from 'react';
 import heartIcon from '../../assets/heart.png';
 import './lives.scss';
 
-// Define the props interface for the component
+
 interface LivesProps {
   lives: number;
 }

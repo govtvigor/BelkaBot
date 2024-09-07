@@ -1,5 +1,3 @@
-// src/reducers/gameReducer.ts
-
 import {
   addBranch,
   addPoints,

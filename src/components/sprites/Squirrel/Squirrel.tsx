@@ -1,5 +1,3 @@
-// src/components/sprites/Squirrel/Squirrel.tsx
-
 import React from 'react';
 import squirrelImage from '../../../assets/squirt.png';
 import './squirrel.scss';

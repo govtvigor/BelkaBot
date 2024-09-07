@@ -1,5 +1,3 @@
-// src/actions/gameActions.ts
-
 import { Branch } from '../reducers/gameReducer';
 
 export const startGame = () => ({

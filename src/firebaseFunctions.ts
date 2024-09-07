@@ -1,20 +1,20 @@
 import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from './firebase';
 import { formatTonAddress } from './utils/convertAddress';
 
-// Функция для сохранения пользователя в Firestore по chatId
+
 export async function saveUserByChatId(chatId: string) {
   try {
-    const userRef = doc(db, 'users', chatId); // chatId как идентификатор
+    const userRef = doc(db, 'users', chatId); 
     const userSnapshot = await getDoc(userRef);
 
     if (!userSnapshot.exists()) {
-      // Создаем нового пользователя, если его нет
+      
       await setDoc(userRef, {
         chatId: chatId,
         gmStreak: 0,
         lives: 3,
         totalPoints: 0,
-        walletAddress: null // Кошелёк еще не подключен
+        walletAddress: null 
       });
       console.log('New user added with chatId:', chatId);
     } else {
@@ -39,9 +39,9 @@ export async function updateUserWallet(chatId: string | null, walletAddress: str
   try {
     const userRef = doc(db, 'users', chatId);
 
-    // Обновляем оба параметра: chatId и walletAddress
+    
     await updateDoc(userRef, {
-      walletAddress: formatTonAddress(walletAddress)  // Сохраняем только адрес кошелька
+      walletAddress: formatTonAddress(walletAddress)  
     });
 
     console.log('Кошелек успешно обновлен для chatId:', chatId);
@@ -50,8 +50,6 @@ export async function updateUserWallet(chatId: string | null, walletAddress: str
   }
 }
 
-
-// Получение chatId по адресу кошелька
 export const getChatIdFromApi = async (walletAddress: string): Promise<string | null> => {
   try {
     const formattedAddress = formatTonAddress(walletAddress);
