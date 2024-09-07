@@ -9,6 +9,11 @@ dotenv.config();
 
 const app = express();
 app.use(cors());
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://belka-bot-igors-projects-2a126fbf.vercel.app');  // Replace with your domain
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 app.use(bodyParser.json());
 
 
