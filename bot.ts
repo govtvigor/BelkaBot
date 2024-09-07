@@ -14,6 +14,9 @@ app.use(bodyParser.json());
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
+const herokuAppUrl = 'https://nut-game-73716189031b.herokuapp.com';
+
+bot.setWebHook(`${herokuAppUrl}/bot${TELEGRAM_BOT_TOKEN}`);
 
 // Маршрут для создания инвойса
 app.post("/api/create-invoice", async (req: Request, res: Response) => {
@@ -24,7 +27,7 @@ app.post("/api/create-invoice", async (req: Request, res: Response) => {
   }
 
   try {
-    // Generate the invoice link
+    
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/createInvoiceLink`;
     const requestBody = {
       title,
@@ -43,7 +46,7 @@ app.post("/api/create-invoice", async (req: Request, res: Response) => {
     const data = await response.json();
     
     if (data.ok) {
-      // Return the invoice link
+      
       res.status(200).json({ invoiceLink: data.result });
     } else {
       res.status(500).json({ error: data.description });
@@ -65,7 +68,7 @@ app.get("/", (req: Request, res: Response) => {
 const PORT = 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-// Обработка получения сообщений для сохранения chatId
+
 bot.onText(/\/(start|play)/, async (msg: Message) => {
     const chatId = msg.chat.id.toString();
     bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
@@ -84,17 +87,7 @@ bot.onText(/\/(start|play)/, async (msg: Message) => {
   
 
 
-bot.on('message', (msg: Message) => {
-  if (msg.successful_payment && msg.from) {
-    const userId = msg.from.id;
-    const paymentInfo = msg.successful_payment;
 
-    console.log(`User ${userId} made a payment:`, paymentInfo);
-    bot.sendMessage(userId, "✅ Payment accepted! You’ve purchased an extra life.");
-
-    
-  }
-});
 
 
 bot.on('pre_checkout_query', (query: PreCheckoutQuery) => {
