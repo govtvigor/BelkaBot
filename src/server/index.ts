@@ -1,12 +1,15 @@
 import express from 'express';
 import { createInvoice } from './api/create-invoice';
-import bot, { vercelAppUrl } from './bot-setup'; // Correct path for bot-setup
 import dotenv from 'dotenv';
+import TelegramBot from 'node-telegram-bot-api';
 
 // Load environment variables
-if (process.env.NODE_ENV !== 'production') {
-  dotenv.config();  // Only load .env variables in development
-}
+dotenv.config();
+
+export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
+export const vercelAppUrl = 'https://belka-bot.vercel.app';
+
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
 const app = express();
 app.use(express.json());

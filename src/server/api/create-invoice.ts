@@ -1,4 +1,4 @@
-import { TELEGRAM_BOT_TOKEN } from '../bot-setup'; // Ensure the correct path
+import { TELEGRAM_BOT_TOKEN } from '../index'; // Ensure the correct path
 
 export const createInvoice = async (chatId: string, title: string, description: string, amount: number) => {
   const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/createInvoiceLink`;
