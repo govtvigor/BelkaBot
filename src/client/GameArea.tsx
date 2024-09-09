@@ -9,7 +9,7 @@ import CloudBig from '../components/sprites/Clouds/CloudBig';
 import CloudSmall from '../components/sprites/Clouds/CloudSmall';
 import ButterflyBlue from "../components/sprites/Butterflies/ButterflyBlue";
 import ButterflyGreen from "../components/sprites/Butterflies/ButterflyGreen";
-import mainTreeImage from './assets/mainTree.png';
+import mainTreeImage from '../assets/mainTree.png';
 import groundTreeImage from './assets/groundTree.png';
 import startText from './assets/startText.png';
 import Timer from '../components/Timer/Timer';
