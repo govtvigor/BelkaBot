@@ -13,10 +13,10 @@ app.use(bodyParser.json());
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
-const herokuAppUrl = 'https://nut-game-73716189031b.herokuapp.com';
+const vercelAppUrl = 'https://belka-bot.vercel.app';
 
 // Set the webhook
-bot.setWebHook(`${herokuAppUrl}/bot${TELEGRAM_BOT_TOKEN}`);
+bot.setWebHook(`${vercelAppUrl}/bot${TELEGRAM_BOT_TOKEN}`);
 
 // Define the expected structure of the response from the createInvoiceLink API
 interface CreateInvoiceResponse {
@@ -80,7 +80,7 @@ bot.onText(/\/(start|play)/, async (msg: Message) => {
                 [
                     {
                         text: 'Play',
-                        web_app: { url: `https://nut-game-73716189031b.herokuapp.com/?chatId=${chatId}` }
+                        web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
                     }
                 ]
             ]
@@ -107,10 +107,10 @@ app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req: Request, res: Response) => {
 
 // Optionally function to set the webhook (can be run once to reset the webhook)
 async function setWebhook() {
-    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook?url=${herokuAppUrl}/bot${TELEGRAM_BOT_TOKEN}`);
+    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook?url=${vercelAppUrl}/bot${TELEGRAM_BOT_TOKEN}`);
     const data = await response.json();
     console.log(data);
 }
 
 // Uncomment to set the webhook on startup
-// setWebhook();
+setWebhook();

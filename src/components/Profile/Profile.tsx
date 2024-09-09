@@ -7,6 +7,7 @@ import fireIconActive from "../../assets/fireIcon.png";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
 import { saveUserByChatId, updateUserWallet } from "../../firebaseFunctions";
 import { ChatIdContext } from "../../App"; 
+import { createInvoice } from "../../../api/invoice";  // Import the API function
 
 interface ProfileProps {
   onMenuClick: (screen: "game" | "profile") => void;
@@ -19,16 +20,13 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [lives, setLives] = useState<number>(3);
   const [stars, setStars] = useState<number>(100);
   const [tonConnectUI] = useTonConnectUI();
-  
-
-
   const userChatId = useContext(ChatIdContext);
+
   useEffect(() => {
     if (userChatId) {
       saveUserByChatId(userChatId); 
     }
   }, [userChatId]);
-  
 
   const handleGMClick = () => {
     const today = new Date().toDateString();
@@ -52,7 +50,6 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     }
   };
 
-  
   useEffect(() => {
     if (tonConnectUI) {
       tonConnectUI.onStatusChange(async (wallet) => {
@@ -71,7 +68,6 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     }
   }, [tonConnectUI, userChatId]);
 
-  
   const handleBuyLives = async () => {
     const livesCost = 10;
 
@@ -82,27 +78,9 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           return;
         }
 
-        const response = await fetch("https://nut-game-73716189031b.herokuapp.com/api/create-invoice", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: "Extra Life",
-            description: "Purchase an additional life",
-            prices: [{ label: "Extra Life", amount: livesCost * 10 }],
-            chatId: userChatId
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to create invoice");
-        }
-
-        const { invoiceLink } = await response.json();
+        const invoiceLink = await createInvoice(userChatId, "Extra Life", "Purchase an additional life", livesCost);
         alert("Invoice link created: " + invoiceLink);
 
-       
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.openInvoice(invoiceLink, (invoiceStatus) => {
           if (invoiceStatus === "paid") {
@@ -117,8 +95,6 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       alert("You do not have enough stars!");
     }
   };
-
-
 
   return (
     <div className="profile">
