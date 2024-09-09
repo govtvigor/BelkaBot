@@ -8,11 +8,7 @@ module.exports = override(
   (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
-      buffer: require.resolve('buffer/'),
-      os: require.resolve('os-browserify/browser'),
-      crypto: require.resolve('crypto-browserify'),
-      path: require.resolve('path-browserify'),  // Correct polyfill for 'path'
-      util: require.resolve('util/'),
+      buffer: require.resolve('buffer/'),  // Optional: Only if Buffer is needed
     };
     return config;
   }
