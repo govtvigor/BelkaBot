@@ -7,7 +7,7 @@ import fireIconActive from "../../assets/fireIcon.png";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
 import { saveUserByChatId, updateUserWallet } from "../../firebaseFunctions";
 import { ChatIdContext } from "../../App"; 
-import { createInvoice } from "../../api/invoice";  // Import the API function
+import { createInvoice } from "../../api/create-invoice";  // Import the API function
 
 interface ProfileProps {
   onMenuClick: (screen: "game" | "profile") => void;
@@ -70,24 +70,27 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
 
   const handleBuyLives = async () => {
     const livesCost = 10;
-
+  
     if (stars >= livesCost) {
       try {
         if (!userChatId) {
           alert("Error: Chat ID is missing. Please try again.");
           return;
         }
-
+  
+        // Call the createInvoice function
         const invoiceLink = await createInvoice(userChatId, "Extra Life", "Purchase an additional life", livesCost);
+  
         alert("Invoice link created: " + invoiceLink);
-
+  
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.openInvoice(invoiceLink, (invoiceStatus) => {
           if (invoiceStatus === "paid") {
             alert("Star Payment Success!");
+            setLives(lives + 1); // Increase lives upon successful payment
           }
         });
-
+  
       } catch (error) {
         alert("Error creating invoice: " + error);
       }
@@ -95,6 +98,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       alert("You do not have enough stars!");
     }
   };
+  
 
   return (
     <div className="profile">
