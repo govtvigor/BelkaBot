@@ -11,6 +11,7 @@ const app = express();
 
 app.use(express.json());
 
+
 bot.onText(/\/(start|play)/, async (msg) => {
   const chatId = msg.chat.id.toString();
   bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
@@ -41,4 +42,10 @@ app.post('/api/create-invoice', async (req, res) => {
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+bot.on('pre_checkout_query', (query) => {
+  bot.answerPreCheckoutQuery(query.id, true).catch((error) => {
+    console.error("Pre-checkout query error:", error);
+  });
 });
