@@ -1,10 +1,20 @@
 {
-    "routes": [
+    "builds": [
       {
-        "src": "/bot(.*)",
-        "methods": ["POST"],
-        "dest": "/api/bot"
+        "src": "src/client/index.js",
+        "use": "@vercel/static-build",
+        "config": {
+          "distDir": "build"
+        }
+      },
+      {
+        "src": "src/server/index.ts",
+        "use": "@vercel/node"
       }
+    ],
+    "routes": [
+      { "src": "/api/(.*)", "dest": "/src/server/index.ts" },
+      { "src": "/(.*)", "dest": "/src/client/index.js" }
     ]
   }
   

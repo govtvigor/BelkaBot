@@ -5,9 +5,9 @@ import heartIcon from "../../assets/heart.png";
 import fireIconGrey from "../../assets/fireIcon-gray.png";
 import fireIconActive from "../../assets/fireIcon.png";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
-import { saveUserByChatId, updateUserWallet } from "../../firebaseFunctions";
-import { ChatIdContext } from "../../App"; 
-import { createInvoice } from "../../api/create-invoice";  // Import the API function
+import { saveUserByChatId, updateUserWallet } from "../../client/firebaseFunctions";
+import { ChatIdContext } from "../../client/App"; 
+import { createInvoice } from "../../server/api/create-invoice";  // Import the API function
 
 interface ProfileProps {
   onMenuClick: (screen: "game" | "profile") => void;

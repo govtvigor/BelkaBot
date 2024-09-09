@@ -1,5 +1,5 @@
 import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from './firebase';
-import { formatTonAddress } from './utils/convertAddress';
+import { formatTonAddress } from '../utils/convertAddress';
 
 
 export async function saveUserByChatId(chatId: string) {

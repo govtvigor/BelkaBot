@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import fetch from 'node-fetch';
-import { TELEGRAM_BOT_TOKEN, vercelAppUrl } from '../bot/bot-setup';
+import { TELEGRAM_BOT_TOKEN, vercelAppUrl } from '../../bot/bot-setup';
 
 export const setWebhook = async (req: Request, res: Response) => {
   try {

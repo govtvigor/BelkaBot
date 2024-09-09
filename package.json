@@ -59,6 +59,7 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-private-property-in-object": "^7.24.7",
-    "@types/node-telegram-bot-api": "^0.64.7"
+    "@types/node-telegram-bot-api": "^0.64.7",
+    "os-browserify": "^0.3.0"
   }
 }

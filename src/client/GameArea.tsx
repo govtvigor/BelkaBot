@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
-import Squirrel from './components/sprites/Squirrel/Squirrel';
-import Branch from './components/Branch/Branch';
-import Score from './components/Score/Score';
-import Lives from './components/Lives/Lives';
-import Menu from './components/Menu/Menu';
-import Profile from './components/Profile/Profile'; // Импортируем новый компонент Profile
-import CloudBig from './components/sprites/Clouds/CloudBig';
-import CloudSmall from './components/sprites/Clouds/CloudSmall';
-import ButterflyBlue from "./components/sprites/Butterflies/ButterflyBlue";
-import ButterflyGreen from "./components/sprites/Butterflies/ButterflyGreen";
+import Squirrel from '../components/sprites/Squirrel/Squirrel';
+import Branch from '../components/Branch/Branch';
+import Score from '../components/Score/Score';
+import Lives from '../components/Lives/Lives';
+import Menu from '../components/Menu/Menu';
+import Profile from '../components/Profile/Profile'; // Импортируем новый компонент Profile
+import CloudBig from '../components/sprites/Clouds/CloudBig';
+import CloudSmall from '../components/sprites/Clouds/CloudSmall';
+import ButterflyBlue from "../components/sprites/Butterflies/ButterflyBlue";
+import ButterflyGreen from "../components/sprites/Butterflies/ButterflyGreen";
 import mainTreeImage from './assets/mainTree.png';
 import groundTreeImage from './assets/groundTree.png';
 import startText from './assets/startText.png';
-import Timer from './components/Timer/Timer';
-import Bonus from './components/sprites/Bonus/Bonus';
-import { useGameLogic } from './hooks/useGameLogic';
-import { useClouds } from './hooks/useClouds';
-import { useButterflies } from './hooks/useButterflies';
-import { Branch as BranchType, Bonus as BonusType } from './reducers/gameReducer';
+import Timer from '../components/Timer/Timer';
+import Bonus from '../components/sprites/Bonus/Bonus';
+import { useGameLogic } from '../hooks/useGameLogic';
+import { useClouds } from '../hooks/useClouds';
+import { useButterflies } from '../hooks/useButterflies';
+import { Branch as BranchType, Bonus as BonusType } from '../reducers/gameReducer';
 
 const GameArea: React.FC = () => {
   const { state, handleGameStart, handleBranchClick, resetGame } = useGameLogic();
