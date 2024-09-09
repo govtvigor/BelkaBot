@@ -1,11 +1,11 @@
 import express from 'express';
-import dotenv from 'dotenv';
+
 import TelegramBot from 'node-telegram-bot-api';
 import { createInvoice } from './api/create-invoice'; 
-import path from 'path';
+
 
 // Load environment variables from .env
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
 
 export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 const vercelAppUrl = 'https://belka-bot.vercel.app';  // Adjust this with your actual Vercel domain
