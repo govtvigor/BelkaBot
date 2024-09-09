@@ -8,21 +8,21 @@ import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
-const vercelAppUrl = 'https://belka-bot.vercel.app';
+const vercelAppUrl = 'https://belka-bot.vercel.app';  // Adjust this with your actual Vercel domain
+
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
 console.log(`Telegram Bot Token: ${TELEGRAM_BOT_TOKEN}`);
-console.log(`Telegram Bot Token: ${process.env.TELEGRAM_BOT_TOKEN}`); 
 
-const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
+// Set up webhook
+bot.setWebHook(`${vercelAppUrl}/bot${TELEGRAM_BOT_TOKEN}`);
 
-// Create Express server
 const app = express();
 app.use(express.json());
 
 // Bot command handling (e.g., "/start" or "/play")
 bot.onText(/\/(start|play)/, async (msg) => {
   const chatId = msg.chat.id.toString();
-  console.log('Bot is polling for messages...');
-
+  console.log('Bot received command /start or /play');
 
   bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
     reply_markup: {
@@ -38,6 +38,12 @@ bot.onText(/\/(start|play)/, async (msg) => {
   });
 });
 
+// Endpoint to handle updates from Telegram (webhook handler)
+app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);  // Respond with 200 OK to confirm receipt
+});
+
 // Invoice API endpoint
 app.post('/api/create-invoice', async (req, res) => {
   const { chatId, title, description, amount } = req.body;
@@ -48,13 +54,6 @@ app.post('/api/create-invoice', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error });
   }
-});
-
-// Bot pre-checkout query handling
-bot.on('pre_checkout_query', (query) => {
-  bot.answerPreCheckoutQuery(query.id, true).catch((error) => {
-    console.error("Pre-checkout query error:", error);
-  });
 });
 
 // Start the Express server
