@@ -1,5 +1,6 @@
+import { TELEGRAM_BOT_TOKEN } from '../index'; 
 export const createInvoice = async (chatId: string, title: string, description: string, amount: number) => {
-    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
+
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/createInvoiceLink`;
     const requestBody = {
         title,
