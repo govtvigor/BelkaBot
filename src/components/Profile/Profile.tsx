@@ -82,7 +82,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           return;
         }
 
-        const response = await fetch("http://localhost:5001/api/create-invoice", {
+        const response = await fetch("https://nut-game-73716189031b.herokuapp.com/api/create-invoice", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

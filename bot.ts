@@ -77,7 +77,7 @@ bot.onText(/\/(start|play)/, async (msg: Message) => {
           [
             {
               text: 'Play',
-              web_app: { url: `https://belka-bot.vercel.app/?chatId=${chatId}` }  // Ensure chat ID is appended in URL
+              web_app: { url: `https://nut-game-73716189031b.herokuapp.com/?chatId=${chatId}` }  // Ensure chat ID is appended in URL
             }
           ]
         ]
