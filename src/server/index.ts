@@ -1,7 +1,12 @@
 import express from 'express';
 import { createInvoice } from './api/create-invoice'; // Adjust the path
+import dotenv from 'dotenv';
 
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();  // Only load .env variables in development
+}
 const app = express();
+
 
 app.use(express.json());
 

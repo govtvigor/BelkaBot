@@ -1,4 +1,3 @@
-// config-overrides.js
 const { override, addWebpackPlugin } = require('customize-cra');
 const webpack = require('webpack');
 
@@ -8,12 +7,11 @@ module.exports = override(
   })),
   (config) => {
     config.resolve.fallback = {
-      buffer: require.resolve('buffer/'),
-      // add other fallbacks if needed
-    };
-    config.resolve.fallback = {
       ...config.resolve.fallback,
+      buffer: require.resolve('buffer/'),
       os: require.resolve('os-browserify/browser'),
+      crypto: require.resolve('crypto-browserify'),
+      path: require.resolve('path-browserify'),  // Correct polyfill for 'path'
     };
     return config;
   }
