@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import bot from '../../bot/bot-setup';
+import bot from '../bot-setup';
 
 export const handleWebhook = (req: Request, res: Response) => {
   if (req.body) {

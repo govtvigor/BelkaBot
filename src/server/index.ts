@@ -1,6 +1,6 @@
 import express from 'express';
 import { createInvoice } from './api/create-invoice';
-import bot, { vercelAppUrl } from '../bot/bot-setup'; // Adjust the path
+import bot, { vercelAppUrl } from './bot-setup'; // Adjust the path
 import dotenv from 'dotenv';
 
 if (process.env.NODE_ENV !== 'production') {
