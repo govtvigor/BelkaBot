@@ -7,7 +7,7 @@ import { createInvoice } from './api/create-invoice';
 // Load environment variables from .env
 
 
-export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 const vercelAppUrl = 'https://belka-bot.vercel.app';  // Adjust this with your actual Vercel domain
 
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
