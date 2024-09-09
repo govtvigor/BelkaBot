@@ -1,8 +1,9 @@
 import express from 'express';
-
 import TelegramBot from 'node-telegram-bot-api';
 import { createInvoice } from './api/create-invoice'; 
+import dotenv from 'dotenv';
 
+dotenv.config();
 
 
 
