@@ -19,6 +19,11 @@ bot.setWebHook(`${vercelAppUrl}/bot${TELEGRAM_BOT_TOKEN}`);
 const app = express();
 app.use(express.json());
 
+app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
 // Bot command handling (e.g., "/start" or "/play")
 bot.onText(/\/(start|play)/, async (msg) => {
   const chatId = msg.chat.id.toString();

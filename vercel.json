@@ -13,8 +13,8 @@
       }
     ],
     "routes": [
-      { "src": "/api/(.*)", "dest": "/src/server/index.ts" }, 
-      { "src": "/(.*)", "dest": "/build/index.html" } 
+      { "src": "/api/(.*)", "dest": "/src/server/index.ts" },
+      { "src": "/bot(.*)", "dest": "/src/server/index.ts" }
     ]
   }
   
