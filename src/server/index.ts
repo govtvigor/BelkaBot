@@ -1,20 +1,21 @@
 import express from 'express';
-import { createInvoice } from './api/create-invoice';
 import dotenv from 'dotenv';
 import TelegramBot from 'node-telegram-bot-api';
+import { createInvoice } from './api/create-invoice'; // Adjust path if needed
 
-// Load environment variables
+// Load environment variables from .env
 dotenv.config();
 
-export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
-export const vercelAppUrl = 'https://belka-bot.vercel.app';
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
+const vercelAppUrl = 'https://belka-bot.vercel.app';
 
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
+// Create Express server
 const app = express();
 app.use(express.json());
 
-// Bot command handling
+// Bot command handling (e.g., "/start" or "/play")
 bot.onText(/\/(start|play)/, async (msg) => {
   const chatId = msg.chat.id.toString();
   bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
@@ -50,7 +51,7 @@ bot.on('pre_checkout_query', (query) => {
   });
 });
 
-// Start the server
+// Start the Express server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
