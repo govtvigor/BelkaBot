@@ -1,0 +1,10 @@
+{
+    "routes": [
+      {
+        "src": "/bot(.*)",
+        "methods": ["POST"],
+        "dest": "/api/bot"
+      }
+    ]
+  }
+  

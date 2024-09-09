@@ -97,14 +97,14 @@ bot.on('pre_checkout_query', (query: PreCheckoutQuery) => {
 
 // Handling incoming webhook updates
 app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req: Request, res: Response) => {
-    console.log("Webhook received:", req.body);
     if (req.body) {
-      bot.processUpdate(req.body);
-      res.sendStatus(200);
+        bot.processUpdate(req.body);
+        res.sendStatus(200); // Acknowledge receipt of the update
     } else {
-      res.sendStatus(400);
+        res.sendStatus(400); // Bad request
     }
-  });
+});
+
 
 app.get("/setWebhook", async (req: Request, res: Response) => {
     try {
