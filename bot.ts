@@ -97,13 +97,27 @@ bot.on('pre_checkout_query', (query: PreCheckoutQuery) => {
 
 // Handling incoming webhook updates
 app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req: Request, res: Response) => {
+    console.log("Webhook received:", req.body);
     if (req.body) {
-        bot.processUpdate(req.body);
-        res.sendStatus(200); // Acknowledge receipt of the update
+      bot.processUpdate(req.body);
+      res.sendStatus(200);
     } else {
-        res.sendStatus(400); // Bad request
+      res.sendStatus(400);
     }
-});
+  });
+
+app.get("/setWebhook", async (req: Request, res: Response) => {
+    try {
+      const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook?url=${vercelAppUrl}/bot${TELEGRAM_BOT_TOKEN}`);
+      const data = await response.json();
+      console.log(data);
+      res.send(data);
+    } catch (error) {
+      console.error("Error setting webhook:", error);
+      res.status(500).send("Webhook setup failed");
+    }
+  });
+  
 
 // Optionally function to set the webhook (can be run once to reset the webhook)
 async function setWebhook() {
