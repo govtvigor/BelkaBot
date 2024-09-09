@@ -1,10 +1,10 @@
 {
     "builds": [
       {
-        "src": "src/client/package.json",
+        "src": "package.json", 
         "use": "@vercel/static-build",
         "config": {
-          "distDir": "build"
+          "distDir": "build" 
         }
       },
       {
@@ -13,8 +13,8 @@
       }
     ],
     "routes": [
-      { "src": "/api/(.*)", "dest": "/src/server/index.ts" },
-      { "src": "/(.*)", "dest": "/src/client/build/index.html" }
+      { "src": "/api/(.*)", "dest": "/src/server/index.ts" }, 
+      { "src": "/(.*)", "dest": "/build/index.html" } 
     ]
   }
   
