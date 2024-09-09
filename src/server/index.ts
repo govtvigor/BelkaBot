@@ -1,5 +1,6 @@
 import express from 'express';
-import { createInvoice } from './api/create-invoice'; // Adjust the path
+import { createInvoice } from './api/create-invoice';
+import bot, { vercelAppUrl } from '../bot/bot-setup'; // Adjust the path
 import dotenv from 'dotenv';
 
 if (process.env.NODE_ENV !== 'production') {
@@ -9,6 +10,22 @@ const app = express();
 
 
 app.use(express.json());
+
+bot.onText(/\/(start|play)/, async (msg) => {
+  const chatId = msg.chat.id.toString();
+  bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: 'Play',
+            web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
+          }
+        ]
+      ]
+    }
+  });
+});
 
 app.post('/api/create-invoice', async (req, res) => {
   const { chatId, title, description, amount } = req.body;

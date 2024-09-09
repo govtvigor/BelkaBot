@@ -24,3 +24,4 @@ export const createInvoice = async (chatId: string, title: string, description: 
       throw new Error(data.description || "Failed to create invoice");
   }
 };
+
