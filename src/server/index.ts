@@ -28,26 +28,28 @@ app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
 bot.onText(/\/(start|play)/, async (msg) => {
   const chatId = msg.chat.id.toString();
   console.log('Bot received command /start or /play');
-
-  bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
-    reply_markup: {
-      inline_keyboard: [
-        [
-          {
-            text: 'Play',
-            web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
-          }
+  
+  try {
+    const response = await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: 'Play',
+              web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
+            }
+          ]
         ]
-      ]
-    }
-  });
+      }
+    });
+    console.log('Message sent:', response);
+  } catch (error) {
+    console.error('Error sending message:', error);
+  }
 });
 
-// Endpoint to handle updates from Telegram (webhook handler)
-app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200);  // Respond with 200 OK to confirm receipt
-});
+
+
 
 // Invoice API endpoint
 app.post('/api/create-invoice', async (req, res) => {
