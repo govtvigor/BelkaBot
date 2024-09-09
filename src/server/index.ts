@@ -4,11 +4,11 @@ import TelegramBot from 'node-telegram-bot-api';
 import { createInvoice } from './api/create-invoice'; 
 
 
-// Load environment variables from .env
+
 
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
-const vercelAppUrl = 'https://belka-bot.vercel.app';  // Adjust this with your actual Vercel domain
+const vercelAppUrl = 'https://belka-bot.vercel.app';  
 
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
 console.log(`Telegram Bot Token: ${TELEGRAM_BOT_TOKEN}`);
@@ -26,22 +26,31 @@ app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
 
 // Bot command handling (e.g., "/start" or "/play")
 bot.onText(/\/(start|play)/, async (msg) => {
+  // const chatId = msg.chat.id.toString();
+  // console.log(`Bot received command /start or /play from chatId: ${chatId}`);
+  
+  // try {
+  //   const response = await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
+  //     reply_markup: {
+  //       inline_keyboard: [
+  //         [
+  //           {
+  //             text: 'Play',
+  //             web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
+  //           }
+  //         ]
+  //       ]
+  //     }
+  //   });
+  //   console.log('Message sent:', response);
+  // } catch (error) {
+  //   console.error('Error sending message:', error);
+  // }
   const chatId = msg.chat.id.toString();
   console.log(`Bot received command /start or /play from chatId: ${chatId}`);
   
   try {
-    const response = await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: 'Play',
-              web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
-            }
-          ]
-        ]
-      }
-    });
+    const response = await bot.sendMessage(chatId, "Hello! This is a test message.");
     console.log('Message sent:', response);
   } catch (error) {
     console.error('Error sending message:', error);
