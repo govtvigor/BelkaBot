@@ -11,26 +11,6 @@ const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
 
 let webhookSet = false;
 
-// Command handling outside the request handler (only once)
-bot.onText(/\/(start|play)/, async (msg) => {
-  const chatId = msg.chat.id.toString();
-  console.log(`Received command from chatId: ${chatId}`);
-  
-  try {
-    const response = await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
-      reply_markup: {
-        inline_keyboard: [[{
-          text: 'Play',
-          web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
-        }]]
-      },
-    });
-    console.log('Message sent:', response);
-  } catch (error) {
-    console.error('Error sending message:', error);
-  }
-});
-
 export default async (req: VercelRequest, res: VercelResponse) => {
   // Set the webhook once
   if (!webhookSet) {
@@ -43,10 +23,37 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.url?.includes('/api/webhook')) {
       console.log('Incoming webhook request body:', JSON.stringify(req.body, null, 2));
       bot.processUpdate(req.body);  // Process the update from Telegram
+
+      // Directly extracting the command
+      const message = req.body.message;
+      if (message && message.text) {
+        const chatId = message.chat.id.toString();
+        const command = message.text;
+        
+        // Handle /start and /play commands directly
+        if (command === '/start' || command === '/play') {
+          console.log(`Received command from chatId: ${chatId}`);
+
+          try {
+            const response = await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
+              reply_markup: {
+                inline_keyboard: [[{
+                  text: 'Play',
+                  web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
+                }]]
+              },
+            });
+            console.log('Message sent:', response);
+          } catch (error) {
+            console.error('Error sending message:', error);
+          }
+        }
+      }
+
       return res.status(200).send('OK');
     }
 
-    // Invoice endpoint
+    // Invoice endpoint (if this exists in your bot)
     if (req.url?.includes('/api/create-invoice')) {
       const { chatId, title, description, amount } = req.body;
       try {
