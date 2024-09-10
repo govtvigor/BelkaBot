@@ -1,20 +1,23 @@
 {
-    "builds": [
-      {
-        "src": "package.json", 
-        "use": "@vercel/static-build",
-        "config": {
-          "distDir": "build" 
-        }
-      },
-      {
-        "src": "src/server/index.ts",
-        "use": "@vercel/node"
+  "builds": [
+    {
+      "src": "package.json", 
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
       }
-    ],
-    "routes": [
-      { "src": "/api/(.*)", "dest": "/src/server/index.ts" },
-      { "src": "/bot(.*)", "dest": "/src/server/index.ts" }
-    ]
-  }
-  
+    },
+    {
+      "src": "src/server/index.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "src/server/api/webhook.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/src/server/index.ts" },
+    { "src": "/bot(.*)", "dest": "/src/server/api/webhook.ts" }
+  ]
+}
