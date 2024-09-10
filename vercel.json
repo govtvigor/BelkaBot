@@ -4,12 +4,8 @@
       "src": "package.json", 
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build"
+        "distDir": "build" 
       }
-    },
-    {
-      "src": "src/server/index.ts",
-      "use": "@vercel/node"
     },
     {
       "src": "src/server/api/webhook.ts",
@@ -17,7 +13,6 @@
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/src/server/index.ts" },
-    { "src": "/bot(.*)", "dest": "/src/server/api/webhook.ts" }
+    { "src": "/api/(.*)", "dest": "/src/server/api/webhook.ts" }
   ]
 }
