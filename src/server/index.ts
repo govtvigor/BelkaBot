@@ -8,45 +8,15 @@ dotenv.config();
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
 
-// Set up the webhook only once (this could be done during initialization or on Vercel)
-const vercelAppUrl = process.env.VERCEL_URL || 'https://belka-bot.vercel.app'; // Adjust with your actual Vercel URL
-bot.setWebHook(`${vercelAppUrl}/api/webhook`);
-console.log(`Webhook set to: ${vercelAppUrl}/api/webhook`);
-
-// Bot command handling outside of the handler so it's only set once
-bot.onText(/\/(start|play)/, async (msg) => {
-  const chatId = msg.chat.id.toString();
-  console.log(`Bot received command /start or /play from chatId: ${chatId}`);
-
-  try {
-    const response = await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: 'Play',
-              web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
-            }
-          ]
-        ]
-      }
-    });
-    console.log('Message sent:', response);
-  } catch (error) {
-    console.error('Error sending message:', error);
-  }
-});
-
 export default async (req: VercelRequest, res: VercelResponse) => {
-  try {
-    // Handle webhook from Telegram
-    if (req.url?.includes('/api/webhook')) {
-      console.log('Incoming webhook request body:', JSON.stringify(req.body, null, 2));
-      bot.processUpdate(req.body);  // Process the incoming update from Telegram
-      return res.status(200).send('OK');
-    }
+  const vercelAppUrl = `https://${req.headers.host}`; // Dynamically setting webhook based on request host
 
-    // Handle /api/create-invoice
+  try {
+    // Set the webhook dynamically (only set it once if not already set)
+    await bot.setWebHook(`${vercelAppUrl}/api/webhook`);
+    console.log(`Webhook set to: ${vercelAppUrl}/api/webhook`);
+
+    // If it's a POST request to '/api/create-invoice'
     if (req.url?.includes('/api/create-invoice')) {
       const { chatId, title, description, amount } = req.body;
 
@@ -59,10 +29,46 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
     }
 
+    // Handle webhook from Telegram
+    if (req.url?.includes('/api/webhook')) {
+      console.log('Incoming webhook request body:', JSON.stringify(req.body, null, 2));
+      bot.processUpdate(req.body);  // Process the incoming update from Telegram
+
+      // Bot command handling
+      bot.onText(/\/(start|play)/, async (msg) => {
+        const chatId = msg.chat.id.toString();
+        console.log(`Bot received command /start or /play from chatId: ${chatId}`);
+
+        try {
+          const response = await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Play',
+                    web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
+                  }
+                ]
+              ]
+            }
+          });
+          console.log('Message sent:', response);
+        } catch (error) {
+          console.error('Error sending message:', error);
+        }
+      });
+
+      // Respond with 200 OK to confirm receipt of the update
+      return res.status(200).send('OK');
+    }
+
     // Return 404 if no endpoint matches
     return res.status(404).send('Not Found');
   } catch (error) {
-    console.error('Error handling request:', error);
+    console.error('Error handling webhook:', error);
     return res.status(500).send('Error');
   }
 };
+
+
+
