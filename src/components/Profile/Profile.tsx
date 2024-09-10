@@ -55,10 +55,8 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       tonConnectUI.onStatusChange(async (wallet) => {
         if (wallet) {
           const walletAddress = wallet.account.address.toString();
-          console.log(`Wallet connected: ${walletAddress}`);
   
           if (userChatId) {
-            console.log(`Chat ID: ${userChatId}`);
             await updateUserWallet(userChatId, walletAddress);
           } else {
             console.error("Chat ID is null, cannot save wallet address.");
@@ -81,7 +79,6 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         // Call the createInvoice function
         const invoiceLink = await createInvoice(userChatId, "Extra Life", "Purchase an additional life", livesCost);
   
-        alert("Invoice link created: " + invoiceLink);
   
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.openInvoice(invoiceLink, (invoiceStatus) => {
