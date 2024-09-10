@@ -16,25 +16,8 @@ console.log(`Webhook set to: ${vercelAppUrl}/api/webhook`);
 // Bot command handling (registered once globally)
 bot.onText(/\/(start|play)/, async (msg) => {
   const chatId = msg.chat.id.toString();
-  console.log(`Bot received command /start or /play from chatId: ${chatId}`);
-
-  try {
-    const response = await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: 'Play',
-              web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
-            }
-          ]
-        ]
-      }
-    });
-    console.log('Message sent:', response);
-  } catch (error) {
-    console.error('Error sending message:', error);
-  }
+  console.log(`Received command from chatId: ${chatId}`);
+  await bot.sendMessage(chatId, 'Test message for /play or /start command.');
 });
 
 export default async (req: VercelRequest, res: VercelResponse) => {
