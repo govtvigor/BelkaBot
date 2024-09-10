@@ -72,3 +72,4 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     return res.status(500).send('Error');
   }
 };
+export {TELEGRAM_BOT_TOKEN};
