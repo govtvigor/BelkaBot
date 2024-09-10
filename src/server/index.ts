@@ -6,7 +6,7 @@ import { createInvoice } from './api/create-invoice'; // Assuming the path is co
 dotenv.config();
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
-const vercelAppUrl = process.env.VERCEL_URL;
+const vercelAppUrl = 'https://belka-bot.vercel.app';
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
 bot.setWebHook(`${vercelAppUrl}/api/webhook`);
 
