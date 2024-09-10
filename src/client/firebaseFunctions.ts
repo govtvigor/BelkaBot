@@ -99,3 +99,16 @@ export const updateUserLives = async (chatId: string, newLives: number): Promise
     throw error;
   }
 };
+export const updateUserGMStreak = async (chatId: string, gmStreak: number): Promise<void> => {
+  try {
+    const userRef = doc(db, "users", chatId);  // Reference to the user document
+    await updateDoc(userRef, {
+      gmStreak: gmStreak  // Update the gmStreak field
+    });
+    console.log(`Updated GM streak for user ${chatId} to ${gmStreak}`);
+  } catch (error) {
+    console.error("Error updating GM streak in Firebase:", error);
+    throw error;
+  }
+};
+

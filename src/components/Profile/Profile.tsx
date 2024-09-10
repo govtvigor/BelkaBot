@@ -5,7 +5,7 @@ import heartIcon from "../../assets/heart.png";
 import fireIconGrey from "../../assets/fireIcon-gray.png";
 import fireIconActive from "../../assets/fireIcon.png";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
-import { saveUserByChatId, updateUserWallet, getUserLives, updateUserLives } from "../../client/firebaseFunctions";
+import { saveUserByChatId, updateUserWallet, getUserLives, updateUserLives, updateUserGMStreak } from "../../client/firebaseFunctions";
 import { ChatIdContext } from "../../client/App"; 
 import { createInvoice } from "../../server/api/create-invoice";  // Import the API function
 
@@ -44,18 +44,27 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayString = yesterday.toDateString();
-
+  
     if (!isGMChecked) {
       setIsGMChecked(true);
       localStorage.setItem("lastGMDate", today);
-
+  
+      let newStreak;
       if (lastGMDate === yesterdayString) {
-        const newStreak = gmStreak + 1;
+        newStreak = gmStreak + 1;
         setGMStreak(newStreak);
         localStorage.setItem("gmStreak", newStreak.toString());
       } else {
+        newStreak = 1;
         setGMStreak(1);
         localStorage.setItem("gmStreak", "1");
+      }
+  
+      // Save GM streak to Firebase
+      if (userChatId) {
+        updateUserGMStreak(userChatId, newStreak).catch((error) => {
+          console.error("Error saving GM streak to Firebase:", error);
+        });
       }
     }
   };
