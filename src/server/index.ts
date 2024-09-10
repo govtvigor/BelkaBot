@@ -30,12 +30,17 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         console.log('Handling pre_checkout_query:', preCheckoutQuery);
         
         // Approve the pre-checkout query
-        bot.answerPreCheckoutQuery(preCheckoutQuery.id, true, { error_message: '' }).then(() => {
-          console.log('Pre-checkout query approved.');
-        }).catch((err) => {
-          console.error('Error approving pre-checkout query:', err);
-        });
-      }
+        await bot.answerPreCheckoutQuery(preCheckoutQuery.id, true, { error_message: '' })
+            .then(() => {
+                console.log('Pre-checkout query approved.');
+            })
+            .catch((err) => {
+                console.error('Error approving pre-checkout query:', err);
+            });
+    
+        return res.status(200).send('OK');  // Respond immediately to the webhook
+    }
+    
 
       // Handle successful payment
       if (req.body.message && req.body.message.successful_payment) {
