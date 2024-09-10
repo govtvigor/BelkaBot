@@ -88,8 +88,12 @@ export const getUserLives = async (chatId: string): Promise<number | undefined> 
   }
 };
 export const updateUserLives = async (chatId: string, newLives: number): Promise<void> => {
+  if (typeof chatId !== 'string' || chatId.trim() === '') {
+    throw new Error("Invalid chatId passed to updateUserLives");
+  }
+
   try {
-    const userRef = doc(db, "users", chatId);  // Assuming "users" is the collection name and `chatId` is the document ID
+    const userRef = doc(db, "users", chatId);  // Ensure "users" is the collection and chatId is the document ID
     await updateDoc(userRef, {
       lives: newLives  // Update the lives field
     });
