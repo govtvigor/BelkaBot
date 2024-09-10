@@ -5,41 +5,49 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-
-
-
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 const vercelAppUrl = 'https://belka-bot.vercel.app';  
 
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
-console.log(`Telegram Bot Token: ${TELEGRAM_BOT_TOKEN}`);
-
-// Set up webhook
 bot.setWebHook(`${vercelAppUrl}/bot${TELEGRAM_BOT_TOKEN}`);
+console.log(`Telegram Bot Token: ${TELEGRAM_BOT_TOKEN}`);
 
 const app = express();
 app.use(express.json());
 
 app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200);
+  console.log('Incoming webhook request body:', JSON.stringify(req.body, null, 2));  // Log the request body
+  try {
+    bot.processUpdate(req.body);  // Process the update
+    res.sendStatus(200);  // Respond with 200 OK
+  } catch (error) {
+    console.error('Error processing update:', error);  // Log any processing error
+    res.sendStatus(500);  // Return error status if something goes wrong
+  }
 });
 
 // Bot command handling (e.g., "/start" or "/play")
 bot.onText(/\/(start|play)/, async (msg) => {
   const chatId = msg.chat.id.toString();
-    bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
+  console.log(`Bot received command /start or /play from chatId: ${chatId}`);
+
+  try {
+    const response = await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
       reply_markup: {
         inline_keyboard: [
           [
             {
               text: 'Play',
-              web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }  // Ensure chat ID is appended in URL
+              web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
             }
           ]
         ]
       }
     });
+    console.log('Message sent:', response);
+  } catch (error) {
+    console.error('Error sending message:', error);
+  }
 });
 
 
