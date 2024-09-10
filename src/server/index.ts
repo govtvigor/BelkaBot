@@ -57,7 +57,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.url?.includes('/api/create-invoice')) {
       const { chatId, title, description, amount } = req.body;
       try {
-        const invoiceLink = await createInvoice(TELEGRAM_BOT_TOKEN, chatId, title, description, amount);
+        const invoiceLink = await createInvoice(chatId, title, description, amount);
         return res.status(200).json({ invoiceLink });
       } catch (error) {
         console.error('Invoice creation error:', error);
