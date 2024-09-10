@@ -1,9 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import TelegramBot from 'node-telegram-bot-api';
-import dotenv from 'dotenv';
 import { createInvoice } from './api/create-invoice';
 
-dotenv.config();
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 const vercelAppUrl = 'https://belka-bot.vercel.app';
@@ -72,4 +70,3 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     return res.status(500).send('Error');
   }
 };
-export {TELEGRAM_BOT_TOKEN};
