@@ -42,10 +42,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     // If it's a POST request to '/api/webhook'
     if (req.url?.includes('/api/webhook')) {
       console.log('Incoming webhook request body:', JSON.stringify(req.body, null, 2));
-      
+
       // Process the incoming update from Telegram
       bot.processUpdate(req.body);
-      
+
       // Respond with 200 OK to confirm receipt of the update
       return res.status(200).send('OK');
     }
@@ -66,7 +66,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     // Return 404 if no endpoint matches
     return res.status(404).send('Not Found');
   } catch (error) {
-    console.error('Error handling request:', error);
-    return res.status(500).send('Error');
+    console.error('Error handling request:', error); // Log the error
+    return res.status(500).send('Error');  // Send a 500 response with error details
   }
 };
+
