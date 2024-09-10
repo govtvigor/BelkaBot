@@ -27,7 +27,7 @@ app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
 });
 
 // Bot command handling (e.g., "/start" or "/play")
-bot.onText(/\/(start|play)/, async (msg) => {
+bot.onText(/\/play/, async (msg) => {
   const chatId = msg.chat.id.toString();
   console.log(`Bot received command /start or /play from chatId: ${chatId}`);
 
@@ -44,11 +44,12 @@ bot.onText(/\/(start|play)/, async (msg) => {
         ]
       }
     });
-    console.log('Message sent:', response);
+    console.log('Message sent successfully:', JSON.stringify(response));
   } catch (error) {
-    console.error('Error sending message:', error);
+    console.error('Error sending message:', JSON.stringify(error));
   }
 });
+
 
 
 
