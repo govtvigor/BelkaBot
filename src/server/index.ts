@@ -27,27 +27,9 @@ app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
 });
 
 // Bot command handling (e.g., "/start" or "/play")
-bot.onText(/\/play/, async (msg) => {
-  const chatId = msg.chat.id.toString();
-  console.log(`Bot received command /start or /play from chatId: ${chatId}`);
-
-  try {
-    const response = await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: 'Play',
-              web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
-            }
-          ]
-        ]
-      }
-    });
-    console.log('Message sent successfully:', JSON.stringify(response));
-  } catch (error) {
-    console.error('Error sending message:', JSON.stringify(error));
-  }
+bot.onText(/\/play/, (msg) => {
+  const chatId = msg.chat.id;
+  bot.sendMessage(chatId, "This is a test message from your bot.");
 });
 
 
