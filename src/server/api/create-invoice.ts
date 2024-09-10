@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+
+dotenv.config(); // This should be at the top of your file
 
 export const createInvoice = async (chatId: string, title: string, description: string, amount: number) => {
     const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/createInvoiceLink`;
