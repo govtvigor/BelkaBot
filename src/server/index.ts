@@ -6,14 +6,16 @@ import { createInvoice } from './api/create-invoice'; // Assuming the path is co
 dotenv.config();
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
+const vercelAppUrl = process.env.VERCEL_URL;
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
+bot.setWebHook(`${vercelAppUrl}/api/webhook`);
 
 export default async (req: VercelRequest, res: VercelResponse) => {
-  const vercelAppUrl = `https://${req.headers.host}`; // Dynamically setting webhook based on request host
+   // Dynamically setting webhook based on request host
 
   try {
     // Set the webhook dynamically (only set it once if not already set)
-    await bot.setWebHook(`${vercelAppUrl}/api/webhook`);
+    
     console.log(`Webhook set to: ${vercelAppUrl}/api/webhook`);
 
     // If it's a POST request to '/api/create-invoice'
