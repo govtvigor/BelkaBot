@@ -11,8 +11,6 @@ const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
 bot.setWebHook(`${vercelAppUrl}/api/webhook`);
 
 export default async (req: VercelRequest, res: VercelResponse) => {
-   // Dynamically setting webhook based on request host
-
   try {
     // Set the webhook dynamically (only set it once if not already set)
     
