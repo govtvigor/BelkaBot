@@ -1,7 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import TelegramBot from 'node-telegram-bot-api';
 import dotenv from 'dotenv';
-import { createInvoice } from './api/create-invoice';
 import { updateUserLives } from '../client/firebaseFunctions';
 
 dotenv.config();
@@ -26,11 +25,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             const chatId = message.chat.id.toString();
             const command = message.text;
 
-            // Separate the /play command handling
+            // Handle the /start or /play command to show a welcome message and Play button
             if (command === '/start' || command === '/play') {
                 console.log(`Received command from chatId: ${chatId}`);
                 try {
-                    const response = await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
+                    await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
                         reply_markup: {
                             inline_keyboard: [[{
                                 text: 'Play',
@@ -38,7 +37,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                             }]]
                         },
                     });
-                    console.log('Message sent:', response);
                     return res.status(200).send('OK');
                 } catch (error) {
                     console.error('Error sending message:', error);
@@ -46,31 +44,34 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             }
         }
 
-        // Payment handling logic: Separate it from the command handling
+        // Payment handling logic: 
         if (req.body.pre_checkout_query) {
             const preCheckoutQuery = req.body.pre_checkout_query;
             console.log('Handling pre_checkout_query:', preCheckoutQuery);
 
-            // Approve the pre-checkout query
+            // Approve the pre-checkout query.
             await bot.answerPreCheckoutQuery(preCheckoutQuery.id, true, { error_message: '' });
             console.log('Pre-checkout query approved.');
             return res.status(200).send('OK');
         }
 
+        // Handle successful payment from the profile button. 
         if (message && message.successful_payment) {
             const successfulPayment = message.successful_payment;
             const chatId = message.chat.id;
 
             console.log('Payment received:', successfulPayment);
-            const userId = successfulPayment.invoice_payload.split('_')[1]; // Assuming invoice_payload contains user ID
 
-            const newLives = 3; // Example: give 3 lives
+            // Extract user ID from the invoice_payload
+            const userId = successfulPayment.invoice_payload.split('_')[1]; // Expecting 'invoice_userId_...'
+
+            const newLives = 3; // Define lives to be added
             try {
                 await updateUserLives(userId, newLives);
-                bot.sendMessage(chatId, `Payment received! You now have ${newLives} extra lives.`);
+                await bot.sendMessage(chatId, `Payment received! You now have ${newLives} extra lives.`);
             } catch (error) {
                 console.error('Error updating user lives in Firebase:', error);
-                bot.sendMessage(chatId, 'Payment received, but there was an error updating your lives.');
+                await bot.sendMessage(chatId, 'Payment received, but there was an error updating your lives.');
             }
 
             return res.status(200).send('OK');
