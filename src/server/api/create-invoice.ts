@@ -1,6 +1,7 @@
 export const createInvoice = async (chatId: string, title: string, description: string, amount: number) => {
-    const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/createInvoiceLink`;
-
+    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+    console.log(TELEGRAM_BOT_TOKEN);
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/createInvoiceLink`;
     const requestBody = {
         title,
         description,
