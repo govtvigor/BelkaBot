@@ -5,7 +5,7 @@ import heartIcon from "../../assets/heart.png";
 import fireIconGrey from "../../assets/fireIcon-gray.png";
 import fireIconActive from "../../assets/fireIcon.png";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
-import { saveUserByChatId, updateUserWallet } from "../../client/firebaseFunctions";
+import { saveUserByChatId, updateUserWallet, getUserLives, updateUserLives } from "../../client/firebaseFunctions";
 import { ChatIdContext } from "../../client/App"; 
 import { createInvoice } from "../../server/api/create-invoice";  // Import the API function
 
@@ -17,14 +17,24 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [totalScore, setTotalScore] = useState<number>(0);
   const [isGMChecked, setIsGMChecked] = useState<boolean>(false);
   const [gmStreak, setGMStreak] = useState<number>(0);
-  const [lives, setLives] = useState<number>(3);
+  const [lives, setLives] = useState<number>(3);  // Initial state for lives
   const [stars, setStars] = useState<number>(100);
   const [tonConnectUI] = useTonConnectUI();
   const userChatId = useContext(ChatIdContext);
 
+  // Fetch and save user by Chat ID on component load
   useEffect(() => {
     if (userChatId) {
-      saveUserByChatId(userChatId); 
+      saveUserByChatId(userChatId);
+      
+      // Fetch lives from Firebase
+      getUserLives(userChatId).then((fetchedLives) => {
+        if (fetchedLives !== undefined) {
+          setLives(fetchedLives);
+        }
+      }).catch((error) => {
+        console.error("Error fetching lives from Firebase:", error);
+      });
     }
   }, [userChatId]);
 
@@ -50,6 +60,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     }
   };
 
+  // Handle wallet connection with TonConnect and save wallet address
   useEffect(() => {
     if (tonConnectUI) {
       tonConnectUI.onStatusChange(async (wallet) => {
@@ -66,8 +77,9 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     }
   }, [tonConnectUI, userChatId]);
 
+  // Handle buying lives via invoice and save the updated lives to Firebase
   const handleBuyLives = async () => {
-    const livesCost = 10;
+    const livesCost = 1;  // Define the cost of lives
   
     if (stars >= livesCost) {
       try {
@@ -79,12 +91,18 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         // Call the createInvoice function
         const invoiceLink = await createInvoice(userChatId, "Extra Life", "Purchase an additional life", livesCost);
   
-  
         window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.openInvoice(invoiceLink, (invoiceStatus) => {
+        window.Telegram.WebApp.openInvoice(invoiceLink, async (invoiceStatus) => {
           if (invoiceStatus === "paid") {
             alert("Star Payment Success!");
-            setLives(lives + 1); // Increase lives upon successful payment
+
+            const newLives = lives + 3;  // Increase lives upon successful payment
+            setLives(newLives);
+
+            // Update lives in Firebase
+            await updateUserLives(userChatId, newLives);
+          } else if (invoiceStatus === "failed") {
+            alert("Payment Failed! Please try again.");
           }
         });
   
@@ -95,7 +113,6 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       alert("You do not have enough stars!");
     }
   };
-  
 
   return (
     <div className="profile">

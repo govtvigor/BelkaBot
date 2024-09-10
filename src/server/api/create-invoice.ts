@@ -5,7 +5,7 @@ export const createInvoice = async (chatId: string, title: string, description: 
         description,
         payload: `invoice_${chatId}_${Date.now()}`,
         currency: "XTR",
-        prices: [{ label: "Life", amount: amount * 100 }], // Modify as per your structure
+        prices: [{ label: "Life", amount: amount }], // Modify as per your structure
     };
 
     const response = await fetch(url, {

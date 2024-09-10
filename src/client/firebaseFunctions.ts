@@ -70,3 +70,32 @@ export const getChatIdFromApi = async (walletAddress: string): Promise<string | 
     return null;
   }
 };
+export const getUserLives = async (chatId: string): Promise<number | undefined> => {
+  try {
+    const userRef = doc(db, "users", chatId);  // Assuming "users" is the collection name and `chatId` is the document ID
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      return userData.lives || 0;  // Return lives, default to 0 if lives doesn't exist
+    } else {
+      console.log("No such document!");
+      return undefined;
+    }
+  } catch (error) {
+    console.error("Error getting user lives from Firebase:", error);
+    throw error;
+  }
+};
+export const updateUserLives = async (chatId: string, newLives: number): Promise<void> => {
+  try {
+    const userRef = doc(db, "users", chatId);  // Assuming "users" is the collection name and `chatId` is the document ID
+    await updateDoc(userRef, {
+      lives: newLives  // Update the lives field
+    });
+    console.log(`Updated lives for user ${chatId} to ${newLives}`);
+  } catch (error) {
+    console.error("Error updating user lives in Firebase:", error);
+    throw error;
+  }
+};
