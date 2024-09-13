@@ -12,6 +12,9 @@ import {
   startGame,
   updateScrollOffset,
   updateSpeed,
+  setBranches,
+  setScrollOffset,
+  setGameOver
 } from "../actions/gameActions";
 
 export interface Branch {
@@ -38,6 +41,7 @@ export interface GameState {
   bonuses: Bonus[];
   lifeDeducted: boolean;
   squirrelTop: number;
+  gameOver: boolean;
 }
 
 export const initialState: GameState = {
@@ -54,36 +58,46 @@ export const initialState: GameState = {
   bonuses: [],
   lifeDeducted: false,
   squirrelTop: 500,
+  gameOver: false,
 };
 
 export type GameAction =
-    | ReturnType<typeof startGame>
-    | ReturnType<typeof updateSpeed>
-    | ReturnType<typeof decreaseTime>
-    | ReturnType<typeof resetGame>
-    | ReturnType<typeof deductLife>
-    | ReturnType<typeof addPoints>
-    | ReturnType<typeof bonusActive>
-    | ReturnType<typeof setMenu>
-    | ReturnType<typeof setSquirrelSide>
-    | ReturnType<typeof addBranch>
-    | ReturnType<typeof removeBranch>
-    | ReturnType<typeof updateScrollOffset>
-    | ReturnType<typeof setLifeDeducted>
-    | ReturnType<typeof setSquirrelTop>;
+  | ReturnType<typeof startGame>
+  | ReturnType<typeof updateSpeed>
+  | ReturnType<typeof decreaseTime>
+  | ReturnType<typeof resetGame>
+  | ReturnType<typeof deductLife>
+  | ReturnType<typeof addPoints>
+  | ReturnType<typeof bonusActive>
+  | ReturnType<typeof setMenu>
+  | ReturnType<typeof setSquirrelSide>
+  | ReturnType<typeof addBranch>
+  | ReturnType<typeof removeBranch>
+  | ReturnType<typeof updateScrollOffset>
+  | ReturnType<typeof setLifeDeducted>
+  | ReturnType<typeof setSquirrelTop>
+  | ReturnType<typeof setScrollOffset>
+  | ReturnType<typeof setBranches>
+  | ReturnType<typeof setGameOver>;
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case 'START_GAME':
-      return { ...state, gameStarted: true, inMenu: false };
+      return { ...state, gameStarted: true, inMenu: false, gameOver: false };
     case 'UPDATE_SPEED':
       return { ...state, speed: Math.min(state.speed + 0.1, 40) };
     case 'DECREASE_TIME':
       return { ...state, timeLeft: state.timeLeft > 0 ? state.timeLeft - 1 : 0 };
     case 'RESET_GAME':
-      return initialState;
+      return { ...initialState, gameOver: true };
     case 'DEDUCT_LIFE':
-      return { ...state, lives: state.lives - 1, lifeDeducted: true };
+      const newLives = state.lives - 1;
+      return {
+        ...state,
+        lives: newLives,
+        lifeDeducted: true,
+        gameOver: newLives <= 0,
+      };
     case 'ADD_POINTS':
       return { ...state, points: state.points + action.payload };
     case 'BONUS_ACTIVE':
@@ -95,11 +109,17 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     case 'ADD_BRANCH':
       return { ...state, branches: [...state.branches, action.payload] };
     case 'REMOVE_BRANCH':
-      return { ...state, branches: state.branches.slice(1) };
+      return { ...state, branches: state.branches.slice(0, -1) };
     case 'UPDATE_SCROLL_OFFSET':
+      return { ...state, scrollOffset: action.payload };
+    case 'SET_BRANCHES':
+      return { ...state, branches: action.payload };
+    case 'SET_SCROLL_OFFSET':
       return { ...state, scrollOffset: action.payload };
     case 'SET_LIFE_DEDUCTED':
       return { ...state, lifeDeducted: action.payload };
+      case 'SET_GAME_OVER':
+  return { ...state, gameOver: action.payload };
     case 'SET_SQUIRREL_TOP': // Додано тут
       return { ...state, squirrelTop: action.payload };
     default:

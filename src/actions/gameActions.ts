@@ -3,6 +3,10 @@ import { Branch } from '../reducers/gameReducer';
 export const startGame = () => ({
     type: 'START_GAME' as const,
 });
+export const setBranches = (branches: Branch[]) => ({
+    type: 'SET_BRANCHES' as const,
+    payload: branches,
+});
 
 export const updateSpeed = () => ({
     type: 'UPDATE_SPEED' as const,
@@ -58,8 +62,17 @@ export const setLifeDeducted = (deducted: boolean) => ({
     type: 'SET_LIFE_DEDUCTED' as const,
     payload: deducted,
 });
+export const setScrollOffset = (offset: number) => ({
+    type: 'SET_SCROLL_OFFSET' as const,
+    payload: offset,
+  });
 
 export const setSquirrelTop = (top: number) => ({
     type: 'SET_SQUIRREL_TOP' as const,
     payload: top,
 });
+export const setGameOver = (isGameOver: boolean) => ({
+    type: 'SET_GAME_OVER' as const,
+    payload: isGameOver,
+  });
+  

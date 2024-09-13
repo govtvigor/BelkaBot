@@ -9,16 +9,17 @@ interface BranchProps {
 }
 
 const Branch: React.FC<BranchProps> = ({ side, top, onClick }) => {
-
-  const branchStyles: Record<'left' | 'right', React.CSSProperties> = {
-    left: { left: '25%', transform: `translateY(${top}px) scaleX(-1)` },
-    right: { right: '25%', transform: `translateY(${top}px)` },
+  const branchStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: `${top}px`,
+    [side]: '25%',
+    transform: side === 'left' ? 'scaleX(-1)' : undefined,
   };
 
   return (
     <div
-      className={`branch ${side}`}
-      style={{ ...branchStyles[side], position: 'absolute' }}
+      className="branch"
+      style={branchStyles}
       onClick={onClick}
     >
       <img src={branchImage} alt={`Branch ${side}`} />
