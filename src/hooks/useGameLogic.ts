@@ -17,7 +17,7 @@ export const useGameLogic = () => {
   // Generate initial branches
   const generateBranches = useCallback(() => {
     const newBranches = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 5; i++) {
       const side: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
       const top = i * 120 + 120;
       newBranches.push({ side, top });
