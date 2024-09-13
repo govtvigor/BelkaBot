@@ -1,6 +1,6 @@
 import React from 'react';
-import './menu.scss'; 
-import './profileMenu.scss'; 
+import './menu.scss';
+import './profileMenu.scss';
 
 interface MenuProps {
   onMenuClick: (screen: 'game' | 'profile') => void;

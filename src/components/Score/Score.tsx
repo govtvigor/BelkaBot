@@ -1,5 +1,5 @@
 import React from 'react';
-import nutIcon from '../../assets/nut.png'; 
+import nutIcon from '../../assets/nut.png';
 import './score.scss';
 
 interface ScoreProps {

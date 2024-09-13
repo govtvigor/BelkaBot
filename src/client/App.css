@@ -1,13 +1,21 @@
+/* Скидання стилів */
 * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
+
+/* Контейнер гри */
 .game-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
 }
 
+/* Ігрова область */
 .game-area {
     display: flex;
     flex-direction: column;
@@ -15,58 +23,36 @@
     flex: 1;
     position: relative;
     overflow: hidden;
-    background: #00bfff;
+    background: #00bfff; /* Синій фон неба */
 }
 
+/* Очки та життя */
 .score, .lives {
     margin: 10px;
     font-size: 1.5em;
 }
 
-
+/* Обгортка дерева */
 .tree-wrapper {
     position: absolute;
-    z-index: 2;
-    top: 130%; 
-    left: 50%; 
-    transform: translate(-50%, -50%); 
-    transition: width 1.5s ease-in-out, height 1.5s ease-in-out; 
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
-.tree-image {
-    position: absolute;
-    width: 100%;
-    height: 20%;
-    transition: opacity 1s ease-out;
-}
-.tree-image-hidden {
-    opacity: 0;
-}
+/* Зображення дерева */
 .tree-image-main {
     position: absolute;
     width: 100%;
-    height: 120%;
-    z-index: 1;
-    bottom: 668px;
+    height: auto;
+    bottom: 0;
     transition: opacity 1s ease-in-out, transform 1s ease-in-out;
 }
-.tree-image.fade-in {
-    opacity: 1;
-  }
-  
-  .tree-image.fade-out {
-    opacity: 0;
-  }
-  .tree-image-main.fade-in {
-    opacity: 1;
-    transform: scale(1);
-  }
 
-.scaled {
-    transform: scale(2) rotateY(360deg);
-    transition: 1.5s ease-in-out;
-}
-
+/* Анімація для стартового тексту */
 @keyframes pulse {
     0% {
         width: 50%;
@@ -83,17 +69,17 @@
     position: absolute;
     z-index: 3;
     top: 40%;
-    transition: ease-in-out all 1s;
+    transition: all 1s ease-in-out;
     height: auto;
     animation: pulse 3s infinite;
 }
 
+/* Іконки горіхів та сердець */
 .nut-icon {
     width: 40px;
     height: 40px;
     margin-right: 5px;
 }
-
 
 .heart-icon {
     width: 30px;
@@ -101,15 +87,68 @@
     margin-right: 5px;
 }
 
+/* Режими меню та гри */
 .menu-mode .tree-wrapper,
 .menu-mode .branches {
-    width: 100%; 
+    width: 100%;
     height: 100%;
 }
 
 .game-mode .tree-wrapper,
 .menu-mode .branches {
-    width: 100%; 
+    width: 100%;
     height: 200%;
 }
 
+/* Область землі */
+.ground-area {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 2;
+}
+
+.ground-tree-image {
+    width: 100%;
+    height: auto;
+}
+
+/* Білка */
+.squirrel {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: top 0.5s ease-in-out;
+}
+
+/* Анімація стрибка білки */
+.jump-animation {
+    /* Додаткові стилі, якщо потрібні */
+}
+
+/* Гілки */
+.branches {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.branch {
+    position: absolute;
+    width: 50%;
+    height: auto;
+}
+
+.branch.left {
+    left: 0;
+}
+
+.branch.right {
+    right: 0;
+}
+
+/* Додайте стилі для хмар, метеликів та інших елементів за потребою */
