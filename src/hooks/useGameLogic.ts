@@ -1,5 +1,7 @@
-import { useReducer, useCallback } from 'react';
+import { useReducer, useCallback, useEffect, useContext } from 'react';
 import { gameReducer, initialState } from '../reducers/gameReducer';
+import { updateUserLives, getUserLives } from '../client/firebaseFunctions';
+import { ChatIdContext } from '../client/App';
 import {
   startGame,
   resetGame,
@@ -8,12 +10,12 @@ import {
   setSquirrelSide,
   setBranches,
   setGameOver,
+  setLives,
 } from '../actions/gameActions';
 
 export const useGameLogic = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
-
-  // Generate initial branches
+  const userChatId = useContext(ChatIdContext);
   const generateBranches = useCallback(() => {
     const newBranches = [];
     const spacing = 120; // Define spacing between branches
@@ -24,6 +26,40 @@ export const useGameLogic = () => {
     }
     dispatch(setBranches(newBranches));
   }, [dispatch]);
+
+  // Fetch lives from Firebase when the game loads
+  useEffect(() => {
+    const fetchLives = async () => {
+      if (userChatId) {
+        try {
+          const livesFromDB = await getUserLives(userChatId);
+          if (livesFromDB !== undefined) {
+            dispatch(setLives(livesFromDB));
+          }
+        } catch (error) {
+          console.error('Error fetching lives from Firebase:', error);
+        }
+      }
+    };
+
+    fetchLives();
+  }, [userChatId, dispatch]);
+  const handleGameOver = useCallback(async () => {
+    const newLives = (state.lives || 0) - 1;
+    dispatch(deductLife()); // Decrement lives in the state
+
+    // Update lives in Firebase
+    if (userChatId) {
+      try {
+        await updateUserLives(userChatId, newLives);
+      } catch (error) {
+        console.error('Error updating lives in Firebase:', error);
+      }
+    }
+
+    dispatch(setGameOver(true));
+    alert('Game over! Incorrect branch clicked.');
+  }, [dispatch, state.lives, userChatId]);
 
   // Handle screen click
   const handleScreenClick = useCallback(
@@ -55,13 +91,14 @@ export const useGameLogic = () => {
         // Update the branches in the state
         dispatch(setBranches(newBranches));
       } else {
-        dispatch(deductLife());
-        dispatch(setGameOver(true));
-        alert('Game over! Incorrect branch clicked.');
+        handleGameOver();
       }
     },
-    [state.branches, dispatch, state.gameOver]
+    [state.branches, state.gameOver, dispatch, handleGameOver]
   );
+
+  // Handle game over
+  
 
   // Start game
   const handleGameStart = useCallback(() => {
@@ -73,7 +110,11 @@ export const useGameLogic = () => {
   const resetGameHandler = useCallback(() => {
     dispatch(resetGame());
     dispatch(setGameOver(false));
+    // Optionally, generate new branches
   }, [dispatch]);
+
+  // Generate initial branches
+  
 
   return {
     state,

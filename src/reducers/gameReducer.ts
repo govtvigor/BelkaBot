@@ -14,7 +14,8 @@ import {
   updateSpeed,
   setBranches,
   setScrollOffset,
-  setGameOver
+  setGameOver,
+  setLives
 } from "../actions/gameActions";
 
 export interface Branch {
@@ -29,7 +30,7 @@ export interface Bonus {
 
 export interface GameState {
   gameStarted: boolean;
-  lives: number;
+  lives: number | null;
   points: number;
   speed: number;
   bonusActive: boolean;
@@ -46,7 +47,7 @@ export interface GameState {
 
 export const initialState: GameState = {
   gameStarted: false,
-  lives: 3,
+  lives: null,
   points: 0,
   speed: 5,
   bonusActive: false,
@@ -78,7 +79,8 @@ export type GameAction =
   | ReturnType<typeof setSquirrelTop>
   | ReturnType<typeof setScrollOffset>
   | ReturnType<typeof setBranches>
-  | ReturnType<typeof setGameOver>;
+  | ReturnType<typeof setGameOver>
+  | ReturnType<typeof setLives>;
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -90,14 +92,15 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, timeLeft: state.timeLeft > 0 ? state.timeLeft - 1 : 0 };
     case 'RESET_GAME':
       return { ...initialState, gameOver: true };
-    case 'DEDUCT_LIFE':
-      const newLives = state.lives - 1;
-      return {
-        ...state,
-        lives: newLives,
-        lifeDeducted: true,
-        gameOver: newLives <= 0,
-      };
+      case 'DEDUCT_LIFE':
+        const currentLives = state.lives ?? 0; // If state.lives is null, default to 0
+        const newLives = currentLives - 1;
+        return {
+          ...state,
+          lives: newLives,
+          lifeDeducted: true,
+        };
+      
     case 'ADD_POINTS':
       return { ...state, points: state.points + action.payload };
     case 'BONUS_ACTIVE':
@@ -118,6 +121,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, scrollOffset: action.payload };
     case 'SET_LIFE_DEDUCTED':
       return { ...state, lifeDeducted: action.payload };
+      case 'SET_LIVES':
+  return { ...state, lives: action.payload };
       case 'SET_GAME_OVER':
   return { ...state, gameOver: action.payload };
     case 'SET_SQUIRREL_TOP': // Додано тут

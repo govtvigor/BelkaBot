@@ -11,6 +11,10 @@ export const setBranches = (branches: Branch[]) => ({
 export const updateSpeed = () => ({
     type: 'UPDATE_SPEED' as const,
 });
+export const setLives = (lives: number) => ({
+    type: 'SET_LIVES' as const,
+    payload: lives,
+  });
 
 export const decreaseTime = () => ({
     type: 'DECREASE_TIME' as const,
@@ -75,4 +79,5 @@ export const setGameOver = (isGameOver: boolean) => ({
     type: 'SET_GAME_OVER' as const,
     payload: isGameOver,
   });
+  
   

@@ -79,21 +79,25 @@ const GameArea: React.FC = () => {
           />
         </div>
 
-        <Lives lives={state.lives} />
+        {state.lives !== null ? (
+          <Lives lives={state.lives} />
+        ) : (
+          <div>Loading lives...</div>
+        )}
         <Score points={state.points} />
 
         {state.branches.length > 0 && !state.gameOver && (
-  <div className="branches">
-    {state.branches.map((branch: BranchType, index: number) => (
-      <Branch
-        key={index}
-        side={branch.side}
-        top={branch.top}
-        onClick={() => handleScreenClick(branch.side)}
-      />
-    ))}
-  </div>
-)}
+          <div className="branches">
+            {state.branches.map((branch: BranchType, index: number) => (
+              <Branch
+                key={index}
+                side={branch.side}
+                top={branch.top}
+                onClick={() => handleScreenClick(branch.side)}
+              />
+            ))}
+          </div>
+        )}
 
         <Squirrel
           position={state.squirrelSide}
@@ -107,13 +111,13 @@ const GameArea: React.FC = () => {
         </div>
       )}
 
-{state.gameOver && (
-  <div className="game-over-screen">
-    <h2>Game Over</h2>
-    <p>Your Score: {state.points}</p>
-    <button onClick={resetGame}>Play Again</button>
-  </div>
-)}
+      {state.gameOver && (
+        <div className="game-over-screen">
+          <h2>Game Over</h2>
+          <p>Your Score: {state.points}</p>
+          <button onClick={resetGame}>Play Again</button>
+        </div>
+      )}
 
     </div>
   );
