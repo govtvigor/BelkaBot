@@ -5,7 +5,7 @@ import heartIcon from "../../assets/heart.png";
 import fireIconGrey from "../../assets/fireIcon-gray.png";
 import fireIconActive from "../../assets/fireIcon.png";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
-import { saveUserByChatId, getUserTotalPoints, getUserLives, updateUserWallet } from "../../client/firebaseFunctions";
+import { saveUserByChatId, getUserTotalPoints, getUserLivesData, updateUserWallet, getUserGMData } from "../../client/firebaseFunctions";
 import { ChatIdContext } from "../../client/App";
 import { handleGMClick } from "./gmStreakHandler";
 import { handleBuyLives } from "./paymentHandler";
@@ -25,29 +25,37 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [tonConnectUI] = useTonConnectUI();
   const userChatId = useContext(ChatIdContext);
   const [userAchievements, setUserAchievements] = useState<string[]>([]);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
 
   useEffect(() => {
     if (userChatId) {
       saveUserByChatId(userChatId);
-      getUserLives(userChatId).then((fetchedLives) => {
-        if (fetchedLives !== undefined) {
-          setLives(fetchedLives);
+      getUserLivesData(userChatId).then((livesData) => {
+        if (livesData !== undefined) {
+          setLives(livesData.lives);
         }
-      }).catch((error) => {
-        console.error("Error fetching lives from Firebase:", error);
       });
+      getUserGMData(userChatId)
+      .then((data) => {
+        setGMStreak(data.gmStreak || 0);
 
+        const today = new Date().toDateString();
+        if (data.lastGMDate === today) {
+          setIsGMChecked(true);
+        } else {
+          setIsGMChecked(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching GM data from Firebase:", error);
+      });
       // Fetch total points
       getUserTotalPoints(userChatId).then((points) => {
         setTotalScore(points || 0);
       }).catch((error) => {
         console.error("Error fetching total points from Firebase:", error);
       });
-      getUserAchievements(userChatId).then((achievements) => {
-        setUserAchievements(achievements);
-      }).catch((error) => {
-        console.error("Error fetching achievements from Firebase:", error);
-      });
+      getUserAchievements(userChatId).then((achievements) => setUnlockedAchievements(achievements || []));
     }
   }, [userChatId]);
 
@@ -106,16 +114,19 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       </div>
       <div className="achievements-section">
         <h3>Achievements</h3>
-        <ul>
+        <div className="achievements-grid">
           {allAchievements.map((achievement) => (
-            <li
-              key={achievement.id}
-              className={userAchievements.includes(achievement.id) ? 'unlocked' : 'locked'}
-            >
-              {achievement.name}
-            </li>
+            <div key={achievement.id} className="achievement">
+              <img
+                src={achievement.icon}
+                alt={achievement.name}
+                className={`achievement-icon ${unlockedAchievements.includes(achievement.id) ? '' : 'locked'
+                  }`}
+              />
+              <p>{achievement.name}</p>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
       <Menu onMenuClick={onMenuClick} variant="profile" />
     </div>

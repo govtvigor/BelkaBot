@@ -4,8 +4,9 @@ import { setTimeLeft, decreaseTime } from '../actions/gameActions';
 import { ChatIdContext } from '../client/App';
 import { achievements } from '../constants/achievements';
 import {
+  updateUserLivesAndLastResetDate,
   updateUserLives,
-  getUserLives,
+  getUserLivesData,
   updateUserTotalPoints,
   updateUserGameStats,
   getUserData,
@@ -39,7 +40,7 @@ export const useGameLogic = () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [state.gameStarted, state.gameOver, dispatch]);
-  
+
   const generateBranches = useCallback(() => {
     const newBranches = [];
     const spacing = 120; // Define spacing between branches
@@ -56,9 +57,19 @@ export const useGameLogic = () => {
     const fetchLives = async () => {
       if (userChatId) {
         try {
-          const livesFromDB = await getUserLives(userChatId);
-          if (livesFromDB !== undefined) {
-            dispatch(setLives(livesFromDB));
+          const livesData = await getUserLivesData(userChatId);
+          if (livesData !== undefined) {
+            // Reset lives if last reset date is not today
+            const today = new Date().toDateString();
+            let updatedLives = livesData.lives;
+    
+            if (livesData.lastLivesResetDate !== today) {
+              // Reset lives to 3
+              updatedLives = 3;
+              await updateUserLivesAndLastResetDate(userChatId, updatedLives, today);
+            }
+    
+            dispatch(setLives(updatedLives));
           }
         } catch (error) {
           console.error('Error fetching lives from Firebase:', error);
@@ -75,7 +86,7 @@ export const useGameLogic = () => {
   const handleGameOver = useCallback(async () => {
     const newLives = (state.lives || 0) - 1;
     dispatch(deductLife()); // Decrement lives in the state
-  
+
     // Update lives in Firebase
     if (userChatId) {
       try {
@@ -84,24 +95,24 @@ export const useGameLogic = () => {
         console.error('Error updating lives in Firebase:', error);
       }
     }
-  
+
     // Update total points and game stats in Firebase
     if (userChatId) {
       try {
         await updateUserTotalPoints(userChatId, state.points);
         await updateUserGameStats(userChatId, state.points);
-  
+
         // Fetch user data
         const userData = await getUserData(userChatId);
-  
+
         if (userData) {
           // Check for new achievements
           const unlockedAchievements = achievements.filter(ach => ach.condition(userData));
-  
+
           const newAchievements = unlockedAchievements
             .map(ach => ach.id)
             .filter(id => !(userData.achievements || []).includes(id));
-  
+
           if (newAchievements.length > 0) {
             await updateUserAchievements(userChatId, newAchievements);
           }
@@ -112,13 +123,13 @@ export const useGameLogic = () => {
         console.error('Error updating user stats in Firebase:', error);
       }
     }
-  
+
     dispatch(setGameOver(true));
     alert('Game over! Incorrect branch clicked.');
   }, [dispatch, state.lives, state.points, userChatId]);
-  
-  
-  
+
+
+
 
   // Handle screen click
   const handleScreenClick = useCallback(
@@ -163,9 +174,13 @@ export const useGameLogic = () => {
 
   // Start game
   const handleGameStart = useCallback(() => {
+    if (state.lives <= 0) {
+      alert('You have no lives left. Please buy more lives in your profile.');
+      return;
+    }
     dispatch(startGame());
     generateBranches();
-  }, [dispatch, generateBranches]);
+  }, [dispatch, generateBranches, state.lives]);
 
   // Reset game
   const resetGameHandler = useCallback(() => {

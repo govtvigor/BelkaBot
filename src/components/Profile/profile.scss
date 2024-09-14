@@ -60,31 +60,25 @@
 }
 
 .achievements-section {
-    background-color: #000;
-    color: #fff;
-    font-family: 'Press Start 2P', cursive;
-    padding: 20px;
-    margin: 10px 0;
-    border: 2px solid #fff;
-}
-
-.achievements-section h3 {
-    margin: 0 0 10px 0;
-}
-
-.achievements-section ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.achievements-section li {
-    padding: 5px 0;
-}
-
-.achievements-section li.locked {
+    margin-top: 20px;
+  }
+  
+  .achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); // Adjust based on the number of columns you want
+    gap: 10px;
+  }
+  
+  .achievement {
+    text-align: center;
+  }
+  
+  .achievement-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .achievement-icon.locked {
+    filter: grayscale(100%);
     opacity: 0.5;
-}
-
-.achievements-section li.unlocked {
-    color: #0f0;
-}
+  }

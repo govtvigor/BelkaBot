@@ -75,44 +75,93 @@ export const getChatIdFromApi = async (walletAddress: string): Promise<string | 
     return null;
   }
 };
-export const getUserLives = async (chatId: string): Promise<number | undefined> => {
+export const getUserLivesData = async (chatId: string): Promise<{ lives: number; lastLivesResetDate: string }> => {
   try {
-    const userRef = doc(db, "users", chatId);  // Assuming "users" is the collection name and `chatId` is the document ID
+    const userRef = doc(db, "users", chatId);
     const userSnap = await getDoc(userRef);
 
     if (userSnap.exists()) {
-      const userData = userSnap.data();
-      return userData.lives || 0;  // Return lives, default to 0 if lives doesn't exist
+      const data = userSnap.data();
+      return {
+        lives: data.lives || 0,
+        lastLivesResetDate: data.lastLivesResetDate || "",
+      };
     } else {
       console.log("No such document!");
-      return undefined;
+      return {
+        lives: 0,
+        lastLivesResetDate: "",
+      };
     }
   } catch (error) {
-    console.error("Error getting user lives from Firebase:", error);
+    console.error("Error getting user lives data from Firebase:", error);
     throw error;
   }
 };
 export const updateUserLives = async (chatId: string, newLives: number): Promise<void> => {
   if (typeof chatId !== 'string' || chatId.trim() === '') {
-    throw new Error("Invalid chatId passed to updateUserLives");
+    throw new Error('Invalid chatId passed to updateUserLives');
   }
 
   try {
-    const userRef = doc(db, "users", chatId);  // Ensure "users" is the collection and chatId is the document ID
+    const userRef = doc(db, 'users', chatId);
     await updateDoc(userRef, {
-      lives: newLives  // Update the lives field
+      lives: newLives,
     });
     console.log(`Updated lives for user ${chatId} to ${newLives}`);
   } catch (error) {
-    console.error("Error updating user lives in Firebase:", error);
+    console.error('Error updating user lives in Firebase:', error);
     throw error;
   }
 };
+export const updateUserLivesAndLastResetDate = async (
+  chatId: string,
+  newLives: number,
+  lastLivesResetDate: string
+): Promise<void> => {
+  if (typeof chatId !== "string" || chatId.trim() === "") {
+    throw new Error("Invalid chatId passed to updateUserLivesAndLastResetDate");
+  }
+
+  try {
+    const userRef = doc(db, "users", chatId);
+    await updateDoc(userRef, {
+      lives: newLives,
+      lastLivesResetDate: lastLivesResetDate,
+    });
+    console.log(
+      `Updated lives for user ${chatId} to ${newLives} and lastLivesResetDate to ${lastLivesResetDate}`
+    );
+  } catch (error) {
+    console.error("Error updating user lives and last reset date in Firebase:", error);
+    throw error;
+  }
+};
+export const getUserGMData = async (chatId: string): Promise<{ gmStreak: number; lastGMDate: string }> => {
+  const userRef = doc(db, "users", chatId);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    const data = userSnap.data();
+    return {
+      gmStreak: data.gmStreak || 0,
+      lastGMDate: data.lastGMDate || "",
+    };
+  } else {
+    return {
+      gmStreak: 0,
+      lastGMDate: "",
+    };
+  }
+};
+
 export const updateUserGMStreak = async (chatId: string, gmStreak: number): Promise<void> => {
   try {
-    const userRef = doc(db, "users", chatId);  // Reference to the user document
+    const userRef = doc(db, "users", chatId);
+    const today = new Date().toDateString();
     await updateDoc(userRef, {
-      gmStreak: gmStreak  // Update the gmStreak field
+      gmStreak: gmStreak,
+      lastGMDate: today,
     });
     console.log(`Updated GM streak for user ${chatId} to ${gmStreak}`);
   } catch (error) {
