@@ -1,6 +1,6 @@
 import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from './firebase';
 import { formatTonAddress } from '../utils/convertAddress';
-import { increment } from 'firebase/firestore';
+import { increment, arrayUnion } from 'firebase/firestore';
 
 
 export async function saveUserByChatId(chatId: string) {
@@ -9,13 +9,15 @@ export async function saveUserByChatId(chatId: string) {
     const userSnapshot = await getDoc(userRef);
 
     if (!userSnapshot.exists()) {
-      
       await setDoc(userRef, {
         chatId: chatId,
         gmStreak: 0,
         lives: 3,
         totalPoints: 0,
-        walletAddress: null 
+        walletAddress: null,
+        gamesPlayed: 0,      // Added default value
+        highestScore: 0,     // Added default value
+        achievements: [],    // Added default value
       });
       console.log('New user added with chatId:', chatId);
     } else {
@@ -25,6 +27,8 @@ export async function saveUserByChatId(chatId: string) {
     console.error('Error saving user by chatId:', error);
   }
 }
+
+
 
 export async function updateUserWallet(chatId: string | null, walletAddress: string) {
   if (!chatId) {
@@ -135,4 +139,60 @@ export const getUserTotalPoints = async (chatId: string): Promise<number> => {
     return 0;
   }
 };
+export const updateUserGameStats = async (chatId: string, score: number): Promise<void> => {
+  if (!chatId) throw new Error("Invalid chatId");
+  const userRef = doc(db, "users", chatId);
 
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) {
+    // If user doesn't exist, initialize the necessary fields
+    await setDoc(userRef, {
+      chatId,
+      gamesPlayed: 1,
+      highestScore: score,
+      achievements: [],
+      // Initialize other fields as needed
+    });
+    return;
+  }
+
+  const userData = userSnap.data();
+
+  const newHighestScore = Math.max(userData.highestScore || 0, score);
+
+  await updateDoc(userRef, {
+    gamesPlayed: increment(1),
+    highestScore: newHighestScore,
+  });
+};
+
+
+export const getUserData = async (chatId: string): Promise<any> => {
+  const userRef = doc(db, "users", chatId);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    return userSnap.data();
+  } else {
+    return null;
+  }
+};
+
+export const updateUserAchievements = async (chatId: string, newAchievements: string[]): Promise<void> => {
+  const userRef = doc(db, "users", chatId);
+
+  await updateDoc(userRef, {
+    achievements: arrayUnion(...newAchievements),
+  });
+};
+export const getUserAchievements = async (chatId: string): Promise<string[]> => {
+  const userRef = doc(db, "users", chatId);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    const data = userSnap.data();
+    return data.achievements || [];
+  } else {
+    return [];
+  }
+};

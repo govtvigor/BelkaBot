@@ -1,10 +1,16 @@
-import { useReducer, useCallback, useEffect, useContext, useRef } from 'react';
+import { useReducer, useCallback, useEffect, useContext, useRef, useState } from 'react';
 import { gameReducer, initialState } from '../reducers/gameReducer';
 import { setTimeLeft, decreaseTime } from '../actions/gameActions';
-import { updateUserLives, getUserLives } from '../client/firebaseFunctions';
 import { ChatIdContext } from '../client/App';
-import { updateUserTotalPoints } from '../client/firebaseFunctions'; // Adjust the path as needed
-
+import { achievements } from '../constants/achievements';
+import {
+  updateUserLives,
+  getUserLives,
+  updateUserTotalPoints,
+  updateUserGameStats,
+  getUserData,
+  updateUserAchievements,
+} from '../client/firebaseFunctions';
 import {
   startGame,
   resetGame,
@@ -17,10 +23,12 @@ import {
   setLivesLoading
 } from '../actions/gameActions';
 
+
 export const useGameLogic = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const userChatId = useContext(ChatIdContext);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [userAchievements, setUserAchievements] = useState<string[]>([]);
   useEffect(() => {
     if (state.gameStarted && !state.gameOver) {
       timerRef.current = setInterval(() => {
@@ -77,17 +85,38 @@ export const useGameLogic = () => {
       }
     }
   
-    // Update total points in Firebase
+    // Update total points and game stats in Firebase
     if (userChatId) {
       try {
         await updateUserTotalPoints(userChatId, state.points);
+        await updateUserGameStats(userChatId, state.points);
+  
+        // Fetch user data
+        const userData = await getUserData(userChatId);
+  
+        if (userData) {
+          // Check for new achievements
+          const unlockedAchievements = achievements.filter(ach => ach.condition(userData));
+  
+          const newAchievements = unlockedAchievements
+            .map(ach => ach.id)
+            .filter(id => !(userData.achievements || []).includes(id));
+  
+          if (newAchievements.length > 0) {
+            await updateUserAchievements(userChatId, newAchievements);
+          }
+        } else {
+          console.error(`User data not found for chatId ${userChatId}`);
+        }
       } catch (error) {
-        console.error('Error updating total points in Firebase:', error);
+        console.error('Error updating user stats in Firebase:', error);
       }
     }
   
     dispatch(setGameOver(true));
+    alert('Game over! Incorrect branch clicked.');
   }, [dispatch, state.lives, state.points, userChatId]);
+  
   
   
 

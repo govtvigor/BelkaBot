@@ -9,6 +9,8 @@ import { saveUserByChatId, getUserTotalPoints, getUserLives, updateUserWallet } 
 import { ChatIdContext } from "../../client/App";
 import { handleGMClick } from "./gmStreakHandler";
 import { handleBuyLives } from "./paymentHandler";
+import { getUserAchievements } from "../../client/firebaseFunctions";
+import { achievements as allAchievements } from "../../constants/achievements";
 
 interface ProfileProps {
   onMenuClick: (screen: "game" | "profile") => void;
@@ -22,6 +24,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [stars, setStars] = useState<number>(100);
   const [tonConnectUI] = useTonConnectUI();
   const userChatId = useContext(ChatIdContext);
+  const [userAchievements, setUserAchievements] = useState<string[]>([]);
 
   useEffect(() => {
     if (userChatId) {
@@ -39,6 +42,11 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         setTotalScore(points || 0);
       }).catch((error) => {
         console.error("Error fetching total points from Firebase:", error);
+      });
+      getUserAchievements(userChatId).then((achievements) => {
+        setUserAchievements(achievements);
+      }).catch((error) => {
+        console.error("Error fetching achievements from Firebase:", error);
       });
     }
   }, [userChatId]);
@@ -95,6 +103,19 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       <div className="total-points-section">
         <h3>Total Nut Points</h3>
         <p>{totalScore}</p>
+      </div>
+      <div className="achievements-section">
+        <h3>Achievements</h3>
+        <ul>
+          {allAchievements.map((achievement) => (
+            <li
+              key={achievement.id}
+              className={userAchievements.includes(achievement.id) ? 'unlocked' : 'locked'}
+            >
+              {achievement.name}
+            </li>
+          ))}
+        </ul>
       </div>
       <Menu onMenuClick={onMenuClick} variant="profile" />
     </div>
