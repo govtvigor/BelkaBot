@@ -66,6 +66,7 @@ export const useGameLogic = () => {
     dispatch(setGameOver(true));
     alert('Game over! Incorrect branch clicked.');
   }, [dispatch, state.lives, userChatId]);
+  
 
   // Handle screen click
   const handleScreenClick = useCallback(

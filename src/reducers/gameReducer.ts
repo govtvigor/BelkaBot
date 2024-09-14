@@ -94,8 +94,16 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, speed: Math.min(state.speed + 0.1, 40) };
     case 'DECREASE_TIME':
       return { ...state, timeLeft: state.timeLeft > 0 ? state.timeLeft - 1 : 0 };
-    case 'RESET_GAME':
-      return { ...initialState, gameOver: true };
+      case 'RESET_GAME':
+        return {
+          ...state,
+          gameStarted: false,
+          gameOver: false,
+          points: 0,
+          timeLeft: initialState.timeLeft,
+          // Do not reset lives or isLivesLoading
+          // Reset other properties as needed
+        };
     case 'DEDUCT_LIFE':
       const currentLives = state.lives ?? 0; // If state.lives is null, default to 0
       const newLives = currentLives - 1;
