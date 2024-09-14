@@ -56,6 +56,10 @@ export const addBranch = (branch: Branch) => ({
 export const removeBranch = () => ({
     type: 'REMOVE_BRANCH' as const,
 });
+export const setLivesLoading = (isLoading: boolean) => ({
+    type: 'SET_LIVES_LOADING' as const,
+    payload: isLoading,
+  });
 
 export const updateScrollOffset = (offset: number) => ({
     type: 'UPDATE_SCROLL_OFFSET' as const,

@@ -15,7 +15,8 @@ import {
   setBranches,
   setScrollOffset,
   setGameOver,
-  setLives
+  setLives,
+  setLivesLoading
 } from "../actions/gameActions";
 
 export interface Branch {
@@ -30,7 +31,7 @@ export interface Bonus {
 
 export interface GameState {
   gameStarted: boolean;
-  lives: number | null;
+  lives: number;
   points: number;
   speed: number;
   bonusActive: boolean;
@@ -43,11 +44,12 @@ export interface GameState {
   lifeDeducted: boolean;
   squirrelTop: number;
   gameOver: boolean;
+  isLivesLoading: boolean;
 }
 
 export const initialState: GameState = {
   gameStarted: false,
-  lives: null,
+  lives: 3,
   points: 0,
   speed: 5,
   bonusActive: false,
@@ -60,6 +62,7 @@ export const initialState: GameState = {
   lifeDeducted: false,
   squirrelTop: 500,
   gameOver: false,
+  isLivesLoading: true,
 };
 
 export type GameAction =
@@ -80,7 +83,8 @@ export type GameAction =
   | ReturnType<typeof setScrollOffset>
   | ReturnType<typeof setBranches>
   | ReturnType<typeof setGameOver>
-  | ReturnType<typeof setLives>;
+  | ReturnType<typeof setLives>
+  | ReturnType<typeof setLivesLoading>;
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -92,15 +96,15 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, timeLeft: state.timeLeft > 0 ? state.timeLeft - 1 : 0 };
     case 'RESET_GAME':
       return { ...initialState, gameOver: true };
-      case 'DEDUCT_LIFE':
-        const currentLives = state.lives ?? 0; // If state.lives is null, default to 0
-        const newLives = currentLives - 1;
-        return {
-          ...state,
-          lives: newLives,
-          lifeDeducted: true,
-        };
-      
+    case 'DEDUCT_LIFE':
+      const currentLives = state.lives ?? 0; // If state.lives is null, default to 0
+      const newLives = currentLives - 1;
+      return {
+        ...state,
+        lives: newLives,
+        lifeDeducted: true,
+      };
+
     case 'ADD_POINTS':
       return { ...state, points: state.points + action.payload };
     case 'BONUS_ACTIVE':
@@ -121,10 +125,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, scrollOffset: action.payload };
     case 'SET_LIFE_DEDUCTED':
       return { ...state, lifeDeducted: action.payload };
-      case 'SET_LIVES':
-  return { ...state, lives: action.payload };
-      case 'SET_GAME_OVER':
-  return { ...state, gameOver: action.payload };
+    case 'SET_LIVES':
+      return { ...state, lives: action.payload };
+    case 'SET_LIVES_LOADING':
+      return { ...state, isLivesLoading: action.payload };
+    case 'SET_GAME_OVER':
+      return { ...state, gameOver: action.payload };
     case 'SET_SQUIRREL_TOP': // Додано тут
       return { ...state, squirrelTop: action.payload };
     default:

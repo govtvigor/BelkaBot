@@ -11,11 +11,13 @@ import {
   setBranches,
   setGameOver,
   setLives,
+  setLivesLoading
 } from '../actions/gameActions';
 
 export const useGameLogic = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const userChatId = useContext(ChatIdContext);
+
   const generateBranches = useCallback(() => {
     const newBranches = [];
     const spacing = 120; // Define spacing between branches
@@ -27,7 +29,7 @@ export const useGameLogic = () => {
     dispatch(setBranches(newBranches));
   }, [dispatch]);
 
-  // Fetch lives from Firebase when the game loads
+  // In your useGameLogic.ts
   useEffect(() => {
     const fetchLives = async () => {
       if (userChatId) {
@@ -38,12 +40,16 @@ export const useGameLogic = () => {
           }
         } catch (error) {
           console.error('Error fetching lives from Firebase:', error);
+        } finally {
+          dispatch(setLivesLoading(false));
         }
       }
     };
 
     fetchLives();
   }, [userChatId, dispatch]);
+
+
   const handleGameOver = useCallback(async () => {
     const newLives = (state.lives || 0) - 1;
     dispatch(deductLife()); // Decrement lives in the state
@@ -98,7 +104,7 @@ export const useGameLogic = () => {
   );
 
   // Handle game over
-  
+
 
   // Start game
   const handleGameStart = useCallback(() => {
@@ -114,7 +120,7 @@ export const useGameLogic = () => {
   }, [dispatch]);
 
   // Generate initial branches
-  
+
 
   return {
     state,

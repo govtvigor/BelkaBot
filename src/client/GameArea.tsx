@@ -79,10 +79,10 @@ const GameArea: React.FC = () => {
           />
         </div>
 
-        {state.lives !== null ? (
-          <Lives lives={state.lives} />
-        ) : (
+        {state.isLivesLoading ? (
           <div>Loading lives...</div>
+        ) : (
+          <Lives lives={state.lives} />
         )}
         <Score points={state.points} />
 
