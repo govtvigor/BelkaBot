@@ -65,6 +65,10 @@ export const updateScrollOffset = (offset: number) => ({
     type: 'UPDATE_SCROLL_OFFSET' as const,
     payload: offset,
 });
+export const setTimeLeft = (time: number) => ({
+    type: 'SET_TIME_LEFT' as const,
+    payload: time,
+  });
 
 export const setLifeDeducted = (deducted: boolean) => ({
     type: 'SET_LIFE_DEDUCTED' as const,

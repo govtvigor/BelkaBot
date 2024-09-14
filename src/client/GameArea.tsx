@@ -10,6 +10,7 @@ import groundTreeImage from "../assets/groundTree.png"; // Вернул groundTr
 import startText from "../assets/startText.png";
 import { useGameLogic } from "../hooks/useGameLogic";
 import { Branch as BranchType } from "../reducers/gameReducer";
+import Timer from "../components/Timer/Timer";
 
 const GameArea: React.FC = () => {
   const { state, handleGameStart, handleScreenClick, resetGame } =
@@ -84,6 +85,7 @@ const GameArea: React.FC = () => {
         ) : (
           <Lives lives={state.lives} />
         )}
+        <Timer timeLeft={state.timeLeft}/>
         <Score points={state.points} />
 
         {state.branches.length > 0 && !state.gameOver && (

@@ -16,7 +16,8 @@ import {
   setScrollOffset,
   setGameOver,
   setLives,
-  setLivesLoading
+  setLivesLoading,
+  setTimeLeft
 } from "../actions/gameActions";
 
 export interface Branch {
@@ -45,6 +46,7 @@ export interface GameState {
   squirrelTop: number;
   gameOver: boolean;
   isLivesLoading: boolean;
+
 }
 
 export const initialState: GameState = {
@@ -53,7 +55,7 @@ export const initialState: GameState = {
   points: 0,
   speed: 5,
   bonusActive: false,
-  timeLeft: 30,
+  timeLeft: 20,
   inMenu: true,
   squirrelSide: 'right',
   branches: [],
@@ -84,6 +86,7 @@ export type GameAction =
   | ReturnType<typeof setBranches>
   | ReturnType<typeof setGameOver>
   | ReturnType<typeof setLives>
+  | ReturnType<typeof setTimeLeft>
   | ReturnType<typeof setLivesLoading>;
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
@@ -92,24 +95,26 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, gameStarted: true, inMenu: false, gameOver: false };
     case 'UPDATE_SPEED':
       return { ...state, speed: Math.min(state.speed + 0.1, 40) };
+    case 'SET_TIME_LEFT':
+      return { ...state, timeLeft: action.payload };
     case 'DECREASE_TIME':
-      return { ...state, timeLeft: state.timeLeft > 0 ? state.timeLeft - 1 : 0 };
-      case 'RESET_GAME':
-  return {
-    ...state,
-    gameStarted: false,
-    gameOver: false,
-    points: 0,
-    timeLeft: initialState.timeLeft,
-    squirrelSide: initialState.squirrelSide,
-    branches: initialState.branches,
-    scrollOffset: initialState.scrollOffset,
-    bonuses: initialState.bonuses,
-    lifeDeducted: initialState.lifeDeducted,
-    squirrelTop: initialState.squirrelTop,
-    inMenu: initialState.inMenu,
-    // Preserve lives and isLivesLoading
-  };
+      return { ...state, timeLeft: Math.max(state.timeLeft - 1, 0) };
+    case 'RESET_GAME':
+      return {
+        ...state,
+        gameStarted: false,
+        gameOver: false,
+        points: 0,
+        timeLeft: initialState.timeLeft,
+        squirrelSide: initialState.squirrelSide,
+        branches: initialState.branches,
+        scrollOffset: initialState.scrollOffset,
+        bonuses: initialState.bonuses,
+        lifeDeducted: initialState.lifeDeducted,
+        squirrelTop: initialState.squirrelTop,
+        inMenu: initialState.inMenu,
+        // Preserve lives and isLivesLoading
+      };
 
     case 'DEDUCT_LIFE':
       const currentLives = state.lives ?? 0; // If state.lives is null, default to 0

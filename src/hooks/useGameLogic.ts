@@ -1,5 +1,6 @@
-import { useReducer, useCallback, useEffect, useContext } from 'react';
+import { useReducer, useCallback, useEffect, useContext, useRef } from 'react';
 import { gameReducer, initialState } from '../reducers/gameReducer';
+import { setTimeLeft, decreaseTime } from '../actions/gameActions';
 import { updateUserLives, getUserLives } from '../client/firebaseFunctions';
 import { ChatIdContext } from '../client/App';
 import {
@@ -17,7 +18,18 @@ import {
 export const useGameLogic = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const userChatId = useContext(ChatIdContext);
-
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => {
+    if (state.gameStarted && !state.gameOver) {
+      timerRef.current = setInterval(() => {
+        dispatch(decreaseTime());
+      }, 1000);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [state.gameStarted, state.gameOver, dispatch]);
+  
   const generateBranches = useCallback(() => {
     const newBranches = [];
     const spacing = 120; // Define spacing between branches
@@ -67,6 +79,12 @@ export const useGameLogic = () => {
     alert('Game over! Incorrect branch clicked.');
   }, [dispatch, state.lives, userChatId]);
   
+  useEffect(() => {
+    if (state.timeLeft <= 0 && state.gameStarted) {
+      handleGameOver();
+    }
+  }, [state.timeLeft, state.gameStarted, handleGameOver]);
+  
 
   // Handle screen click
   const handleScreenClick = useCallback(
@@ -82,6 +100,8 @@ export const useGameLogic = () => {
 
         // Remove the top branch
         let newBranches = state.branches.slice(0, -1);
+        const timeIncrement = Math.max(0.05, 0.5 - (state.points / 100));
+        dispatch(setTimeLeft(state.timeLeft + timeIncrement));
 
         // Add a new branch at the top
         const newSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
