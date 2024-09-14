@@ -95,15 +95,22 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     case 'DECREASE_TIME':
       return { ...state, timeLeft: state.timeLeft > 0 ? state.timeLeft - 1 : 0 };
       case 'RESET_GAME':
-        return {
-          ...state,
-          gameStarted: false,
-          gameOver: false,
-          points: 0,
-          timeLeft: initialState.timeLeft,
-          // Do not reset lives or isLivesLoading
-          // Reset other properties as needed
-        };
+  return {
+    ...state,
+    gameStarted: false,
+    gameOver: false,
+    points: 0,
+    timeLeft: initialState.timeLeft,
+    squirrelSide: initialState.squirrelSide,
+    branches: initialState.branches,
+    scrollOffset: initialState.scrollOffset,
+    bonuses: initialState.bonuses,
+    lifeDeducted: initialState.lifeDeducted,
+    squirrelTop: initialState.squirrelTop,
+    inMenu: initialState.inMenu,
+    // Preserve lives and isLivesLoading
+  };
+
     case 'DEDUCT_LIFE':
       const currentLives = state.lives ?? 0; // If state.lives is null, default to 0
       const newLives = currentLives - 1;
