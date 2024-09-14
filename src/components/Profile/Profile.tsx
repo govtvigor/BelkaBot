@@ -5,7 +5,7 @@ import heartIcon from "../../assets/heart.png";
 import fireIconGrey from "../../assets/fireIcon-gray.png";
 import fireIconActive from "../../assets/fireIcon.png";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
-import { saveUserByChatId, getUserLives, updateUserWallet } from "../../client/firebaseFunctions";
+import { saveUserByChatId, getUserTotalPoints, getUserLives, updateUserWallet } from "../../client/firebaseFunctions";
 import { ChatIdContext } from "../../client/App";
 import { handleGMClick } from "./gmStreakHandler";
 import { handleBuyLives } from "./paymentHandler";
@@ -33,8 +33,16 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       }).catch((error) => {
         console.error("Error fetching lives from Firebase:", error);
       });
+
+      // Fetch total points
+      getUserTotalPoints(userChatId).then((points) => {
+        setTotalScore(points || 0);
+      }).catch((error) => {
+        console.error("Error fetching total points from Firebase:", error);
+      });
     }
   }, [userChatId]);
+
 
   useEffect(() => {
     if (tonConnectUI) {
@@ -83,6 +91,10 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         <div className="crypto-wallet">
           <TonConnectButton />
         </div>
+      </div>
+      <div className="total-points-section">
+        <h3>Total Nut Points</h3>
+        <p>{totalScore}</p>
       </div>
       <Menu onMenuClick={onMenuClick} variant="profile" />
     </div>

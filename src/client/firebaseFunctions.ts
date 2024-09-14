@@ -1,5 +1,6 @@
 import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from './firebase';
 import { formatTonAddress } from '../utils/convertAddress';
+import { increment } from 'firebase/firestore';
 
 
 export async function saveUserByChatId(chatId: string) {
@@ -113,6 +114,25 @@ export const updateUserGMStreak = async (chatId: string, gmStreak: number): Prom
   } catch (error) {
     console.error("Error updating GM streak in Firebase:", error);
     throw error;
+  }
+};
+export const updateUserTotalPoints = async (chatId: string, pointsToAdd: number): Promise<void> => {
+  if (!chatId) throw new Error("Invalid chatId");
+  const userRef = doc(db, "users", chatId);
+
+  await updateDoc(userRef, {
+    totalPoints: increment(pointsToAdd),
+  });
+};
+export const getUserTotalPoints = async (chatId: string): Promise<number> => {
+  const userRef = doc(db, "users", chatId);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    const data = userSnap.data();
+    return data.totalPoints || 0;
+  } else {
+    return 0;
   }
 };
 

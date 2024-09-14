@@ -3,6 +3,8 @@ import { gameReducer, initialState } from '../reducers/gameReducer';
 import { setTimeLeft, decreaseTime } from '../actions/gameActions';
 import { updateUserLives, getUserLives } from '../client/firebaseFunctions';
 import { ChatIdContext } from '../client/App';
+import { updateUserTotalPoints } from '../client/firebaseFunctions'; // Adjust the path as needed
+
 import {
   startGame,
   resetGame,
@@ -65,7 +67,7 @@ export const useGameLogic = () => {
   const handleGameOver = useCallback(async () => {
     const newLives = (state.lives || 0) - 1;
     dispatch(deductLife()); // Decrement lives in the state
-
+  
     // Update lives in Firebase
     if (userChatId) {
       try {
@@ -74,16 +76,19 @@ export const useGameLogic = () => {
         console.error('Error updating lives in Firebase:', error);
       }
     }
-
-    dispatch(setGameOver(true));
-    alert('Game over! Incorrect branch clicked.');
-  }, [dispatch, state.lives, userChatId]);
   
-  useEffect(() => {
-    if (state.timeLeft <= 0 && state.gameStarted) {
-      handleGameOver();
+    // Update total points in Firebase
+    if (userChatId) {
+      try {
+        await updateUserTotalPoints(userChatId, state.points);
+      } catch (error) {
+        console.error('Error updating total points in Firebase:', error);
+      }
     }
-  }, [state.timeLeft, state.gameStarted, handleGameOver]);
+  
+    dispatch(setGameOver(true));
+  }, [dispatch, state.lives, state.points, userChatId]);
+  
   
 
   // Handle screen click
