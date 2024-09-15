@@ -1,8 +1,17 @@
-import { useReducer, useCallback, useEffect, useContext, useRef } from 'react';
+import { useReducer, useCallback, useEffect, useContext, useRef, useState } from 'react';
 import { gameReducer, initialState } from '../reducers/gameReducer';
 import { setTimeLeft, decreaseTime } from '../actions/gameActions';
-import { updateUserLives, getUserLives } from '../client/firebaseFunctions';
 import { ChatIdContext } from '../client/App';
+import { achievements } from '../constants/achievements';
+import {
+  updateUserLivesAndLastResetDate,
+  updateUserLives,
+  getUserLivesData,
+  updateUserTotalPoints,
+  updateUserGameStats,
+  getUserData,
+  updateUserAchievements,
+} from '../client/firebaseFunctions';
 import {
   startGame,
   resetGame,
@@ -15,10 +24,12 @@ import {
   setLivesLoading
 } from '../actions/gameActions';
 
+
 export const useGameLogic = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const userChatId = useContext(ChatIdContext);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [userAchievements, setUserAchievements] = useState<string[]>([]);
   useEffect(() => {
     if (state.gameStarted && !state.gameOver) {
       timerRef.current = setInterval(() => {
@@ -29,7 +40,7 @@ export const useGameLogic = () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [state.gameStarted, state.gameOver, dispatch]);
-  
+
   const generateBranches = useCallback(() => {
     const newBranches = [];
     const spacing = 120; // Define spacing between branches
@@ -46,9 +57,19 @@ export const useGameLogic = () => {
     const fetchLives = async () => {
       if (userChatId) {
         try {
-          const livesFromDB = await getUserLives(userChatId);
-          if (livesFromDB !== undefined) {
-            dispatch(setLives(livesFromDB));
+          const livesData = await getUserLivesData(userChatId);
+          if (livesData !== undefined) {
+            // Reset lives if last reset date is not today
+            const today = new Date().toDateString();
+            let updatedLives = livesData.lives;
+    
+            if (livesData.lastLivesResetDate !== today) {
+              // Reset lives to 3
+              updatedLives = 3;
+              await updateUserLivesAndLastResetDate(userChatId, updatedLives, today);
+            }
+    
+            dispatch(setLives(updatedLives));
           }
         } catch (error) {
           console.error('Error fetching lives from Firebase:', error);
@@ -75,16 +96,40 @@ export const useGameLogic = () => {
       }
     }
 
+    // Update total points and game stats in Firebase
+    if (userChatId) {
+      try {
+        await updateUserTotalPoints(userChatId, state.points);
+        await updateUserGameStats(userChatId, state.points);
+
+        // Fetch user data
+        const userData = await getUserData(userChatId);
+
+        if (userData) {
+          // Check for new achievements
+          const unlockedAchievements = achievements.filter(ach => ach.condition(userData));
+
+          const newAchievements = unlockedAchievements
+            .map(ach => ach.id)
+            .filter(id => !(userData.achievements || []).includes(id));
+
+          if (newAchievements.length > 0) {
+            await updateUserAchievements(userChatId, newAchievements);
+          }
+        } else {
+          console.error(`User data not found for chatId ${userChatId}`);
+        }
+      } catch (error) {
+        console.error('Error updating user stats in Firebase:', error);
+      }
+    }
+
     dispatch(setGameOver(true));
     alert('Game over! Incorrect branch clicked.');
-  }, [dispatch, state.lives, userChatId]);
-  
-  useEffect(() => {
-    if (state.timeLeft <= 0 && state.gameStarted) {
-      handleGameOver();
-    }
-  }, [state.timeLeft, state.gameStarted, handleGameOver]);
-  
+  }, [dispatch, state.lives, state.points, userChatId]);
+
+
+
 
   // Handle screen click
   const handleScreenClick = useCallback(
@@ -129,9 +174,13 @@ export const useGameLogic = () => {
 
   // Start game
   const handleGameStart = useCallback(() => {
+    if (state.lives <= 0) {
+      alert('You have no lives left. Please buy more lives in your profile.');
+      return;
+    }
     dispatch(startGame());
     generateBranches();
-  }, [dispatch, generateBranches]);
+  }, [dispatch, generateBranches, state.lives]);
 
   // Reset game
   const resetGameHandler = useCallback(() => {
