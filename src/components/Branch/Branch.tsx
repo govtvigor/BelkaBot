@@ -1,5 +1,5 @@
 import React from 'react';
-import branchImage from '../../assets/branch.png';
+import branchImage from '../../assets/regular/tree2regular.png';
 import './branch.scss';
 
 interface BranchProps {
