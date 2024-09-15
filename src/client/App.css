@@ -4,11 +4,10 @@
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box; /* Кращий контроль над розмірами елементів */
+    box-sizing: border-box;
 }
 
 :root {
-    /* Основні кольори та розміри */
     --main-bg-color: #00bfff;
     --text-color: #fff;
     --button-bg-color: #fff;
@@ -18,11 +17,11 @@
     --icon-size-nut: 40px;
     --icon-size-heart: 30px;
 
-    /* Змінні для стовбура дерева */
-    --tree-trunk-width: 10%; /* Ширина стовбура, можна змінити */
-    --tree-trunk-bottom: 100px; /* Початковий відступ від низу (замінюється через JavaScript) */
-    --tree-trunk-height: 150vh; /* Висота стовбура, виходить за екран */
-    --tree-trunk-bottom-mobile: 100px; /* Відступ для мобільних пристроїв */
+    /* Змінні для адаптивної висоти */
+    --ground-height: 150px; /* Висота зображення граунду на десктопах */
+    --tree-trunk-bottom: 150px; /* Відступ стовбура дерева від низу */
+    --tree-trunk-width: 7%; /* Ширина стовбура дерева */
+    --tree-trunk-height: 100vh; /* Висота стовбура */
     --tree-trunk-translate-y: 0px; /* Початкове вертикальне переміщення стовбура */
 }
 
@@ -38,7 +37,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Вертикальне центрування */
+    justify-content: center;
     flex: 1;
     position: relative;
     overflow: hidden;
@@ -51,45 +50,59 @@
     font-size: var(--font-size-large);
 }
 
-/* Обгортка дерева */
+/* Обгортка для зображення граунду */
+.ground-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--ground-height); /* Адаптивна висота граунду */
+    background-image: url('../assets/groundTree.png'); /* Фон граунду */
+    background-position: center center; /* Центрування зображення */
+    background-size: cover; /* Обрізання при зміні розміру */
+    background-repeat: no-repeat; /* Заборона повторення */
+    transition: height 0.3s ease-in-out;
+}
+
+/* Обгортка для дерева */
 .tree-wrapper {
     position: absolute;
-    z-index: 1; /* Нижчий, ніж .tree-image-main */
-    bottom: 0; /* Закріплено до низу контейнера */
+    z-index: 1;
+    bottom: 0;
     left: 50%;
-    transform: translateX(-50%); /* Центрування по горизонталі */
+    transform: translateX(-50%);
     width: 100%;
-    height: calc(100% - var(--tree-trunk-bottom)); /* Враховує висоту граунда */
-    overflow: visible; /* Дозволяє стовбуру виходити за межі */
+    height: calc(100% - var(--tree-trunk-bottom));
+    overflow: visible;
     transition: width 1.5s ease-in-out, height 1.5s ease-in-out;
 }
 
-/* Зображення землі/коріння дерева */
-.tree-image {
-    position: absolute; /* Абсолютне позиціонування всередині .tree-wrapper */
-    bottom: 0; /* Закріплено до низу .tree-wrapper */
-    left: 0;
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    transition: opacity 1s ease-out, transform 2s ease-out;
-    display: block; /* Правильне відображення блочного елемента */
-    z-index: 1; /* Нижчий, ніж .tree-image-main */
-}
-
-/* Основне зображення дерева (ствол) */
-.tree-image-main {
+/* Стовбур дерева */
+.tree-trunk {
     position: absolute;
-    left: 50%; /* Центрування по горизонталі */
-    bottom: var(--tree-trunk-bottom); /* Використання змінної для позиції */
+    left: 50%;
+    bottom: var(--tree-trunk-bottom); /* Використовуємо CSS-змінну для відступу */
     transform: translateX(-50%) translateY(var(--tree-trunk-translate-y));
-    width: var(--tree-trunk-width); /* Використання CSS-змінної для ширини */
-    height: var(--tree-trunk-height); /* Використання CSS-змінної для висоти */
-    z-index: 2; /* Вища z-index, ніж .tree-wrapper */
+    width: var(--tree-trunk-width); /* Використовуємо CSS-змінну для ширини */
+    height: var(--tree-trunk-height); /* Використовуємо CSS-змінну для висоти */
+    background-image: url('../assets/mainTree.png'); /* Зображення стовбура */
+    background-repeat: repeat-y; /* Повторення по вертикалі */
+    background-size: 100% 144px; /* Кожна секція висотою 144px */
+    z-index: 2;
     transition: transform 0.2s ease-out, opacity 1s ease-in-out;
+    opacity: 1;
 }
 
 /* Анімації для дерева */
+.tree-trunk.fade-in {
+    opacity: 1;
+}
+
+.tree-trunk.fade-out {
+    opacity: 0;
+    transform: translateX(-50%) translateY(var(--tree-trunk-translate-y)) scale(0.95);
+}
+
 .tree-image.fade-in {
     opacity: 1;
 }
@@ -98,23 +111,13 @@
     opacity: 0;
 }
 
-.tree-image-main.fade-in {
-    opacity: 1;
-    transform: translateX(-50%) translateY(var(--tree-trunk-translate-y)) scale(1);
-}
-
-.tree-image-main.fade-out {
-    opacity: 0;
-    transform: translateX(-50%) translateY(var(--tree-trunk-translate-y)) scale(0.95);
-}
-
 /* Масштабування */
 .scaled {
     transform: scale(2) rotateY(360deg);
     transition: 1.5s ease-in-out;
 }
 
-/* Анімація пульсації */
+/* Анімація пульсації для тексту старту */
 @keyframes pulse {
     0% {
         width: 50%;
@@ -165,12 +168,12 @@
 /* Контейнер для гілок */
 .branches {
     position: absolute;
-    top: 0; /* Щоб гілки спавнилися у верхній частині видимого поля */
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    height: 100%; /* Висота контейнера гілок */
-    overflow: hidden; /* Не виходять за межі */
+    height: 100%;
+    overflow: hidden;
 }
 
 /* Екран Game Over */
@@ -200,60 +203,21 @@
 }
 
 .game-over-screen button:hover {
-    background-color: #ddd; /* Ефект наведення */
+    background-color: #ddd;
 }
 
-/* Медіа-запити для мобільних пристроїв */
+/* Адаптивність для мобільних пристроїв */
 @media (max-width: 768px) {
     :root {
-        --tree-trunk-width: 20%; /* Збільшення ширини для мобільних */
+        --ground-height: 100px; /* Менша висота для мобільних пристроїв */
+        --tree-trunk-bottom: 100px; /* Менший відступ для стовбура */
     }
 
-    .tree-wrapper {
-        width: 120%; /* Трохи більша ширина для заповнення боків */
-        height: calc(100% - var(--tree-trunk-bottom)); /* Враховує висоту граунда */
-        bottom: 0; /* Відступ для мобільних */
+    .ground-wrapper {
+        height: var(--ground-height); /* Застосовуємо меншу висоту на мобільних */
     }
 
-    .tree-image-main {
-        width: 20%; /* Збільшення ширини для мобільних */
-        height: var(--tree-trunk-height); /* Збереження висоти */
-        bottom: var(--tree-trunk-bottom-mobile); /* Підняття на мобільних */
-        transform: translateX(-50%) translateY(var(--tree-trunk-translate-y));
-    }
-
-    .branches {
-        top: 0; /* Починають від верхньої частини екрану */
-        height: 100%; /* Переконайтесь, що гілки не виходять за видимість */
-    }
-
-    .score, .lives {
-        font-size: 1.2em;
-        margin: 8px;
-    }
-
-    .start-text {
-        top: 30%;
-        font-size: 1.2em;
-    }
-
-    .nut-icon, .heart-icon {
-        width: 30px;
-        height: 30px;
-    }
-
-    .game-over-screen {
-        width: 80%;
-        padding: 15px;
-    }
-
-    .game-over-screen button {
-        font-size: 14px;
-        padding: 8px 16px;
-    }
-
-    .game-mode .tree-wrapper,
-    .menu-mode .branches {
-        height: 150%; /* Налаштування висоти для мобільних */
+    .tree-trunk {
+        bottom: var(--tree-trunk-bottom); /* Адаптивний відступ для стовбура */
     }
 }
