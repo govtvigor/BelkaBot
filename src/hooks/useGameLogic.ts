@@ -125,7 +125,6 @@ export const useGameLogic = () => {
     }
 
     dispatch(setGameOver(true));
-    alert('Game over! Incorrect branch clicked.');
   }, [dispatch, state.lives, state.points, userChatId]);
 
 

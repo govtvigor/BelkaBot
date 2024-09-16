@@ -45,7 +45,7 @@ export interface Achievement {
       name: 'Total Score 100',
       description: 'Reach a total score of 100.',
       icon: totalHundredIcon,
-      condition: (userData) => userData.totalScore >= 100,
+      condition: (userData) => userData.totalPoints >= 100,
     }
     // Add more achievements as needed
   ];
