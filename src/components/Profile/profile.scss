@@ -1,11 +1,12 @@
 .profile {
-    background: #72bad3;
+    background: linear-gradient(180deg, #00bfff, #007a99);
     font-family: 'Press Start 2P', sans-serif;
     height: 100vh;
+    color: #2d2d2d;
 
     &_lives {
         display: flex;
-        font-size: 20px;
+        font-size: 16px;
         align-items: center;
     }
 
@@ -41,7 +42,6 @@
 }
 
 .total-points-section {
-    color: #000;
     font-family: 'Press Start 2P', cursive;
     padding: 20px;
     margin: 10px 0;
@@ -49,6 +49,7 @@
     display: flex;
     flex-direction: column;
 }
+
 .total-score-block {
     display: flex;
     justify-content: center;
@@ -62,11 +63,12 @@
 
 .total-points-section p {
     margin: 0;
-    font-size: 24px;
+    font-size: 36px;
 }
 
 .achievements-section {
     margin-top: 20px;
+
     & h3 {
         text-align: center;
     }
@@ -80,16 +82,25 @@
 
 .achievement {
     text-align: center;
+
+    border-radius: 8px;
+
 }
 
 .achievement-icon {
-    width: 120px;
-    height: 100px;
+
+    width: 90px;
+    height: 90px;
 }
 
 .achievement-icon.locked {
     filter: grayscale(100%);
     opacity: 0.5;
+}
+.achievement-icon.unlocked {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Light shadow */
+  border: 2px solid #0f0; /* Keep the border green */
 }
 
 .achievements-slider {
@@ -104,48 +115,58 @@
     width: 660px; // Adjust based on your layout
     justify-content: space-between;
     margin-top: 20px;
+    padding: 10px;
 }
 
 .arrow {
-    background-color: #000;
+    background: none;
     color: #fff;
     font-family: 'Press Start 2P', sans-serif; // Pixel font
-    border: double 4px #0f0;
-    box-shadow: 4px 4px #333;
+
     padding: 5px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: color 0.2s;
 }
 
 .left-arrow {
     border-radius: 5px 0 0 5px;
+    box-shadow: 4px 4px #333;
+    margin-left: 5px;
 }
 
 .right-arrow {
     border-radius: 0 5px 5px 0;
+    box-shadow: -3px 3px #333;
+    margin-right: 5px;
 }
 
 @keyframes spin {
     0% {
-      transform: rotate(0deg);
+        transform: rotate(0deg);
     }
+
     100% {
-      transform: rotate(720deg); // 2 full spins (720deg)
+        transform: rotate(720deg); // 2 full spins (720deg)
     }
-  }
-  
-  @keyframes bounce {
-    0%, 80%, 100% {
-      transform: translateY(0);
+}
+
+@keyframes bounce {
+
+    0%,
+    80%,
+    100% {
+        transform: translateY(0);
     }
+
     90% {
-      transform: translateY(-20px); // Jump height
+        transform: translateY(-20px); // Jump height
     }
-  }
-  
-  .nut-icon-profile {
+}
+
+.nut-icon-profile {
     width: 100px;
     height: 100px;
     animation: spin 4s ease-in-out infinite, bounce 4s ease infinite;
-    transform-origin: center; /* Ensure spinning occurs from the center */
-  }
+    transform-origin: center;
+    /* Ensure spinning occurs from the center */
+}

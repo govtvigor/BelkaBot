@@ -141,7 +141,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
                 <img
                   src={achievement.icon}
                   alt={achievement.name}
-                  className={`achievement-icon ${unlockedAchievements.includes(achievement.id) ? '' : 'locked'}`}
+                  className={`achievement-icon ${unlockedAchievements.includes(achievement.id) ? 'unlocked' : 'locked'}`}
                 />
               </div>
             ))}
