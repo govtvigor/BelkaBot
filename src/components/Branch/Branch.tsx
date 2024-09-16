@@ -12,7 +12,7 @@ const Branch: React.FC<BranchProps> = ({ side, top, onClick }) => {
   const branchStyles: React.CSSProperties = {
     position: 'absolute',
     top: `${top}px`,
-    [side]: '25%',
+    [side]: '27%',
     transform: side === 'left' ? 'scaleX(-1)' : undefined,
   };
 

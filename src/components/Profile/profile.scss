@@ -82,13 +82,10 @@
 
 .achievement {
     text-align: center;
-
-    border-radius: 8px;
-
 }
 
 .achievement-icon {
-
+    border-radius: 20px;
     width: 90px;
     height: 90px;
 }
@@ -100,7 +97,7 @@
 .achievement-icon.unlocked {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Light shadow */
-  border: 2px solid #0f0; /* Keep the border green */
+  border: 2px ridge #0f0; /* Keep the border green */
 }
 
 .achievements-slider {
