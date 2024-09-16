@@ -1,5 +1,5 @@
 .profile {
-    background: #00bfff;
+    background: #72bad3;
     font-family: 'Press Start 2P', sans-serif;
     height: 100vh;
 
@@ -41,17 +41,23 @@
 }
 
 .total-points-section {
-    background-color: #000;
-    color: #fff;
+    color: #000;
     font-family: 'Press Start 2P', cursive;
     padding: 20px;
     margin: 10px 0;
-    border: 2px solid #fff;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+.total-score-block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .total-points-section h3 {
     margin: 0 0 10px 0;
+    width: 100%;
 }
 
 .total-points-section p {
@@ -61,24 +67,85 @@
 
 .achievements-section {
     margin-top: 20px;
-  }
-  
-  .achievements-grid {
+    & h3 {
+        text-align: center;
+    }
+}
+
+.achievements-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr); // Adjust based on the number of columns you want
     gap: 10px;
-  }
-  
-  .achievement {
+}
+
+.achievement {
     text-align: center;
-  }
-  
-  .achievement-icon {
-    width: 200px;
-    height: 200px;
-  }
-  
-  .achievement-icon.locked {
+}
+
+.achievement-icon {
+    width: 120px;
+    height: 100px;
+}
+
+.achievement-icon.locked {
     filter: grayscale(100%);
     opacity: 0.5;
+}
+
+.achievements-slider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.achievements-container {
+    display: flex;
+    overflow: hidden;
+    width: 660px; // Adjust based on your layout
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.arrow {
+    background-color: #000;
+    color: #fff;
+    font-family: 'Press Start 2P', sans-serif; // Pixel font
+    border: double 4px #0f0;
+    box-shadow: 4px 4px #333;
+    padding: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.left-arrow {
+    border-radius: 5px 0 0 5px;
+}
+
+.right-arrow {
+    border-radius: 0 5px 5px 0;
+}
+
+@keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(720deg); // 2 full spins (720deg)
+    }
+  }
+  
+  @keyframes bounce {
+    0%, 80%, 100% {
+      transform: translateY(0);
+    }
+    90% {
+      transform: translateY(-20px); // Jump height
+    }
+  }
+  
+  .nut-icon-profile {
+    width: 100px;
+    height: 100px;
+    animation: spin 4s ease-in-out infinite, bounce 4s ease infinite;
+    transform-origin: center; /* Ensure spinning occurs from the center */
   }

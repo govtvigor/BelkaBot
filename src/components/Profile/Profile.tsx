@@ -11,6 +11,7 @@ import { handleGMClick } from "./gmStreakHandler";
 import { handleBuyLives } from "./paymentHandler";
 import { getUserAchievements } from "../../client/firebaseFunctions";
 import { achievements as allAchievements } from "../../constants/achievements";
+import nutIcon from '../../assets/nut.png';
 
 interface ProfileProps {
   onMenuClick: (screen: "game" | "profile") => void;
@@ -26,6 +27,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const userChatId = useContext(ChatIdContext);
   const [userAchievements, setUserAchievements] = useState<string[]>([]);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   useEffect(() => {
     if (userChatId) {
@@ -74,6 +76,17 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       });
     }
   }, [tonConnectUI, userChatId]);
+  const handleNext = () => {
+    if (currentIndex < allAchievements.length - 3) {
+      setCurrentIndex((prevIndex) => Math.min(prevIndex + 3, allAchievements.length - 3)); // Move forward by 3
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prevIndex) => Math.max(prevIndex - 3, 0)); // Move backward by 3
+    }
+  };
 
   const handleGMClickAction = () => {
     handleGMClick(isGMChecked, setIsGMChecked, gmStreak, setGMStreak, userChatId);
@@ -110,22 +123,32 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       </div>
       <div className="total-points-section">
         <h3>Total Nut Points</h3>
-        <p>{totalScore}</p>
+        <div className="total-score-block">
+          <p>{totalScore}</p>
+          <img src={nutIcon} alt="Nut Icon" className="nut-icon-profile" />
+        </div>
+        
       </div>
       <div className="achievements-section">
         <h3>Achievements</h3>
-        <div className="achievements-grid">
-          {allAchievements.map((achievement) => (
-            <div key={achievement.id} className="achievement">
-              <img
-                src={achievement.icon}
-                alt={achievement.name}
-                className={`achievement-icon ${unlockedAchievements.includes(achievement.id) ? '' : 'locked'
-                  }`}
-              />
-              <p>{achievement.name}</p>
-            </div>
-          ))}
+        <div className="achievements-slider">
+          <button className="arrow left-arrow" onClick={handlePrev} disabled={currentIndex === 0}>
+            &lt;
+          </button>
+          <div className="achievements-container">
+            {allAchievements.slice(currentIndex, currentIndex + 3).map((achievement) => (
+              <div key={achievement.id} className="achievement">
+                <img
+                  src={achievement.icon}
+                  alt={achievement.name}
+                  className={`achievement-icon ${unlockedAchievements.includes(achievement.id) ? '' : 'locked'}`}
+                />
+              </div>
+            ))}
+          </div>
+          <button className="arrow right-arrow" onClick={handleNext} disabled={currentIndex >= allAchievements.length - 3}>
+            &gt;
+          </button>
         </div>
       </div>
       <Menu onMenuClick={onMenuClick} variant="profile" />
