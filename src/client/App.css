@@ -56,12 +56,16 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    height: var(--ground-height); /* Адаптивна висота граунду */
-    background-image: url('../assets/groundTree.png'); /* Фон граунду */
-    background-position: center center; /* Центрування зображення */
-    background-size: cover; /* Обрізання при зміні розміру */
-    background-repeat: no-repeat; /* Заборона повторення */
-    transition: height 0.3s ease-in-out;
+    height: var(--ground-height);
+    background-image: url('../assets/groundTree.png');
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    transition: transform 0.15s ease-in-out;
+}
+
+.ground-wrapper.move-down {
+    transform: translateY(100%);
 }
 
 /* Обгортка для дерева */
@@ -81,16 +85,24 @@
 .tree-trunk {
     position: absolute;
     left: 50%;
-    bottom: var(--tree-trunk-bottom); /* Використовуємо CSS-змінну для відступу */
+    bottom: 0;
     transform: translateX(-50%) translateY(var(--tree-trunk-translate-y));
-    width: var(--tree-trunk-width); /* Використовуємо CSS-змінну для ширини */
-    height: var(--tree-trunk-height); /* Використовуємо CSS-змінну для висоти */
-    background-image: url('../assets/mainTree.png'); /* Зображення стовбура */
-    background-repeat: repeat-y; /* Повторення по вертикалі */
-    background-size: 100% 144px; /* Кожна секція висотою 144px */
+    width: var(--tree-trunk-width);
+    height: var(--tree-trunk-height);
+    background-image: url('../assets/mainTree.png');
+    background-repeat: repeat-y;
+    background-size: 100% 144px;
     z-index: 2;
-    transition: transform 0.2s ease-out, opacity 1s ease-in-out;
+    transition: transform 1s ease-in-out, opacity 1s ease-in-out;
     opacity: 1;
+}
+
+.tree-trunk.move-up {
+    transform: translateX(-50%) translateY(calc(var(--tree-trunk-translate-y) + 100px));
+}
+
+.tree-trunk.fixed-position {
+    transform: translateX(-50%) translateY(calc(var(--tree-trunk-translate-y) + 100px));
 }
 
 /* Анімації для дерева */
@@ -210,7 +222,7 @@
 @media (max-width: 768px) {
     :root {
         --ground-height: 100px; /* Менша висота для мобільних пристроїв */
-        --tree-trunk-bottom: 100px; /* Менший відступ для стовбура */
+        --tree-trunk-bottom: 50px; /* Менший відступ для стовбура */
     }
 
     .ground-wrapper {
