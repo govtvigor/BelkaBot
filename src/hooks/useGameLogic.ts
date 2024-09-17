@@ -168,33 +168,12 @@ export const useGameLogic = () => {
     [state.branches, state.gameOver, dispatch, handleGameOver]
   );
 
-  // Handle game over
-
-
-  // Start game
-  const handleGameStart = useCallback(() => {
-    if (state.lives <= 0) {
-      alert('You have no lives left. Please buy more lives in your profile.');
-      return;
-    }
-    dispatch(startGame());
-    generateBranches();
-  }, [dispatch, generateBranches, state.lives]);
-
-  // Reset game
-  const resetGameHandler = useCallback(() => {
-    dispatch(resetGame());
-    dispatch(setGameOver(false));
-    // Optionally, generate new branches
-  }, [dispatch]);
-
-  // Generate initial branches
-
 
   return {
     state,
-    handleGameStart,
+    dispatch,
     handleScreenClick,
-    resetGame: resetGameHandler,
+    startGame,
+    generateBranches
   };
 };

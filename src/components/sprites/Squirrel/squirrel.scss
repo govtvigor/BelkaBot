@@ -1,7 +1,37 @@
 .squirrel {
   height: auto;
   position: absolute;
-  transition: top 0.5s ease-out, transform 0.5s ease;
+}
+
+/* Анімація при стрибку на першу гілку */
+.squirrel.jumping-to-first-branch {
+  animation: jumpToFirstBranch 1s forwards;
+}
+
+/* Анімація при стрибках між гілками */
+.squirrel.jumping-between-branches {
+  animation: jumpBetweenBranches 0.5s forwards;
+}
+
+@keyframes jumpToFirstBranch {
+  0% {
+    bottom: 60px;
+  }
+  100% {
+    bottom: 250px;
+  }
+}
+
+@keyframes jumpBetweenBranches {
+  0% {
+    bottom: 250px;
+  }
+  50% {
+    bottom: 270px;
+  }
+  100% {
+    bottom: 250px;
+  }
 }
 
 .squirrel img {
@@ -11,10 +41,10 @@
 
 .squirrel.left {
   left: 15%;
-  transform: translateX(-50%) scaleX(1);
+  transform: translateX(-50%) scaleX(-1);
 }
 
 .squirrel.right {
   right: 15%;
-  transform: translateX(50%) scaleX(-1);
+  transform: translateX(50%) scaleX(1);
 }

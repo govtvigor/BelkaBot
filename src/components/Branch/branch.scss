@@ -24,8 +24,8 @@
   outline: none; 
   box-shadow: none; 
   border: none; 
-  background: transparent; 
-  
+  background: transparent;
+  transition: top 0.2s linear;
 }
 
 .branch:active {
