@@ -121,8 +121,8 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           <TonConnectButton />
         </div>
       </div>
+      <div className="middle-section">
       <div className="total-points-section">
-        <h3>Total Nut Points</h3>
         <div className="total-score-block">
           <p>{totalScore}</p>
           <img src={nutIcon} alt="Nut Icon" className="nut-icon-profile" />
@@ -130,8 +130,8 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         
       </div>
       <div className="achievements-section">
-        <h3>Achievements</h3>
         <div className="achievements-slider">
+          
           <button className="arrow left-arrow" onClick={handlePrev} disabled={currentIndex === 0}>
             &lt;
           </button>
@@ -150,6 +150,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
             &gt;
           </button>
         </div>
+      </div>
       </div>
       <Menu onMenuClick={onMenuClick} variant="profile" />
     </div>
