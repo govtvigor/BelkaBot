@@ -5,16 +5,22 @@ import heartIcon from "../../assets/heart.png";
 import fireIconGrey from "../../assets/fireIcon-gray.png";
 import fireIconActive from "../../assets/fireIcon.png";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
-import { saveUserByChatId, getUserTotalPoints, getUserLivesData, updateUserWallet, getUserGMData } from "../../client/firebaseFunctions";
+import {
+  saveUserByChatId,
+  getUserTotalPoints,
+  getUserLivesData,
+  updateUserWallet,
+  getUserGMData,
+  getUserAchievements,
+} from "../../client/firebaseFunctions";
 import { ChatIdContext } from "../../client/App";
 import { handleGMClick } from "./gmStreakHandler";
 import { handleBuyLives } from "./paymentHandler";
-import { getUserAchievements } from "../../client/firebaseFunctions";
 import { achievements as allAchievements } from "../../constants/achievements";
-import nutIcon from '../../assets/nut.png';
-import SquirrelIcon from '../../assets/squirt.png';
-import ShopIcon from '../../assets/shop-icon.png';
-
+import nutIcon from "../../assets/nut.png";
+import SquirrelIcon from "../../assets/squirt.png";
+import ShopIcon from "../../assets/shop-icon.png";
+import ShopModal from "./ShopModal/ShopModal"; 
 
 interface ProfileProps {
   onMenuClick: (screen: "game" | "profile") => void;
@@ -28,9 +34,9 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [stars, setStars] = useState<number>(100);
   const [tonConnectUI] = useTonConnectUI();
   const userChatId = useContext(ChatIdContext);
-  const [userAchievements, setUserAchievements] = useState<string[]>([]);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [isShopModalOpen, setIsShopModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (userChatId) {
@@ -55,15 +61,18 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           console.error("Error fetching GM data from Firebase:", error);
         });
       // Fetch total points
-      getUserTotalPoints(userChatId).then((points) => {
-        setTotalScore(points || 0);
-      }).catch((error) => {
-        console.error("Error fetching total points from Firebase:", error);
-      });
-      getUserAchievements(userChatId).then((achievements) => setUnlockedAchievements(achievements || []));
+      getUserTotalPoints(userChatId)
+        .then((points) => {
+          setTotalScore(points || 0);
+        })
+        .catch((error) => {
+          console.error("Error fetching total points from Firebase:", error);
+        });
+      getUserAchievements(userChatId).then((achievements) =>
+        setUnlockedAchievements(achievements || [])
+      );
     }
   }, [userChatId]);
-
 
   useEffect(() => {
     if (tonConnectUI) {
@@ -79,20 +88,29 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       });
     }
   }, [tonConnectUI, userChatId]);
+
   const handleNext = () => {
     if (currentIndex < allAchievements.length - 3) {
-      setCurrentIndex((prevIndex) => Math.min(prevIndex + 3, allAchievements.length - 3)); // Move forward by 3
+      setCurrentIndex((prevIndex) =>
+        Math.min(prevIndex + 3, allAchievements.length - 3)
+      );
     }
   };
 
   const handlePrev = () => {
     if (currentIndex > 0) {
-      setCurrentIndex((prevIndex) => Math.max(prevIndex - 3, 0)); // Move backward by 3
+      setCurrentIndex((prevIndex) => Math.max(prevIndex - 3, 0));
     }
   };
 
   const handleGMClickAction = () => {
-    handleGMClick(isGMChecked, setIsGMChecked, gmStreak, setGMStreak, userChatId);
+    handleGMClick(
+      isGMChecked,
+      setIsGMChecked,
+      gmStreak,
+      setGMStreak,
+      userChatId
+    );
   };
 
   const handleBuyLivesAction = () => {
@@ -115,7 +133,11 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           </div>
           <div className="profile_lives" onClick={handleBuyLivesAction}>
             <div className="lives-icon-block">
-              <img src={heartIcon} alt="lives" className="profile-lives-icon" />
+              <img
+                src={heartIcon}
+                alt="lives"
+                className="profile-lives-icon"
+              />
             </div>
             <div className="lives-amount-block">{lives}+</div>
           </div>
@@ -125,47 +147,73 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         </div>
       </div>
 
-
       <div className="profile-content">
-
         <div className="total-points-section">
           <div className="total-score-block">
             <p>{totalScore}</p>
             <img src={nutIcon} alt="Nut Icon" className="nut-icon-profile" />
           </div>
-
         </div>
         <div className="achievements-section">
           <div className="achievements-slider">
-
-            <button className="arrow left-arrow" onClick={handlePrev} disabled={currentIndex === 0}>
+            <button
+              className="arrow left-arrow"
+              onClick={handlePrev}
+              disabled={currentIndex === 0}
+            >
               &lt;
             </button>
             <div className="achievements-container">
-              {allAchievements.slice(currentIndex, currentIndex + 3).map((achievement) => (
-                <div key={achievement.id} className="achievement">
-                  <img
-                    src={achievement.icon}
-                    alt={achievement.name}
-                    className={`achievement-icon ${unlockedAchievements.includes(achievement.id) ? 'unlocked' : 'locked'}`}
-                  />
-                </div>
-              ))}
+              {allAchievements
+                .slice(currentIndex, currentIndex + 3)
+                .map((achievement) => (
+                  <div key={achievement.id} className="achievement">
+                    <img
+                      src={achievement.icon}
+                      alt={achievement.name}
+                      className={`achievement-icon ${
+                        unlockedAchievements.includes(achievement.id)
+                          ? "unlocked"
+                          : "locked"
+                      }`}
+                    />
+                  </div>
+                ))}
             </div>
-            <button className="arrow right-arrow" onClick={handleNext} disabled={currentIndex >= allAchievements.length - 3}>
+            <button
+              className="arrow right-arrow"
+              onClick={handleNext}
+              disabled={currentIndex >= allAchievements.length - 3}
+            >
               &gt;
             </button>
           </div>
         </div>
 
-        <div className="shop-section">
-          <img src={ShopIcon} alt="shop-icon" className="shop-section-icon" />
+        <div
+          className="shop-section"
+          onClick={() => setIsShopModalOpen(true)}
+        >
+          <img
+            src={ShopIcon}
+            alt="shop-icon"
+            className="shop-section-icon"
+          />
+          
         </div>
       </div>
       <div className="squirrel-profile">
-              <img src={SquirrelIcon} alt="squirrel" className="squirrel-profile-icon"/>
+        <img
+          src={SquirrelIcon}
+          alt="squirrel"
+          className="squirrel-profile-icon"
+        />
       </div>
       <Menu onMenuClick={onMenuClick} variant="profile" />
+
+      {isShopModalOpen && (
+        <ShopModal onClose={() => setIsShopModalOpen(false)} />
+      )}
     </div>
   );
 };
