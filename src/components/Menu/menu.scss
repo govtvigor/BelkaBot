@@ -8,13 +8,14 @@
     align-items: center;
     align-content: flex-end;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.8);
-    /* Полупрозрачный черный фон */
+    background-color: rgba(20, 20, 20, 0.9); /* Darker semi-transparent background */
+    /* Alternatively, use a solid dark color:
+    background-color: #1a1a1a;
+    */
     backdrop-filter: blur(5px);
-    /* Наложение размытия */
+    /* Overlay blur effect */
     padding: 10px 0;
 }
-
 
 .menu-buttons {
     display: flex;
@@ -22,16 +23,15 @@
     align-items: center;
     width: 100%;
     padding: 10px 0;
-
 }
 
 .menu-buttons button {
     display: flex;
     justify-content: center;
     font-family: 'Press Start 2P', sans-serif;
-    background-color: #222;
-    color: #0f0;
-    border: 4px double #0f0;
+    background-color: #333; /* Slightly lighter dark gray */
+    color: #FFD700; /* Gold text to match profile */
+    border: 4px double #FFD700; /* Gold border */
     padding: 10px 20px;
     margin: 5px;
     text-align: center;
@@ -39,8 +39,18 @@
     font-size: 10px;
     width: 30%;
     letter-spacing: 2px;
-    box-shadow: 0 4px #333;
+    box-shadow: 0 4px #222; /* Darker shadow for depth */
     transition: all 0.2s ease-in-out;
     cursor: pointer;
-    text-shadow: 0 0 2px #0f0, 0 0 5px #0f0;
+    text-shadow: 0 0 2px #FFD700, 0 0 5px #FFD700; /* Gold text shadow */
+    
+    &:hover {
+        background-color: #444; /* Slightly lighter on hover */
+        box-shadow: 0 6px #111; /* Enhanced shadow on hover */
+    }
+
+    &:active {
+        transform: translateY(2px); /* Simulate button press */
+        box-shadow: 0 2px #111; /* Reduced shadow on active */
+    }
 }

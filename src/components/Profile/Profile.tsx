@@ -12,6 +12,7 @@ import { handleBuyLives } from "./paymentHandler";
 import { getUserAchievements } from "../../client/firebaseFunctions";
 import { achievements as allAchievements } from "../../constants/achievements";
 import nutIcon from '../../assets/nut.png';
+import SquirrelProfile from "../../components/sprites/Squirrel/Squirrel";
 
 interface ProfileProps {
   onMenuClick: (screen: "game" | "profile") => void;
@@ -121,40 +122,45 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           <TonConnectButton />
         </div>
       </div>
-      <div className="middle-section">
 
-        <div className="profile-content">
 
-          <div className="total-points-section">
-            <div className="total-score-block">
-              <p>{totalScore}</p>
-              <img src={nutIcon} alt="Nut Icon" className="nut-icon-profile" />
-            </div>
+      <div className="profile-content">
 
+        <div className="total-points-section">
+          <div className="total-score-block">
+            <p>{totalScore}</p>
+            <img src={nutIcon} alt="Nut Icon" className="nut-icon-profile" />
           </div>
-          <div className="achievements-section">
-            <div className="achievements-slider">
 
-              <button className="arrow left-arrow" onClick={handlePrev} disabled={currentIndex === 0}>
-                &lt;
-              </button>
-              <div className="achievements-container">
-                {allAchievements.slice(currentIndex, currentIndex + 3).map((achievement) => (
-                  <div key={achievement.id} className="achievement">
-                    <img
-                      src={achievement.icon}
-                      alt={achievement.name}
-                      className={`achievement-icon ${unlockedAchievements.includes(achievement.id) ? 'unlocked' : 'locked'}`}
-                    />
-                  </div>
-                ))}
-              </div>
-              <button className="arrow right-arrow" onClick={handleNext} disabled={currentIndex >= allAchievements.length - 3}>
-                &gt;
-              </button>
+        </div>
+        <div className="achievements-section">
+          <div className="achievements-slider">
+
+            <button className="arrow left-arrow" onClick={handlePrev} disabled={currentIndex === 0}>
+              &lt;
+            </button>
+            <div className="achievements-container">
+              {allAchievements.slice(currentIndex, currentIndex + 3).map((achievement) => (
+                <div key={achievement.id} className="achievement">
+                  <img
+                    src={achievement.icon}
+                    alt={achievement.name}
+                    className={`achievement-icon ${unlockedAchievements.includes(achievement.id) ? 'unlocked' : 'locked'}`}
+                  />
+                </div>
+              ))}
             </div>
+            <button className="arrow right-arrow" onClick={handleNext} disabled={currentIndex >= allAchievements.length - 3}>
+              &gt;
+            </button>
           </div>
         </div>
+      </div>
+      <div className="squirrel-profile">
+      <SquirrelProfile
+        position="right"
+        isInGame={false}
+      />
       </div>
       <Menu onMenuClick={onMenuClick} variant="profile" />
     </div>
