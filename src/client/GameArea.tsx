@@ -1,73 +1,109 @@
-// GameArea.tsx
-
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Squirrel from "../components/sprites/Squirrel/Squirrel";
 import Branch from "../components/Branch/Branch";
 import Score from "../components/Score/Score";
 import Lives from "../components/Lives/Lives";
 import Menu from "../components/Menu/Menu";
 import Profile from "../components/Profile/Profile";
-import groundTreeImage from "../assets/groundTree.png"; // Зображення граунда
-import startText from "../assets/startText.png"; // Зображення стартового тексту
+import groundTreeImage from "../assets/groundTree.png";
+import startText from "../assets/startText.png";
 import { useGameLogic } from "../hooks/useGameLogic";
 import { Branch as BranchType } from "../reducers/gameReducer";
 import Timer from "../components/Timer/Timer";
-import './App.css'; // Імпорт CSS-файлу
+import './App.css';
+import {resetGame, setGameOver} from "../actions/gameActions";
 
 const GameArea: React.FC = () => {
-    const { state, handleGameStart, handleScreenClick, resetGame } = useGameLogic();
+    const { state, dispatch, handleScreenClick, generateBranches } = useGameLogic();
     const [currentScreen, setCurrentScreen] = useState<"game" | "profile">("game");
 
-    // Використовуємо useRef для отримання доступу до елемента groundImage
+    const [isJumpingToFirstBranch, setIsJumpingToFirstBranch] = useState(false);
+    const [isGroundMovingDown, setIsGroundMovingDown] = useState(false);
+    const [isTreeMovingUp, setIsTreeMovingUp] = useState(false);
+    const [isGroundHidden, setIsGroundHidden] = useState(false);
+    const [isTreePositionAdjusted, setIsTreePositionAdjusted] = useState(false);
+
     const groundImageRef = useRef<HTMLImageElement | null>(null);
 
-    // Використовуємо useEffect для обчислення висоти зображення після завантаження
     useEffect(() => {
         const groundImage = groundImageRef.current;
         if (groundImage) {
-            // Функція для встановлення висоти граунда
             const setTrunkBottom = () => {
                 const groundHeight = groundImage.clientHeight;
-                console.log('Ground Height:', groundHeight); // Додаємо лог для перевірки
-                // Встановлюємо CSS-змінні --tree-trunk-bottom та --tree-trunk-bottom-mobile
+                console.log('Ground Height:', groundHeight);
                 document.documentElement.style.setProperty('--tree-trunk-bottom', `${groundHeight}px`);
                 document.documentElement.style.setProperty('--tree-trunk-bottom-mobile', `${groundHeight}px`);
             };
 
-            // Викликаємо функцію після завантаження зображення
             if (groundImage.complete) {
                 setTrunkBottom();
             } else {
                 groundImage.onload = setTrunkBottom;
             }
 
-            // Додатково слухаємо подію resize, щоб коректно змінювати висоту при зміні розміру вікна
             window.addEventListener('resize', setTrunkBottom);
 
-            // Очищуємо слухача подій при розмонтуванні компонента
             return () => {
                 window.removeEventListener('resize', setTrunkBottom);
             };
         }
-    }, [state.gameStarted]); // Запуск після завантаження гри
+    }, [state.gameStarted]);
+
+    // Генеруємо гілки до початку гри
+    useEffect(() => {
+        generateBranches();
+    }, [generateBranches]);
 
     const handleMenuClick = (screen: "game" | "profile") => {
         setCurrentScreen(screen);
     };
 
-    // Обробка кліка по екрану
+    const handleGameStartWithJump = useCallback(() => {
+        if (state.lives <= 0) {
+            alert('You have no lives left. Please buy more lives in your profile.');
+            return;
+        }
+
+        setIsJumpingToFirstBranch(true);
+        setIsGroundMovingDown(true);
+        setIsTreeMovingUp(true);
+
+        const animationDuration = 1000;
+
+        setTimeout(() => {
+            setIsJumpingToFirstBranch(false);
+            dispatch({ type: 'START_GAME' });
+            setIsGroundMovingDown(false);
+            setIsTreeMovingUp(false);
+            setIsGroundHidden(true); // Приховуємо ground-wrapper
+            setIsTreePositionAdjusted(true); // Фіксуємо нову позицію tree-trunk
+        }, animationDuration);
+    }, [state.lives, dispatch]);
+
+    const resetGameHandler = useCallback(() => {
+
+        setIsJumpingToFirstBranch(false);
+        setIsGroundMovingDown(false);
+        setIsTreeMovingUp(false);
+        setIsGroundHidden(false);
+        setIsTreePositionAdjusted(false);
+
+        dispatch(resetGame());
+        dispatch(setGameOver(false));
+        generateBranches();
+    }, [dispatch, generateBranches]);
+
     const handleClick = (event: React.MouseEvent) => {
-        // Перевіряємо, чи почалася гра
         if (!state.gameStarted) {
-            handleGameStart(); // Старт гри, якщо вона ще не почалася
+            handleGameStartWithJump();
         } else {
             const clickX = event.clientX;
             const screenWidth = window.innerWidth;
 
             if (clickX < screenWidth / 2) {
-                handleScreenClick("left"); // Клік по лівій стороні
+                handleScreenClick("left");
             } else {
-                handleScreenClick("right"); // Клік по правій стороні
+                handleScreenClick("right");
             }
         }
     };
@@ -88,17 +124,24 @@ const GameArea: React.FC = () => {
 
                 <div className="tree-wrapper">
                     {/* Відображення groundTreeImage з рефом для обчислення його висоти */}
-                    {!state.gameStarted && (
-                        <div className="ground-wrapper"></div>
+                    {!isGroundHidden && (
+                        <div className={`ground-wrapper ${isGroundMovingDown ? 'move-down' : ''}`}>
+                            <img
+                                src={groundTreeImage}
+                                alt="Ground"
+                                ref={groundImageRef}
+                                style={{ width: '100%', height: 'auto' }}
+                            />
+                        </div>
                     )}
                     {/* Відображення основного дерева (ствол) */}
                     <div
-                        className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''}`}
+                        className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''} ${isTreeMovingUp ? 'move-up' : ''} ${isTreePositionAdjusted ? 'fixed-position' : ''}`}
                         style={
                             {
                                 '--tree-trunk-translate-y': `${state.scrollOffset % window.innerHeight}px`,
                                 transition: "transform 0.2s ease-out",
-                            } as React.CSSProperties // Приведення стилів до типу React.CSSProperties
+                            } as React.CSSProperties
                         }
                     />
                 </div>
@@ -106,12 +149,12 @@ const GameArea: React.FC = () => {
                 {state.isLivesLoading ? (
                     <div>Loading lives...</div>
                 ) : (
-                    <Lives lives={state.lives} />
+                    <Lives lives={state.lives}/>
                 )}
                 <Timer timeLeft={state.timeLeft}/>
                 <Score points={state.points} />
 
-                {state.branches.length > 0 && !state.gameOver && (
+                {state.branches.length > 0 && (
                     <div className="branches">
                         {state.branches.map((branch: BranchType, index: number) => (
                             <Branch
@@ -127,6 +170,7 @@ const GameArea: React.FC = () => {
                 <Squirrel
                     position={state.squirrelSide}
                     isInGame={state.gameStarted}
+                    isJumpingToFirstBranch={isJumpingToFirstBranch}
                 />
             </div>
 
@@ -140,7 +184,7 @@ const GameArea: React.FC = () => {
                 <div className="game-over-screen">
                     <h2>Game Over</h2>
                     <p>Your Score: {state.points}</p>
-                    <button onClick={resetGame}>Play Again</button>
+                    <button onClick={resetGameHandler}>Play Again</button>
                 </div>
             )}
 
