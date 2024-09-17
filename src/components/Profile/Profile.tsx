@@ -38,19 +38,19 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         }
       });
       getUserGMData(userChatId)
-      .then((data) => {
-        setGMStreak(data.gmStreak || 0);
+        .then((data) => {
+          setGMStreak(data.gmStreak || 0);
 
-        const today = new Date().toDateString();
-        if (data.lastGMDate === today) {
-          setIsGMChecked(true);
-        } else {
-          setIsGMChecked(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching GM data from Firebase:", error);
-      });
+          const today = new Date().toDateString();
+          if (data.lastGMDate === today) {
+            setIsGMChecked(true);
+          } else {
+            setIsGMChecked(false);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching GM data from Firebase:", error);
+        });
       // Fetch total points
       getUserTotalPoints(userChatId).then((points) => {
         setTotalScore(points || 0);
@@ -122,35 +122,39 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         </div>
       </div>
       <div className="middle-section">
-      <div className="total-points-section">
-        <div className="total-score-block">
-          <p>{totalScore}</p>
-          <img src={nutIcon} alt="Nut Icon" className="nut-icon-profile" />
-        </div>
-        
-      </div>
-      <div className="achievements-section">
-        <div className="achievements-slider">
-          
-          <button className="arrow left-arrow" onClick={handlePrev} disabled={currentIndex === 0}>
-            &lt;
-          </button>
-          <div className="achievements-container">
-            {allAchievements.slice(currentIndex, currentIndex + 3).map((achievement) => (
-              <div key={achievement.id} className="achievement">
-                <img
-                  src={achievement.icon}
-                  alt={achievement.name}
-                  className={`achievement-icon ${unlockedAchievements.includes(achievement.id) ? 'unlocked' : 'locked'}`}
-                />
-              </div>
-            ))}
+
+        <div className="profile-content">
+
+          <div className="total-points-section">
+            <div className="total-score-block">
+              <p>{totalScore}</p>
+              <img src={nutIcon} alt="Nut Icon" className="nut-icon-profile" />
+            </div>
+
           </div>
-          <button className="arrow right-arrow" onClick={handleNext} disabled={currentIndex >= allAchievements.length - 3}>
-            &gt;
-          </button>
+          <div className="achievements-section">
+            <div className="achievements-slider">
+
+              <button className="arrow left-arrow" onClick={handlePrev} disabled={currentIndex === 0}>
+                &lt;
+              </button>
+              <div className="achievements-container">
+                {allAchievements.slice(currentIndex, currentIndex + 3).map((achievement) => (
+                  <div key={achievement.id} className="achievement">
+                    <img
+                      src={achievement.icon}
+                      alt={achievement.name}
+                      className={`achievement-icon ${unlockedAchievements.includes(achievement.id) ? 'unlocked' : 'locked'}`}
+                    />
+                  </div>
+                ))}
+              </div>
+              <button className="arrow right-arrow" onClick={handleNext} disabled={currentIndex >= allAchievements.length - 3}>
+                &gt;
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
       </div>
       <Menu onMenuClick={onMenuClick} variant="profile" />
     </div>
