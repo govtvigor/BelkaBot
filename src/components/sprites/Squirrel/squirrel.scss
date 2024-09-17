@@ -1,14 +1,16 @@
+/* src/components/sprites/Squirrel/squirrel.scss */
+
 .squirrel {
   height: auto;
   position: absolute;
 }
 
-/* Анімація при стрибку на першу гілку */
+/* Animation when jumping to the first branch */
 .squirrel.jumping-to-first-branch {
   animation: jumpToFirstBranch 1s forwards;
 }
 
-/* Анімація при стрибках між гілками */
+/* Animation when jumping between branches */
 .squirrel.jumping-between-branches {
   animation: jumpBetweenBranches 0.5s forwards;
 }
@@ -18,19 +20,19 @@
     bottom: 60px;
   }
   100% {
-    bottom: 250px;
+    bottom: 200px;
   }
 }
 
 @keyframes jumpBetweenBranches {
   0% {
-    bottom: 250px;
+    bottom: 180px;
   }
   50% {
-    bottom: 270px;
+    bottom: 220px;
   }
   100% {
-    bottom: 250px;
+    bottom: 180px;
   }
 }
 
@@ -40,11 +42,11 @@
 }
 
 .squirrel.left {
-  left: 15%;
+  left: 30%;
   transform: translateX(-50%) scaleX(-1);
 }
 
 .squirrel.right {
-  right: 15%;
-  transform: translateX(50%) scaleX(1);
+  left: 70%;
+  transform: translateX(-50%) scaleX(1);
 }

@@ -79,10 +79,7 @@ export const setScrollOffset = (offset: number) => ({
     payload: offset,
   });
 
-export const setSquirrelTop = (top: number) => ({
-    type: 'SET_SQUIRREL_TOP' as const,
-    payload: top,
-});
+
 export const setGameOver = (isGameOver: boolean) => ({
     type: 'SET_GAME_OVER' as const,
     payload: isGameOver,

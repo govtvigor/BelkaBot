@@ -1,6 +1,6 @@
-// Squirrel.tsx
+// src/components/sprites/Squirrel/Squirrel.tsx
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import squirrelImage from '../../../assets/squirt.png';
 import './squirrel.scss';
 
@@ -35,14 +35,14 @@ const Squirrel: React.FC<SquirrelProps> = ({ position, isInGame, isJumpingToFirs
             ? 'jumping-between-branches'
             : '';
 
-    // Позиції білки
+    // Positions
     const positionStyles = {
         left: { left: '30%', transform: 'translateX(-50%) scaleX(-1)' },
         right: { left: '70%', transform: 'translateX(-50%) scaleX(1)' },
     };
 
-    // Визначаємо позицію bottom
-    const bottomPosition = isJumpingToFirstBranch || !isInGame ? '60px' : '250px'; // Налаштуйте за потреби
+    // Determine the bottom position based on whether the squirrel is jumping to the first branch or in-game
+    const bottomPosition = isJumpingToFirstBranch ? '60px' : isInGame ? '120px' : '60px'; // Adjusted
 
     return (
         <div

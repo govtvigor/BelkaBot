@@ -8,7 +8,7 @@ import {
   resetGame,
   setLifeDeducted,
   setMenu,
-  setSquirrelSide, setSquirrelTop,
+  setSquirrelSide, 
   startGame,
   updateScrollOffset,
   updateSpeed,
@@ -17,7 +17,8 @@ import {
   setGameOver,
   setLives,
   setLivesLoading,
-  setTimeLeft
+  setTimeLeft,
+  
 } from "../actions/gameActions";
 
 export interface Branch {
@@ -43,7 +44,6 @@ export interface GameState {
   scrollOffset: number;
   bonuses: Bonus[];
   lifeDeducted: boolean;
-  squirrelTop: number;
   gameOver: boolean;
   isLivesLoading: boolean;
 
@@ -62,7 +62,6 @@ export const initialState: GameState = {
   scrollOffset: 0,
   bonuses: [],
   lifeDeducted: false,
-  squirrelTop: 500,
   gameOver: false,
   isLivesLoading: true,
 };
@@ -81,7 +80,6 @@ export type GameAction =
   | ReturnType<typeof removeBranch>
   | ReturnType<typeof updateScrollOffset>
   | ReturnType<typeof setLifeDeducted>
-  | ReturnType<typeof setSquirrelTop>
   | ReturnType<typeof setScrollOffset>
   | ReturnType<typeof setBranches>
   | ReturnType<typeof setGameOver>
@@ -99,6 +97,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, timeLeft: action.payload };
     case 'DECREASE_TIME':
       return { ...state, timeLeft: Math.max(state.timeLeft - 1, 0) };
+      
     case 'RESET_GAME':
       return {
         ...state,
@@ -111,7 +110,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         scrollOffset: initialState.scrollOffset,
         bonuses: initialState.bonuses,
         lifeDeducted: initialState.lifeDeducted,
-        squirrelTop: initialState.squirrelTop,
+        // squirrelTop: initialState.squirrelTop,
         inMenu: initialState.inMenu,
         // Preserve lives and isLivesLoading
       };
@@ -151,8 +150,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, isLivesLoading: action.payload };
     case 'SET_GAME_OVER':
       return { ...state, gameOver: action.payload };
-    case 'SET_SQUIRREL_TOP': // Додано тут
-      return { ...state, squirrelTop: action.payload };
+    
     default:
       return state;
   }

@@ -1,3 +1,5 @@
+// src/hooks/useGameLogic.ts
+
 import { useReducer, useCallback, useEffect, useContext, useRef, useState } from 'react';
 import { gameReducer, initialState } from '../reducers/gameReducer';
 import { setTimeLeft, decreaseTime } from '../actions/gameActions';
@@ -21,15 +23,16 @@ import {
   setBranches,
   setGameOver,
   setLives,
-  setLivesLoading
+  setLivesLoading,
 } from '../actions/gameActions';
-
 
 export const useGameLogic = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const userChatId = useContext(ChatIdContext);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [userAchievements, setUserAchievements] = useState<string[]>([]);
+
+  // Timer to decrease time left every second
   useEffect(() => {
     if (state.gameStarted && !state.gameOver) {
       timerRef.current = setInterval(() => {
@@ -41,6 +44,7 @@ export const useGameLogic = () => {
     };
   }, [state.gameStarted, state.gameOver, dispatch]);
 
+  // Generate branches function
   const generateBranches = useCallback(() => {
     const newBranches = [];
     const spacing = 120; // Define spacing between branches
@@ -50,9 +54,11 @@ export const useGameLogic = () => {
       newBranches.push({ side, top });
     }
     dispatch(setBranches(newBranches));
+
+    // No need to set squirrelTop since it's managed by isInGame
   }, [dispatch]);
 
-  // In your useGameLogic.ts
+  // Fetch lives from Firebase
   useEffect(() => {
     const fetchLives = async () => {
       if (userChatId) {
@@ -62,13 +68,13 @@ export const useGameLogic = () => {
             // Reset lives if last reset date is not today
             const today = new Date().toDateString();
             let updatedLives = livesData.lives;
-    
+
             if (livesData.lastLivesResetDate !== today) {
               // Reset lives to 3
               updatedLives = 3;
               await updateUserLivesAndLastResetDate(userChatId, updatedLives, today);
             }
-    
+
             dispatch(setLives(updatedLives));
           }
         } catch (error) {
@@ -82,7 +88,7 @@ export const useGameLogic = () => {
     fetchLives();
   }, [userChatId, dispatch]);
 
-
+  // Handle Game Over
   const handleGameOver = useCallback(async () => {
     const newLives = (state.lives || 0) - 1;
     dispatch(deductLife()); // Decrement lives in the state
@@ -127,9 +133,6 @@ export const useGameLogic = () => {
     dispatch(setGameOver(true));
   }, [dispatch, state.lives, state.points, userChatId]);
 
-
-
-
   // Handle screen click
   const handleScreenClick = useCallback(
     (side: 'left' | 'right') => {
@@ -144,7 +147,7 @@ export const useGameLogic = () => {
 
         // Remove the top branch
         let newBranches = state.branches.slice(0, -1);
-        const timeIncrement = Math.max(0.05, 0.5 - (state.points / 100));
+        const timeIncrement = Math.max(0.05, 0.5 - state.points / 100);
         dispatch(setTimeLeft(state.timeLeft + timeIncrement));
 
         // Add a new branch at the top
@@ -161,13 +164,14 @@ export const useGameLogic = () => {
 
         // Update the branches in the state
         dispatch(setBranches(newBranches));
+
+        // No need to set squirrelTop since it's managed by isInGame
       } else {
         handleGameOver();
       }
     },
-    [state.branches, state.gameOver, dispatch, handleGameOver]
+    [state.branches, state.gameOver, state.points, dispatch, handleGameOver]
   );
-
 
   return {
     state,

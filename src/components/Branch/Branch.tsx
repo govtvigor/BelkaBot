@@ -1,3 +1,5 @@
+// Branch.tsx
+
 import React from 'react';
 import branchImage from '../../assets/regular/tree2regular.png';
 import './branch.scss';
@@ -5,7 +7,7 @@ import './branch.scss';
 interface BranchProps {
   side: 'left' | 'right';
   top: number;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
 }
 
 const Branch: React.FC<BranchProps> = ({ side, top, onClick }) => {
@@ -20,7 +22,10 @@ const Branch: React.FC<BranchProps> = ({ side, top, onClick }) => {
     <div
       className="branch"
       style={branchStyles}
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick(e);
+      }}
     >
       <img src={branchImage} alt={`Branch ${side}`} />
     </div>
