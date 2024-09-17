@@ -12,6 +12,8 @@ import { handleBuyLives } from "./paymentHandler";
 import { getUserAchievements } from "../../client/firebaseFunctions";
 import { achievements as allAchievements } from "../../constants/achievements";
 import nutIcon from '../../assets/nut.png';
+import SquirrelIcon from '../../assets/squirt.png';
+import ShopIcon from '../../assets/shop-icon.png';
 
 
 interface ProfileProps {
@@ -155,9 +157,13 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
             </button>
           </div>
         </div>
+
+        <div className="shop-section">
+          <img src={ShopIcon} alt="shop-icon" className="shop-section-icon" />
+        </div>
       </div>
       <div className="squirrel-profile">
-     
+              <img src={SquirrelIcon} alt="squirrel" className="squirrel-profile-icon"/>
       </div>
       <Menu onMenuClick={onMenuClick} variant="profile" />
     </div>

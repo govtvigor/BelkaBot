@@ -176,3 +176,21 @@
     transform-origin: center;
     /* Ensure spinning occurs from the center */
 }
+.squirrel-profile {
+    text-align: center;
+    margin: auto 0;
+    &-icon {
+        width: 100px;
+        height: auto;
+    }
+}
+.shop-section {
+    margin-top: 35px;
+    width: 90%;
+    display: flex;
+    justify-content: flex-end;
+    &-icon {
+        width: 90px;
+        height: auto;
+    }
+}
