@@ -132,14 +132,16 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, inMenu: action.payload };
     case 'SET_SQUIRREL_SIDE':
       return { ...state, squirrelSide: action.payload };
-    case 'ADD_BRANCH':
-      return { ...state, branches: [...state.branches, action.payload] };
-    case 'REMOVE_BRANCH':
-      return { ...state, branches: state.branches.slice(0, -1) };
+      case 'ADD_BRANCH':
+        return { ...state, branches: [action.payload, ...state.branches] };
+      
+      case 'REMOVE_BRANCH':
+        return { ...state, branches: state.branches.slice(0, -1) };
+      
+      case 'SET_BRANCHES':
+        return { ...state, branches: action.payload };
     case 'UPDATE_SCROLL_OFFSET':
       return { ...state, scrollOffset: action.payload };
-    case 'SET_BRANCHES':
-      return { ...state, branches: action.payload };
     case 'SET_SCROLL_OFFSET':
       return { ...state, scrollOffset: action.payload };
     case 'SET_LIFE_DEDUCTED':

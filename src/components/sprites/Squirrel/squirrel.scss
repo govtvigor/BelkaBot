@@ -3,11 +3,12 @@
 .squirrel {
   height: auto;
   position: absolute;
+  will-change: transform, bottom;
 }
 
 /* Animation when jumping to the first branch */
 .squirrel.jumping-to-first-branch {
-  animation: jumpToFirstBranch 1s forwards;
+  animation: jumpToFirstBranch 1s cubic-bezier(0.42, 0, 0.58, 1) forwards;
 }
 
 /* Animation when jumping between branches */
@@ -19,8 +20,20 @@
   0% {
     bottom: 60px;
   }
+  20% {
+    bottom: 120px;
+  }
+  40% {
+    bottom: 160px;
+  }
+  50% {
+    bottom: 180px;
+  }
+  60% {
+    bottom: 160px;
+  }
   100% {
-    bottom: 200px;
+    bottom: 40px;
   }
 }
 
@@ -31,8 +44,11 @@
   50% {
     bottom: 220px;
   }
+  75% {
+    bottom: 200px;
+  }
   100% {
-    bottom: 180px;
+    bottom: 175px;
   }
 }
 

@@ -165,10 +165,14 @@ const GameArea: React.FC = () => {
                   key={index}
                   side={branch.side}
                   top={branch.top}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleScreenClick(branch.side);
-                  }}
+                  onClick={
+                    state.gameStarted
+                      ? (e) => {
+                          e.stopPropagation();
+                          handleScreenClick(branch.side);
+                        }
+                      : undefined // No onClick handler if game hasn't started
+                  }
                 />
               ))}
           </div>
