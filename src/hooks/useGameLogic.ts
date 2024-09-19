@@ -2,7 +2,7 @@
 
 import { useReducer, useCallback, useEffect, useContext, useRef, useState } from 'react';
 import { gameReducer, initialState } from '../reducers/gameReducer';
-import { setTimeLeft, decreaseTime } from '../actions/gameActions';
+import { setTimeLeft, decreaseTime, setGameOver } from '../actions/gameActions'; // Ensure setGameOver is imported
 import { ChatIdContext } from '../client/App';
 import { achievements } from '../constants/achievements';
 import {
@@ -21,7 +21,7 @@ import {
   addPoints,
   setSquirrelSide,
   setBranches,
-  setGameOver,
+  setGameOver as actionSetGameOver,
   setLives,
   setLivesLoading,
 } from '../actions/gameActions';
@@ -43,6 +43,14 @@ export const useGameLogic = () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [state.gameStarted, state.gameOver, dispatch]);
+
+  // End game when time runs out without deducting a life
+  useEffect(() => {
+    if (state.gameStarted && !state.gameOver && state.timeLeft <= 0) {
+      dispatch(actionSetGameOver(true));
+      // Optionally, you can perform any additional actions here
+    }
+  }, [state.gameStarted, state.gameOver, state.timeLeft, dispatch]);
 
   // Generate branches function
   const generateBranches = useCallback(() => {
@@ -88,7 +96,7 @@ export const useGameLogic = () => {
     fetchLives();
   }, [userChatId, dispatch]);
 
-  // Handle Game Over
+  // Handle Game Over when player makes a mistake
   const handleGameOver = useCallback(async () => {
     const newLives = (state.lives || 0) - 1;
     dispatch(deductLife()); // Decrement lives in the state
@@ -130,7 +138,7 @@ export const useGameLogic = () => {
       }
     }
 
-    dispatch(setGameOver(true));
+    dispatch(actionSetGameOver(true));
   }, [dispatch, state.lives, state.points, userChatId]);
 
   // Handle screen click

@@ -7,17 +7,18 @@ import Score from "../components/Score/Score";
 import Lives from "../components/Lives/Lives";
 import Menu from "../components/Menu/Menu";
 import Profile from "../components/Profile/Profile";
+import Leaderboard from "../components/Leaderboard/Leaderboard"; // Ensure correct path
 import groundTreeImage from "../assets/groundTree.png";
 import startText from "../assets/startText.png";
 import { useGameLogic } from "../hooks/useGameLogic";
 import { Branch as BranchType } from "../reducers/gameReducer";
 import Timer from "../components/Timer/Timer";
 import './App.css';
-import { resetGame, setGameOver, startGame } from "../actions/gameActions"; // Ensure startGame is imported
+import { resetGame, setGameOver, startGame } from "../actions/gameActions";
 
 const GameArea: React.FC = () => {
   const { state, dispatch, handleScreenClick, generateBranches } = useGameLogic();
-  const [currentScreen, setCurrentScreen] = useState<"game" | "profile">("game");
+  const [currentScreen, setCurrentScreen] = useState<"game" | "profile" | "leaderboard">("game"); // Updated type
 
   const [isJumpingToFirstBranch, setIsJumpingToFirstBranch] = useState(false);
   const [isGroundMovingDown, setIsGroundMovingDown] = useState(false);
@@ -57,7 +58,7 @@ const GameArea: React.FC = () => {
     generateBranches();
   }, [generateBranches]);
 
-  const handleMenuClick = (screen: "game" | "profile") => {
+  const handleMenuClick = (screen: "game" | "profile" | "leaderboard") => { // Updated type
     setCurrentScreen(screen);
   };
 
@@ -110,10 +111,16 @@ const GameArea: React.FC = () => {
     }
   };
 
+  // Render Profile or Leaderboard based on currentScreen
   if (currentScreen === "profile") {
     return <Profile onMenuClick={handleMenuClick} />;
   }
 
+  if (currentScreen === "leaderboard") {
+    return <Leaderboard  onMenuClick={handleMenuClick}/>;
+  }
+
+  // Render Game Screen
   return (
     <div className="game-container">
       <div

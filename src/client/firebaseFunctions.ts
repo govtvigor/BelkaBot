@@ -1,8 +1,32 @@
 import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from './firebase';
 import { formatTonAddress } from '../utils/convertAddress';
-import { increment, arrayUnion } from 'firebase/firestore';
+import { increment, arrayUnion, orderBy, limit } from 'firebase/firestore';
 
+export interface LeaderboardEntry {
+  walletAddress: string;
+  totalPoints: number;
+}
+export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
+  try {
+    const usersCollection = collection(db, 'users'); // Assuming 'users' collection
+    const q = query(usersCollection, orderBy('totalPoints', 'desc'), limit(10)); // Top 10 players
+    const querySnapshot = await getDocs(q);
+    const leaderboard: LeaderboardEntry[] = [];
 
+    querySnapshot.forEach((docSnapshot) => {
+      const data = docSnapshot.data();
+      leaderboard.push({
+        walletAddress: data.walletAddress || 'Unknown',
+        totalPoints: data.totalPoints || 0,
+      });
+    });
+
+    return leaderboard;
+  } catch (error) {
+    console.error("Error fetching leaderboard data:", error);
+    return [];
+  }
+};
 export async function saveUserByChatId(chatId: string) {
   try {
     const userRef = doc(db, 'users', chatId); 
@@ -114,6 +138,7 @@ export const updateUserLives = async (chatId: string, newLives: number): Promise
     throw error;
   }
 };
+
 export const updateUserLivesAndLastResetDate = async (
   chatId: string,
   newLives: number,

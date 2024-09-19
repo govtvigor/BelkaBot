@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+// src/components/Profile/Profile.tsx
+
+import React, { useState, useEffect, useContext, useRef } from "react";
 import Menu from "../Menu/Menu";
 import "./profile.scss";
 import heartIcon from "../../assets/heart.png";
@@ -20,10 +22,12 @@ import { achievements as allAchievements } from "../../constants/achievements";
 import nutIcon from "../../assets/nut.png";
 import SquirrelIcon from "../../assets/squirt.png";
 import ShopIcon from "../../assets/shop-icon.png";
+import taskIcon from "../../assets/shop-icon.png"; // Import your task icon
 import ShopModal from "./ShopModal/ShopModal"; 
+import TaskModal from "./TaskModal/TaskModal"; // Import the TaskModal component
 
 interface ProfileProps {
-  onMenuClick: (screen: "game" | "profile") => void;
+  onMenuClick: (screen: "game" | "profile" | "leaderboard") => void; // Updated to include 'leaderboard'
 }
 
 const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
@@ -37,6 +41,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isShopModalOpen, setIsShopModalOpen] = useState<boolean>(false);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false); // State for TaskModal
 
   useEffect(() => {
     if (userChatId) {
@@ -190,18 +195,25 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           </div>
         </div>
 
-        <div
-          className="shop-section"
-          onClick={() => setIsShopModalOpen(true)}
-        >
+        {/* Shop Section */}
+        <div className="shop-section" onClick={() => setIsShopModalOpen(true)}>
           <img
             src={ShopIcon}
             alt="shop-icon"
             className="shop-section-icon"
           />
-          
+        </div>
+
+        {/* Task Section */}
+        <div className="task-section" onClick={() => setIsTaskModalOpen(true)}>
+          <img
+            src={taskIcon}
+            alt="task-icon"
+            className="task-section-icon"
+          />
         </div>
       </div>
+
       <div className="squirrel-profile">
         <img
           src={SquirrelIcon}
@@ -213,6 +225,9 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
 
       {isShopModalOpen && (
         <ShopModal onClose={() => setIsShopModalOpen(false)} />
+      )}
+      {isTaskModalOpen && (
+        <TaskModal onClose={() => setIsTaskModalOpen(false)} />
       )}
     </div>
   );
