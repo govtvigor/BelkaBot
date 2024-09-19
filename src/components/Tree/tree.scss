@@ -1,0 +1,58 @@
+/* src/components/Tree/Tree.scss */
+
+.tree-wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .ground-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: var(--ground-height);
+    background-image: url('../../assets/groundTree.png');
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    transition: transform 0.15s ease-in-out;
+  }
+  
+  .tree-trunk {
+    position: absolute;
+    left: 50%;
+    bottom: var(--tree-trunk-bottom);
+    transform: translateX(-50%) translateY(var(--tree-trunk-translate-y));
+    width: var(--tree-trunk-width);
+    height: var(--tree-trunk-height);
+    background-image: url('../../assets/mainTree.png');
+    background-repeat: repeat-y;
+    background-size: 100% 144px;
+    z-index: 2;
+    transition: transform 1s ease-in-out, opacity 1s ease-in-out;
+    opacity: 1;
+  }
+  
+  .tree-trunk.move-up {
+    transform: translateX(-50%) translateY(calc(var(--tree-trunk-translate-y) + 100px));
+  }
+  
+  .tree-trunk.fixed-position {
+    transform: translateX(-50%) translateY(calc(var(--tree-trunk-translate-y) + 100px));
+  }
+  
+  .tree-trunk.fade-in {
+    opacity: 1;
+  }
+  
+  .tree-trunk.fade-out {
+    opacity: 0;
+    transform: translateX(-50%) translateY(var(--tree-trunk-translate-y)) scale(0.95);
+  }
+  

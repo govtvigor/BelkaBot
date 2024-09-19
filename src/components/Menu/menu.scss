@@ -22,7 +22,7 @@
     justify-content: space-around;
     align-items: center;
     width: 100%;
-    padding: 10px 0;
+    
 }
 
 .menu-buttons button {
@@ -30,13 +30,13 @@
     justify-content: center;
     font-family: 'Press Start 2P', sans-serif;
     background-color: #333; /* Slightly lighter dark gray */
-    color: #FFD700; /* Gold text to match profile */
-    border: 4px double #FFD700; /* Gold border */
-    padding: 10px 20px;
-    margin: 5px;
+    color: #ffba42; /* Gold text to match profile */
+    
+    padding: 10px;
+    
     text-align: center;
     text-transform: uppercase;
-    font-size: 10px;
+    font-size: 8px;
     width: 30%;
     letter-spacing: 2px;
     box-shadow: 0 4px #222; /* Darker shadow for depth */
@@ -54,3 +54,4 @@
         box-shadow: 0 2px #111; /* Reduced shadow on active */
     }
 }
+

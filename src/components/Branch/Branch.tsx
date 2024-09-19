@@ -8,15 +8,17 @@ interface BranchProps {
   side: 'left' | 'right';
   top: number;
   onClick?: (e: React.MouseEvent) => void; // Make onClick optional
+  children?: React.ReactNode; // Allow children
 }
 
-const Branch: React.FC<BranchProps> = ({ side, top, onClick }) => {
+const Branch: React.FC<BranchProps> = ({ side, top, onClick, children }) => {
   const branchStyles: React.CSSProperties = {
     position: 'absolute',
     top: `${top}px`,
     [side]: '27%', // Position branches on left or right
     transform: side === 'left' ? 'scaleX(-1)' : 'scaleX(1)', // Flip image for left side
     transition: 'top 0.5s ease-out', // Smooth transition when branches appear
+    zIndex: 3, // Ensure branches are above the tree
   };
 
   return (
@@ -25,7 +27,11 @@ const Branch: React.FC<BranchProps> = ({ side, top, onClick }) => {
       style={branchStyles}
       onClick={onClick} // Attach onClick only if provided
     >
+      <div className="branch-content">
+        {children}
+      </div>
       <img src={branchImage} alt={`Branch ${side}`} />
+      
     </div>
   );
 };
