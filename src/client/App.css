@@ -93,7 +93,7 @@
     /*bottom: 320px;*/
     bottom: var(--tree-trunk-bottom, 150px);
     transform: translateX(-50%);
-    width: 70px;
+    width: 65px;
     height: 100%;
     background-image: url('../assets/mainTree.png');
     background-repeat: repeat-y;

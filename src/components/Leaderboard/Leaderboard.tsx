@@ -7,7 +7,7 @@ import Menu from "../Menu/Menu";
 import LeaderboardBranch from "../LeaderboardBranch/LeaderboardBranch"; // New component for leaderboard branches
 import groundTreeImage from "../../assets/groundTree.png";
 import mainTreeImage from "../../assets/mainTree.png";
-import crownTreeImage from "../../assets/crownTree.png";
+
 
 interface LeaderboardProps {
   onMenuClick: (screen: 'game' | 'profile' | 'leaderboard') => void;
@@ -76,9 +76,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onMenuClick }) => {
 
   return (
     <div className="leaderboard" onClick={(e) => e.stopPropagation()}>
-      {/* <div className="title">
-        <h2>Leaderboard</h2>
-      </div> */}
+      
       {loading ? (
         <p>Loading...</p>
       ) : leaderboard.length === 0 ? (
@@ -95,9 +93,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onMenuClick }) => {
             <div className="tree-trunk-lead">
               <img src={mainTreeImage} alt="Main Tree" />
             </div>
-            <div className="tree-crown-lead">
-              {/* <img src={crownTreeImage} alt="Crown Tree" /> */}
-            </div>
+            
             {/* Branches */}
             <div className="branches-container">
               {currentEntries.slice(0, visibleEntries).map((entry, index) => {

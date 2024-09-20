@@ -1,7 +1,7 @@
 // src/components/LeaderboardBranch/LeaderboardBranch.tsx
 
 import React from 'react';
-import branchImage from '../../assets/regular/tree2regular.png';
+import branchImage from '../../assets/pixil1.png';
 import './leaderboardBranch.scss';
 
 interface LeaderboardBranchProps {
