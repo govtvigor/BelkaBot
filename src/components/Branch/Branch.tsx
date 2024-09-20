@@ -15,7 +15,7 @@ const Branch: React.FC<BranchProps> = ({ side, top, onClick, children }) => {
   const branchStyles: React.CSSProperties = {
     position: 'absolute',
     top: `${top}px`,
-    [side]: '27%', // Position branches on left or right
+    [side]: '22%', // Position branches on left or right
     transform: side === 'left' ? 'scaleX(-1)' : 'scaleX(1)', // Flip image for left side
     transition: 'top 0.5s ease-out', // Smooth transition when branches appear
     zIndex: 3, // Ensure branches are above the tree

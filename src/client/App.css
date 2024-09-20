@@ -18,14 +18,15 @@
     --icon-size-heart: 30px;
 
     /* Змінні для адаптивної висоти */
-    --ground-height: 150px; /* Висота зображення граунду на десктопах */
     --tree-trunk-bottom: 150px; /* Відступ стовбура дерева від низу */
     --tree-trunk-width: 7%; /* Ширина стовбура дерева */
     --tree-trunk-height: 100vh; /* Висота стовбура */
-    --tree-trunk-translate-y: 0px; /* Початкове вертикальне переміщення стовбура */
+    --tree-trunk-translate-y: 0px;
+    /* Початкове вертикальне переміщення стовбура */
 }
 
 /* Контейнер гри */
+
 .game-container {
     display: flex;
     flex-direction: column;
@@ -33,6 +34,7 @@
 }
 
 /* Ігрова область */
+
 .game-area {
     display: flex;
     flex-direction: column;
@@ -45,18 +47,19 @@
 }
 
 /* Інформація про гру */
+
 .score, .lives {
     margin: 10px;
     font-size: var(--font-size-large);
 }
 
 /* Обгортка для зображення граунду */
+
 .ground-wrapper {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: var(--ground-height);
     background-image: url('../assets/groundTree.png');
     background-position: center center;
     background-size: cover;
@@ -69,6 +72,7 @@
 }
 
 /* Обгортка для дерева */
+
 .tree-wrapper {
     position: absolute;
     z-index: 1;
@@ -82,30 +86,35 @@
 }
 
 /* Стовбур дерева */
+
 .tree-trunk {
     position: absolute;
     left: 50%;
-    bottom: 0;
-    transform: translateX(-50%) translateY(var(--tree-trunk-translate-y));
-    width: var(--tree-trunk-width);
-    height: var(--tree-trunk-height);
+    /*bottom: 320px;*/
+    bottom: var(--tree-trunk-bottom, 150px);
+    transform: translateX(-50%);
+    width: 70px;
+    height: 100%;
     background-image: url('../assets/mainTree.png');
     background-repeat: repeat-y;
-    background-size: 100% 144px;
+    background-size: 100%;
     z-index: 2;
-    transition: transform 1s ease-in-out, opacity 1s ease-in-out;
+    transition: 1s ease-in-out, opacity 1s ease-in-out;
     opacity: 1;
 }
 
 .tree-trunk.move-up {
-    transform: translateX(-50%) translateY(calc(var(--tree-trunk-translate-y) + 100px));
+    transition: 1s ease-in-out;
+    bottom: 0;
 }
 
 .tree-trunk.fixed-position {
-    transform: translateX(-50%) translateY(calc(var(--tree-trunk-translate-y) + 100px));
+    transition: 1s ease-in-out;
+    bottom: 0;
 }
 
 /* Анімації для дерева */
+
 .tree-trunk.fade-in {
     opacity: 1;
 }
@@ -124,6 +133,7 @@
 }
 
 /* Масштабування */
+
 .scaled {
     transform: scale(2) rotateY(360deg);
     transition: 1.5s ease-in-out;
@@ -152,6 +162,7 @@
 }
 
 /* Іконки */
+
 .nut-icon {
     width: var(--icon-size-nut);
     height: var(--icon-size-nut);
@@ -165,6 +176,7 @@
 }
 
 /* Режими гри */
+
 .menu-mode .tree-wrapper,
 .menu-mode .branches {
     width: 100%;
@@ -178,6 +190,7 @@
 }
 
 /* Контейнер для гілок */
+
 .branches {
     position: absolute;
     top: 0;
@@ -189,6 +202,7 @@
 }
 
 /* Екран Game Over */
+
 .game-over-screen {
     position: absolute;
     top: 50%;
@@ -218,6 +232,7 @@
     background-color: #ddd;
 }
 
+
 /* Адаптивність для мобільних пристроїв */
 @media (max-width: 768px) {
     :root {
@@ -225,11 +240,8 @@
         --tree-trunk-bottom: 50px; /* Менший відступ для стовбура */
     }
 
-    .ground-wrapper {
-        height: var(--ground-height); /* Застосовуємо меншу висоту на мобільних */
-    }
 
-    .tree-trunk {
-        bottom: var(--tree-trunk-bottom); /* Адаптивний відступ для стовбура */
-    }
+    /*.tree-trunk {*/
+    /*    bottom: var(--tree-trunk-bottom); !* Адаптивний відступ для стовбура *!*/
+    /*}*/
 }
