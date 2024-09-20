@@ -4,9 +4,10 @@ import React, { useEffect, useState } from "react";
 import "./leaderboard.scss";
 import { getLeaderboardData, LeaderboardEntry } from "../../client/firebaseFunctions";
 import Menu from "../Menu/Menu";
-import Branch from "../Branch/Branch";
+import LeaderboardBranch from "../LeaderboardBranch/LeaderboardBranch"; // New component for leaderboard branches
 import groundTreeImage from "../../assets/groundTree.png";
 import mainTreeImage from "../../assets/mainTree.png";
+import crownTreeImage from "../../assets/crownTree.png";
 
 interface LeaderboardProps {
   onMenuClick: (screen: 'game' | 'profile' | 'leaderboard') => void;
@@ -75,9 +76,9 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onMenuClick }) => {
 
   return (
     <div className="leaderboard" onClick={(e) => e.stopPropagation()}>
-      <div className="title">
+      {/* <div className="title">
         <h2>Leaderboard</h2>
-      </div>
+      </div> */}
       {loading ? (
         <p>Loading...</p>
       ) : leaderboard.length === 0 ? (
@@ -94,22 +95,26 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onMenuClick }) => {
             <div className="tree-trunk-lead">
               <img src={mainTreeImage} alt="Main Tree" />
             </div>
+            <div className="tree-crown-lead">
+              {/* <img src={crownTreeImage} alt="Crown Tree" /> */}
+            </div>
             {/* Branches */}
             <div className="branches-container">
               {currentEntries.slice(0, visibleEntries).map((entry, index) => {
                 const side = index % 2 === 0 ? 'left' : 'right'; // Alternate sides
                 return (
-                  <Branch
+                  <LeaderboardBranch
                     key={entry.walletAddress}
                     side={side}
-                    top={50 + index * 60} // Adjust top position as needed
+                    top={10 + index * 80} // Adjust top position as needed
                   >
-                    <span className="rank">{startIdx + index + 1}</span>
-                    <span className="wallet-address">
-                      {entry.walletAddress.slice(0, 6)}...{entry.walletAddress.slice(-4)}
-                    </span>
-                    <span className="points">{entry.totalPoints}</span>
-                  </Branch>
+                    <div className="rank">{startIdx + index + 1}</div>
+                    <div className="wallet-address">
+                    {entry.walletAddress.slice(0, 4)}...{entry.walletAddress.slice(-4)}
+                    </div>
+                    <div className="points">
+                    {entry.totalPoints}</div>
+                  </LeaderboardBranch>
                 );
               })}
             </div>
