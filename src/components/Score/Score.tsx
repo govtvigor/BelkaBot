@@ -9,7 +9,6 @@ interface ScoreProps {
 const Score: React.FC<ScoreProps> = ({ points }) => {
   return (
     <div className="score">
-      <img src={nutIcon} alt="Nut Icon" className="nut-icon" />
       <span>{points}</span>
     </div>
   );

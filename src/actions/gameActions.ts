@@ -3,6 +3,7 @@ import { Branch } from '../reducers/gameReducer';
 export const startGame = () => ({
     type: 'START_GAME' as const,
 });
+
 export const setBranches = (branches: Branch[]) => ({
     type: 'SET_BRANCHES' as const,
     payload: branches,

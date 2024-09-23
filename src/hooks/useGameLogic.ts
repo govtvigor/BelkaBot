@@ -24,25 +24,48 @@ import {
   setGameOver as actionSetGameOver,
   setLives,
   setLivesLoading,
+  setScrollOffset
 } from '../actions/gameActions';
 
 export const useGameLogic = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const userChatId = useContext(ChatIdContext);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<number | null>(null);
   const [userAchievements, setUserAchievements] = useState<string[]>([]);
+  const [maxTime, setMaxTime] = useState(initialState.timeLeft);
+  const lastUpdateTimeRef = useRef<number | null>(null);
 
   // Timer to decrease time left every second
   useEffect(() => {
     if (state.gameStarted && !state.gameOver) {
-      timerRef.current = setInterval(() => {
-        dispatch(decreaseTime());
-      }, 1000);
+      const gameLoop = (currentTime: number) => {
+        if (lastUpdateTimeRef.current === null) {
+          lastUpdateTimeRef.current = currentTime;
+        }
+        const deltaTime = (currentTime - lastUpdateTimeRef.current) / 1000; // Convert to seconds
+        lastUpdateTimeRef.current = currentTime;
+
+        const newTimeLeft = Math.max(state.timeLeft - deltaTime, 0);
+        dispatch(setTimeLeft(newTimeLeft));
+
+        if (newTimeLeft <= 0) {
+          dispatch(setGameOver(true));
+          return;
+        }
+
+        timerRef.current = requestAnimationFrame(gameLoop);
+      };
+
+      timerRef.current = requestAnimationFrame(gameLoop);
+
+      return () => {
+        if (timerRef.current) {
+          cancelAnimationFrame(timerRef.current);
+        }
+        lastUpdateTimeRef.current = null;
+      };
     }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [state.gameStarted, state.gameOver, dispatch]);
+  }, [state.gameStarted, state.gameOver, state.timeLeft, dispatch]);
 
   // End game when time runs out without deducting a life
   useEffect(() => {
@@ -156,7 +179,12 @@ export const useGameLogic = () => {
         // Remove the top branch
         let newBranches = state.branches.slice(0, -1);
         const timeIncrement = Math.max(0.05, 0.5 - state.points / 100);
-        dispatch(setTimeLeft(state.timeLeft + timeIncrement));
+        const newTimeLeft = state.timeLeft + timeIncrement;
+        dispatch(setTimeLeft(newTimeLeft));
+
+        if (newTimeLeft > maxTime) {
+          setMaxTime(newTimeLeft);
+        }
 
         // Add a new branch at the top
         const newSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
@@ -173,12 +201,24 @@ export const useGameLogic = () => {
         // Update the branches in the state
         dispatch(setBranches(newBranches));
 
-        // No need to set squirrelTop since it's managed by isInGame
+        // **Update scrollOffset**
+        const scrollAmount = spacing; // Amount to scroll up
+        const newScrollOffset = state.scrollOffset + scrollAmount;
+        dispatch(setScrollOffset(newScrollOffset));
       } else {
         handleGameOver();
       }
     },
-    [state.branches, state.gameOver, state.points, dispatch, handleGameOver]
+    [
+      state.branches,
+      state.gameOver,
+      state.points,
+      dispatch,
+      handleGameOver,
+      state.timeLeft,
+      maxTime,
+      state.scrollOffset,
+    ]
   );
 
   return {
@@ -186,6 +226,7 @@ export const useGameLogic = () => {
     dispatch,
     handleScreenClick,
     startGame,
-    generateBranches
+    generateBranches, 
+    maxTime
   };
 };
