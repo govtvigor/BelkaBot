@@ -1,5 +1,3 @@
-// src/components/Timer/Timer.tsx
-
 import React from 'react';
 import './timer.scss';
 
@@ -13,10 +11,10 @@ const Timer: React.FC<TimerProps> = ({ timeLeft, maxTime }) => {
 
   return (
     <div className="timer">
+      <div className="loading-icon">✦</div> {/* Simple pixel-style icon */}
       <div className="timer-bar">
         <div className="timer-fill" style={{ width: `${percentage}%` }}></div>
       </div>
-      {/* <div className="timer-text">{timeLeft.toFixed(1)}s</div> */}
     </div>
   );
 };

@@ -1,6 +1,4 @@
-/* gameArea.css */
-
-/* Загальні стилі */
+/* Общие стили */
 * {
     margin: 0;
     padding: 0;
@@ -17,58 +15,46 @@
     --icon-size-nut: 40px;
     --icon-size-heart: 30px;
 
-    /* Змінні для адаптивної висоти */
-    --tree-trunk-bottom: 150px; /* Відступ стовбура дерева від низу */
-    --tree-trunk-width: 7%; /* Ширина стовбура дерева */
-    --tree-trunk-height: 100vh; /* Висота стовбура */
-    --tree-trunk-translate-y: 0px;
-    /* Початкове вертикальне переміщення стовбура */
+    /* Переменные для адаптивной высоты */
+    --tree-trunk-bottom: 150px; /* Отступ ствола дерева от низа */
+    --tree-trunk-width: 7%; /* Ширина ствола дерева */
+    --tree-trunk-height: 100vh; /* Высота ствола */
+    --tree-trunk-translate-y: 0px; /* Начальное вертикальное перемещение ствола */
 }
 
-/* Контейнер гри */
-
+/* Контейнер игры */
 .game-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    overflow: hidden;
+    overflow: hidden; /* Оставляем overflow: hidden для предотвращения прокрутки */
 }
+
 .game-area-wrapper {
     position: relative;
     width: 100%;
-    overflow: hidden;
     height: 100%;
-  }
-  
-  /* Adjust the background layers for biomes */
-  .background-layer {
+    cursor: pointer;
+}
+
+/* Обертка для фона */
+.background-wrapper {
     position: absolute;
-    overflow: hidden;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 200%;
-    background-size: cover;
-    background-position: center; /* Repeat vertically to prevent gaps */
-    transition: opacity 1s ease-in-out, background-position 0.2s ease-out; /* Smooth transition for background movement */
-    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    transition: none;
     z-index: -1;
-  }
-  
-
-.background-layer.visible {
-    opacity: 1;
-    z-index: 0; /* Bring the visible background layer on top */
 }
 
-.background-layer.hidden {
-    opacity: 0;
-    z-index: -2; /* Push hidden layers further back */
+.background-biome {
+    width: 100%;
+    height: 200vh;
+    background-size: cover;
+    background-position: center;
 }
-
-  
-
-/* Ігрова область */
 
 .game-area {
     display: flex;
@@ -79,35 +65,32 @@
     width: 100%;
     height: 100%;
     position: relative;
-    overflow: hidden;
-    /* background: var(--main-bg-color); */
-    /* background: url("../assets/snow-biome.png") no-repeat;
-    background-size: cover; */
+    
 }
 
-/* Інформація про гру */
 
-.score, .lives {
+.lives {
     margin: 10px;
     font-size: var(--font-size-large);
 }
+
 .timer-score-container {
     position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
     width: 80%;
     text-align: center;
-    z-index: 5; /* Ensure it's above other elements */
-  }
-  
-  .score {
-    margin-top: 10px;
-    font-size: var(--font-size-large);
-    color: #fff;
-  }
-/* Обгортка для зображення граунду */
+    z-index: 6;
+}
 
+
+
+/* Обертка для земли */
 .ground-wrapper {
     position: absolute;
     bottom: 0;
@@ -118,41 +101,41 @@
     background-size: cover;
     background-repeat: no-repeat;
     transition: transform 0.15s ease-in-out;
+    z-index: 3;
 }
 
 .ground-wrapper.move-down {
     transform: translateY(100%);
 }
 
-/* Обгортка для дерева */
-
+/* Обертка для дерева */
 .tree-wrapper {
     position: absolute;
-    z-index: 1;
+    z-index: 4;
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    height: calc(100% - var(--tree-trunk-bottom));
+    /* Увеличиваем высоту, чтобы дерево было полностью видно */
+    height: calc(100% + 500px);
     overflow: visible;
-    transition: width 1.5s ease-in-out, height 1.5s ease-in-out;
 }
 
-/* Стовбур дерева */
-
+/* Ствол дерева */
 .tree-trunk {
     position: absolute;
-    left: 50%;
-    /*bottom: 320px;*/
+    left: 0;
+    right: 0;
+    margin-inline: auto ;
     bottom: var(--tree-trunk-bottom, 150px);
-    transform: translateX(-50%);
     width: 16.5%;
-    height: 100%;
+    /* Увеличиваем высоту ствола дерева */
+    height: calc(100% + 500px);
     background-image: url('../assets/mainTree.png');
     background-repeat: repeat-y;
     background-size: 100%;
-    z-index: 2;
-    transition: 1s ease-in-out, opacity 1s ease-in-out;
+    z-index: 5;
+    /* transition: opacity 1s ease-in-out;  */
     opacity: 1;
 }
 
@@ -166,8 +149,7 @@
     bottom: 0;
 }
 
-/* Анімації для дерева */
-
+/* Анимации для дерева */
 .tree-trunk.fade-in {
     opacity: 1;
 }
@@ -185,14 +167,7 @@
     opacity: 0;
 }
 
-/* Масштабування */
-
-.scaled {
-    transform: scale(2) rotateY(360deg);
-    transition: 1.5s ease-in-out;
-}
-
-/* Анімація пульсації для тексту старту */
+/* Анимация пульсации для текста старта */
 @keyframes pulse {
     0% {
         width: 50%;
@@ -207,15 +182,17 @@
 
 .start-text {
     position: absolute;
-    z-index: 3;
+    z-index: 6;
     top: 40%;
     transition: ease-in-out all 1s;
     height: auto;
     animation: pulse 3s infinite;
+    margin-inline: auto;
+    left: 0;
+    right: 0;
 }
 
-/* Іконки */
-
+/* Иконки */
 .nut-icon {
     width: var(--icon-size-nut);
     height: var(--icon-size-nut);
@@ -228,8 +205,7 @@
     margin-right: 5px;
 }
 
-/* Режими гри */
-
+/* Режимы игры */
 .menu-mode .tree-wrapper,
 .menu-mode .branches {
     width: 100%;
@@ -242,8 +218,7 @@
     height: 200%;
 }
 
-/* Контейнер для гілок */
-
+/* Контейнер для веток */
 .branches {
     position: absolute;
     top: 0;
@@ -251,11 +226,11 @@
     transform: translateX(-50%);
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    overflow: visible; /* Убедитесь, что ветки не обрезаются */
+    z-index: 4;
 }
 
-/* Екран Game Over */
-
+/* Экран Game Over */
 .game-over-screen {
     position: absolute;
     top: 50%;
@@ -285,16 +260,10 @@
     background-color: #ddd;
 }
 
-
-/* Адаптивність для мобільних пристроїв */
+/* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
     :root {
-        --ground-height: 100px; /* Менша висота для мобільних пристроїв */
-        --tree-trunk-bottom: 50px; /* Менший відступ для стовбура */
+        --ground-height: 100px;
+        --tree-trunk-bottom: 50px;
     }
-
-
-    /*.tree-trunk {*/
-    /*    bottom: var(--tree-trunk-bottom); !* Адаптивний відступ для стовбура *!*/
-    /*}*/
 }
