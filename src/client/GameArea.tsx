@@ -1,7 +1,7 @@
 // src/components/GameArea.tsx
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import Squirrel from "../components/sprites/Squirrel/Squirrel";
+import Squirrel from "../components/Squirrel/Squirrel";
 import Branch from "../components/Branch/Branch";
 import Score from "../components/Score/Score";
 import Lives from "../components/Lives/Lives";
