@@ -202,7 +202,7 @@ export const useGameLogic = () => {
         dispatch(setBranches(newBranches));
   
         // Обновляем scrollOffset
-        const scrollAmount = spacing-100; // Количество прокрутки вверх
+        const scrollAmount = spacing-70; // Количество прокрутки вверх
         const newScrollOffset = state.scrollOffset + scrollAmount;
         dispatch(setScrollOffset(newScrollOffset));
       } else {
