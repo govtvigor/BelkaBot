@@ -1,8 +1,10 @@
 // src/components/sprites/Squirrel/Squirrel.tsx
 
 import React, { useEffect, useRef, useState } from 'react';
-import squirrelImage from '../../../assets/squirt.png';
+import { useDispatch } from 'react-redux';
+import squirrelImage from '../../assets/squirt.png';
 import './squirrel.scss';
+import { removeBranch } from '../../actions/gameActions';
 
 interface SquirrelProps {
   position: 'left' | 'right';
@@ -13,6 +15,7 @@ interface SquirrelProps {
 const Squirrel: React.FC<SquirrelProps> = ({ position, isInGame, isJumpingToFirstBranch }) => {
   const [isJumping, setIsJumping] = useState(false);
   const prevPositionRef = useRef(position);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (isInGame && prevPositionRef.current !== position) {
@@ -21,13 +24,14 @@ const Squirrel: React.FC<SquirrelProps> = ({ position, isInGame, isJumpingToFirs
       const animationDuration = 500; // 500ms to match the CSS animation
       const timer = setTimeout(() => {
         setIsJumping(false);
+        dispatch(removeBranch())
       }, animationDuration);
 
       prevPositionRef.current = position;
 
       return () => clearTimeout(timer);
     }
-  }, [position, isInGame]);
+  }, [position, isInGame, dispatch]);
 
   const animationClass = isJumpingToFirstBranch
     ? 'jumping-to-first-branch'

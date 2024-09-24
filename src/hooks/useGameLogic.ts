@@ -34,6 +34,8 @@ export const useGameLogic = () => {
   const [userAchievements, setUserAchievements] = useState<string[]>([]);
   const [maxTime, setMaxTime] = useState(initialState.timeLeft);
   const lastUpdateTimeRef = useRef<number | null>(null);
+  const [isJumping, setIsJumping] = useState(false);
+
 
   // Timer to decrease time left every second
   useEffect(() => {
@@ -175,9 +177,27 @@ export const useGameLogic = () => {
       if (correctSide) {
         dispatch(addPoints(1));
         dispatch(setSquirrelSide(side));
+        setIsJumping(true);
+        // Додаємо нову гілку зверху
+        const newSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
+        const newBranch = { side: newSide, top: 0 };
+        const newBranches = [newBranch, ...state.branches];
 
-        // Remove the top branch
-        let newBranches = state.branches.slice(0, -1);
+        // Оновлюємо позиції гілок
+        const spacing = 120;
+        const updatedBranches = newBranches.map((branch, index) => ({
+          ...branch,
+          top: index * spacing - state.scrollOffset,
+        }));
+
+        dispatch(setBranches(updatedBranches));
+
+        // Оновлюємо scrollOffset
+        const scrollAmount = spacing;
+        const newScrollOffset = state.scrollOffset + scrollAmount;
+        dispatch(setScrollOffset(newScrollOffset));
+
+        // Оновлюємо час
         const timeIncrement = Math.max(0.05, 0.5 - state.points / 100);
         const newTimeLeft = state.timeLeft + timeIncrement;
         dispatch(setTimeLeft(newTimeLeft));
@@ -186,25 +206,7 @@ export const useGameLogic = () => {
           setMaxTime(newTimeLeft);
         }
 
-        // Add a new branch at the top
-        const newSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
-        const newBranch = { side: newSide, top: 0 }; // Start at top position 0
-        newBranches = [newBranch, ...newBranches];
-
-        // Update top positions of all branches
-        const spacing = 120; // Ensure consistent spacing
-        newBranches = newBranches.map((branch, index) => ({
-          ...branch,
-          top: index * spacing,
-        }));
-
-        // Update the branches in the state
-        dispatch(setBranches(newBranches));
-
-        // **Update scrollOffset**
-        const scrollAmount = spacing; // Amount to scroll up
-        const newScrollOffset = state.scrollOffset + scrollAmount;
-        dispatch(setScrollOffset(newScrollOffset));
+        // **Не видаляємо гілку тут**
       } else {
         handleGameOver();
       }
