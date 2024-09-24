@@ -3,6 +3,9 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; /* Disables tap highlight on touch devices */
+    -webkit-user-select: none; /* Prevents text selection */
+    user-select: none; /* Also prevents text selection on other browsers */
 }
 
 :root {
