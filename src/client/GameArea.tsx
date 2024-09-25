@@ -5,7 +5,7 @@ import Score from "../components/Score/Score";
 import Lives from "../components/Lives/Lives";
 import Menu from "../components/Menu/Menu";
 import Profile from "../components/Profile/Profile";
-import Leaderboard from "../components/Leaderboard/Leaderboard";
+import Leaderboard from "../components/Leaderboard/Leaderboard"; // Ensure correct path
 import groundTreeImage from "../assets/groundTree.png";
 import startText from "../assets/startText.png";
 import { useGameLogic } from "../hooks/useGameLogic";
@@ -18,7 +18,7 @@ import forestBgImage from '../assets/forest-bg-2.png';
 import transitionBiomeImage from '../assets/transitionForestToSnow.png';
 
 const GameArea: React.FC = () => {
-  const { state, dispatch, handleScreenClick, generateBranches, maxTime } = useGameLogic();
+  const { state, dispatch, handleScreenClick, generateBranches, maxTime, setIsJumping } = useGameLogic();
   const [currentScreen, setCurrentScreen] = useState<"game" | "profile" | "leaderboard">("game");
 
   const [isJumpingToFirstBranch, setIsJumpingToFirstBranch] = useState(false);
@@ -26,29 +26,39 @@ const GameArea: React.FC = () => {
   const [isTreeMovingUp, setIsTreeMovingUp] = useState(false);
   const [isGroundHidden, setIsGroundHidden] = useState(false);
   const [isTreePositionAdjusted, setIsTreePositionAdjusted] = useState(false);
+  const [currentBiomeIndex, setCurrentBiomeIndex] = useState(0);
   const [backgroundOffsetY, setBackgroundOffsetY] = useState(0);
+  const [isJumping, setIsJumpingLocal] = useState(false); // Додано локальний стан для isJumping
 
   const groundImageRef = useRef<HTMLImageElement | null>(null);
   const biomes = [
-    { image: snowBiomeImage, points: 13 },
-    { image: transitionBiomeImage, points: 10 },
     { image: forestBgImage, points: 0 },
-    
-    
+    { image: transitionBiomeImage, points: 50 }, // This is the transition background
+    { image: snowBiomeImage, points: 55 }, // Final snow biome after the transition
   ];
 
-  // Синхронизация backgroundOffsetY с scrollOffset
   useEffect(() => {
-    setBackgroundOffsetY(state.scrollOffset);
+    const newIndex = biomes.findIndex((biome, index) => {
+      const nextBiome = biomes[index + 1];
+      return state.points >= biome.points && (!nextBiome || state.points < nextBiome.points);
+    });
+
+    if (newIndex !== -1 && newIndex !== currentBiomeIndex) {
+      setCurrentBiomeIndex(newIndex);
+    }
+  }, [state.points]);
+
+  useEffect(() => {
+    const backgroundSpeedFactor = 0.1; // Adjust this value to control background speed
+    setBackgroundOffsetY(state.scrollOffset * backgroundSpeedFactor);
   }, [state.scrollOffset]);
 
-  // Корректировка нижнего отступа ствола дерева на основе высоты земли
+  // Adjust tree trunk bottom based on ground height
   useEffect(() => {
     const groundImage = groundImageRef.current;
     if (groundImage) {
       const setTrunkBottom = () => {
         const groundHeight = groundImage.clientHeight;
-        console.log('Ground Height:', groundHeight);
         document.documentElement.style.setProperty('--tree-trunk-bottom', `${groundHeight}px`);
         document.documentElement.style.setProperty('--tree-trunk-bottom-mobile', `${groundHeight}px`);
       };
@@ -67,7 +77,7 @@ const GameArea: React.FC = () => {
     }
   }, [state.gameStarted]);
 
-  // Генерация веток при монтировании компонента
+  // Generate branches on mount
   useEffect(() => {
     generateBranches();
   }, [generateBranches]);
@@ -86,15 +96,15 @@ const GameArea: React.FC = () => {
     setIsGroundMovingDown(true);
     setIsTreeMovingUp(true);
 
-    const animationDuration = 1000; // Длительность анимации прыжка в мс
+    const animationDuration = 1000; // Duration of the jump animation in ms
 
     setTimeout(() => {
       setIsJumpingToFirstBranch(false);
-      dispatch(startGame()); // Используем action creator
+      dispatch(startGame()); // Use the action creator
       setIsGroundMovingDown(false);
       setIsTreeMovingUp(false);
-      setIsGroundHidden(true); // Скрываем ground-wrapper
-      setIsTreePositionAdjusted(true); // Фиксируем новое положение ствола дерева
+      setIsGroundHidden(true); // Hide ground-wrapper
+      setIsTreePositionAdjusted(true); // Fix the new position of tree-trunk
     }, animationDuration);
   }, [state.lives, dispatch]);
 
@@ -117,7 +127,7 @@ const GameArea: React.FC = () => {
       const clickX = event.clientX;
       const screenWidth = window.innerWidth;
 
-      // Определяем направление прыжка
+      // Determine the direction of the jump
       if (clickX < screenWidth / 2) {
         handleScreenClick("left");
       } else {
@@ -126,7 +136,12 @@ const GameArea: React.FC = () => {
     }
   };
 
-  // Рендер профиля или лидерборда на основе текущего экрана
+  // Передаємо isJumping з useGameLogic до локального стану
+  useEffect(() => {
+    setIsJumpingLocal(state.isJumping);
+  }, [state.isJumping]);
+
+  // Render Profile or Leaderboard based on currentScreen
   if (currentScreen === "profile") {
     return <Profile onMenuClick={handleMenuClick} />;
   }
@@ -135,110 +150,110 @@ const GameArea: React.FC = () => {
     return <Leaderboard onMenuClick={handleMenuClick} />;
   }
 
-  // Рендер игрового экрана
+  // Render Game Screen
   return (
-    <div className="game-container">
-      <div className="game-area-wrapper" onClick={handleClick}>
-        <div
-          className="background-wrapper"
-          style={{
-            transform: `translateY(${backgroundOffsetY}px)`,
-            transition: 'none', // Убираем анимацию
-            height: `${biomes.length * 200}vh`,
-          }}
-        >
+      <div className="game-container">
+        <div className="game-area-wrapper">
           {biomes.map((biome, index) => (
-            <div
-              key={index}
-              className="background-biome"
-              style={{
-                backgroundImage: `url(${biome.image})`,
-              }}
-            ></div>
+              <div
+                  key={index}
+                  className={`background-layer ${index === currentBiomeIndex ? 'visible' : 'hidden'}`}
+                  style={{
+                    backgroundImage: `url(${biome.image})`,
+                    backgroundPositionY: `${backgroundOffsetY}px`, // Use updated backgroundOffsetY
+                  }}
+              ></div>
           ))}
-        </div>
+          <div
+              className={`game-area ${state.inMenu ? "menu-mode" : "game-mode"}`}
+              onClick={handleClick}
+          >
+            {!state.gameStarted && (
+                <img className="start-text" src={startText} alt="Start Text" />
+            )}
 
-        {!state.gameStarted && (
-          <img className="start-text" src={startText} alt="Start Text" />
-        )}
-
-        <div className="tree-wrapper">
-          {/* Отображение groundTreeImage с ref для расчета его высоты */}
-          {!isGroundHidden && (
-            <div className={`ground-wrapper ${isGroundMovingDown ? 'move-down' : ''}`}>
-              <img
-                src={groundTreeImage}
-                alt="Ground"
-                ref={groundImageRef}
-                style={{ width: '100%', height: 'auto' }}
+            <div className="tree-wrapper">
+              {/* Display groundTreeImage with ref to calculate its height */}
+              {!isGroundHidden && (
+                  <div className={`ground-wrapper ${isGroundMovingDown ? 'move-down' : ''}`}>
+                    <img
+                        src={groundTreeImage}
+                        alt="Ground"
+                        ref={groundImageRef}
+                        style={{ width: '100%', height: 'auto' }}
+                    />
+                  </div>
+              )}
+              {/* Display main tree trunk */}
+              <div
+                  className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''} ${isTreeMovingUp ? 'move-up' : ''} ${isTreePositionAdjusted ? 'fixed-position' : ''}`}
+                  style={
+                    {
+                      '--tree-trunk-translate-y': `${state.scrollOffset % window.innerHeight}px`,
+                      transition: "transform 0.2s ease-out",
+                    } as React.CSSProperties
+                  }
               />
             </div>
-          )}
-          {/* Отображение основного ствола дерева */}
-          <div
-            className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''} ${isTreeMovingUp ? 'move-up' : ''} ${isTreePositionAdjusted ? 'fixed-position' : ''}`}
-            style={{
-              /* Удаляем transform, чтобы ствол оставался фиксированным */
-            } as React.CSSProperties}
-          />
+
+            {state.isLivesLoading ? (
+                <div>Loading lives...</div>
+            ) : (
+                <Lives lives={state.lives} />
+            )}
+
+            {state.gameStarted && (
+                <div className="timer-score-container">
+                  <Timer timeLeft={state.timeLeft} maxTime={maxTime} />
+                  <Score points={state.points} />
+                </div>
+            )}
+
+            {state.branches.length > 0 && (
+                <div className="branches">
+                  {state.branches
+                      .filter((branch, index) => state.gameStarted || index !== state.branches.length - 1)
+                      .map((branch: BranchType, index: number) => (
+                          <Branch
+                              key={index}
+                              side={branch.side}
+                              top={branch.top}
+                              onClick={
+                                state.gameStarted
+                                    ? (e) => {
+                                      e.stopPropagation();
+                                      handleScreenClick(branch.side);
+                                    }
+                                    : undefined // No onClick handler if game hasn't started
+                              }
+                          />
+                      ))}
+                </div>
+            )}
+
+            <Squirrel
+                position={state.squirrelSide}
+                isInGame={state.gameStarted}
+                isJumpingToFirstBranch={isJumpingToFirstBranch}
+                isJumping={isJumping} // Передаємо isJumping
+            />
+          </div>
         </div>
 
-        {state.isLivesLoading ? (
-          <div>Loading lives...</div>
-        ) : (
-          <Lives lives={state.lives} />
+        {state.inMenu && (
+            <div>
+              <Menu onMenuClick={handleMenuClick} />
+            </div>
         )}
 
-        {state.gameStarted && (
-          <div className="timer-score-container">
-            <Timer timeLeft={state.timeLeft} maxTime={maxTime} />
-            <Score points={state.points} />
-          </div>
+        {state.gameOver && (
+            <div className="game-over-screen">
+              <h2>Game Over</h2>
+              <p>Your Score: {state.points}</p>
+              <button onClick={resetGameHandler}>Play Again</button>
+            </div>
         )}
-
-        {state.branches.length > 0 && (
-          <div className="branches">
-            {state.branches
-              .filter((branch, index) => state.gameStarted || index !== state.branches.length - 1)
-              .map((branch: BranchType, index: number) => (
-                <Branch
-                  key={index}
-                  side={branch.side}
-                  top={branch.top - state.scrollOffset} 
-                  onClick={
-                    state.gameStarted
-                      ? (e) => {
-                          e.stopPropagation();
-                          handleScreenClick(branch.side);
-                        }
-                      : undefined
-                  }
-                />
-              ))}
-          </div>
-        )}
-
-        <Squirrel
-          position={state.squirrelSide}
-          isInGame={state.gameStarted}
-          isJumpingToFirstBranch={isJumpingToFirstBranch}
-        />
       </div>
-
-      {state.inMenu && (
-        <div>
-          <Menu onMenuClick={handleMenuClick} />
-        </div>
-      )}
-
-      {state.gameOver && (
-        <div className="game-over-screen">
-          <h2>Game Over</h2>
-          <p>Your Score: {state.points}</p>
-          <button onClick={resetGameHandler}>Play Again</button>
-        </div>
-      )}
-    </div>
   );
 };
 

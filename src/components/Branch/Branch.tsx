@@ -1,5 +1,3 @@
-// src/components/Branch/Branch.tsx
-
 import React from 'react';
 import branchImage from '../../assets/pixil1.png';
 import './branch.scss';
@@ -22,17 +20,16 @@ const Branch: React.FC<BranchProps> = ({ side, top, onClick, children }) => {
   };
 
   return (
-    <div
-      className="branch"
-      style={branchStyles}
-      onClick={onClick} // Attach onClick only if provided
-    >
-      <div className="branch-content">
-        {children}
+      <div
+          className="branch"
+          style={branchStyles}
+          onClick={onClick} // Attach onClick only if provided
+      >
+        <div className="branch-content">
+          {children}
+        </div>
+        <img src={branchImage} alt={`Branch ${side}`} />
       </div>
-      <img src={branchImage} alt={`Branch ${side}`} />
-      
-    </div>
   );
 };
 

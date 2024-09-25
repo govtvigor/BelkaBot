@@ -46,7 +46,7 @@ export interface GameState {
   lifeDeducted: boolean;
   gameOver: boolean;
   isLivesLoading: boolean;
-
+  isJumping: boolean; // Додано
 }
 
 export const initialState: GameState = {
@@ -64,6 +64,7 @@ export const initialState: GameState = {
   lifeDeducted: false,
   gameOver: false,
   isLivesLoading: true,
+  isJumping: false, // Додано
 };
 
 export type GameAction =

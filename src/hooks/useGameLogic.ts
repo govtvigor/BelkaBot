@@ -1,8 +1,6 @@
-// src/hooks/useGameLogic.ts
-
 import { useReducer, useCallback, useEffect, useContext, useRef, useState } from 'react';
 import { gameReducer, initialState } from '../reducers/gameReducer';
-import { setTimeLeft, decreaseTime, setGameOver } from '../actions/gameActions'; // Ensure setGameOver is imported
+import { setTimeLeft, setGameOver } from '../actions/gameActions';
 import { ChatIdContext } from '../client/App';
 import { achievements } from '../constants/achievements';
 import {
@@ -24,18 +22,21 @@ import {
   setGameOver as actionSetGameOver,
   setLives,
   setLivesLoading,
-  setScrollOffset
+  setScrollOffset,
+  removeBranch, // Додано
 } from '../actions/gameActions';
 
 export const useGameLogic = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const userChatId = useContext(ChatIdContext);
   const timerRef = useRef<number | null>(null);
-  const [userAchievements, setUserAchievements] = useState<string[]>([]);
   const [maxTime, setMaxTime] = useState(initialState.timeLeft);
   const lastUpdateTimeRef = useRef<number | null>(null);
 
-  // Timer to decrease time left every second
+  // Стан для відстеження стрибка
+  const [isJumping, setIsJumping] = useState(false);
+
+  // Timer to decrease time left
   useEffect(() => {
     if (state.gameStarted && !state.gameOver) {
       const gameLoop = (currentTime: number) => {
@@ -85,8 +86,6 @@ export const useGameLogic = () => {
       newBranches.push({ side, top });
     }
     dispatch(setBranches(newBranches));
-
-    // No need to set squirrelTop since it's managed by isInGame
   }, [dispatch]);
 
   // Fetch lives from Firebase
@@ -147,8 +146,8 @@ export const useGameLogic = () => {
           const unlockedAchievements = achievements.filter(ach => ach.condition(userData));
 
           const newAchievements = unlockedAchievements
-            .map(ach => ach.id)
-            .filter(id => !(userData.achievements || []).includes(id));
+              .map(ach => ach.id)
+              .filter(id => !(userData.achievements || []).includes(id));
 
           if (newAchievements.length > 0) {
             await updateUserAchievements(userChatId, newAchievements);
@@ -166,59 +165,64 @@ export const useGameLogic = () => {
 
   // Handle screen click
   const handleScreenClick = useCallback(
-    (side: 'left' | 'right') => {
-      if (state.branches.length === 0 || state.gameOver) return;
-  
-      const currentBranch = state.branches[state.branches.length - 1];
-      const correctSide = currentBranch?.side === side;
-  
-      if (correctSide) {
-        dispatch(addPoints(1));
-        dispatch(setSquirrelSide(side));
-  
-        // Удаляем верхнюю ветку
-        let newBranches = state.branches.slice(0, -1);
-        const timeIncrement = Math.max(0.05, 0.5 - state.points / 100);
-        const newTimeLeft = state.timeLeft + timeIncrement;
-        dispatch(setTimeLeft(newTimeLeft));
-  
-        if (newTimeLeft > maxTime) {
-          setMaxTime(newTimeLeft);
+      (side: 'left' | 'right') => {
+        if (state.branches.length === 0 || state.gameOver) return;
+
+        const currentBranch = state.branches[state.branches.length - 1];
+        const correctSide = currentBranch?.side === side;
+
+        if (correctSide) {
+          dispatch(addPoints(1));
+          dispatch(setSquirrelSide(side));
+          setIsJumping(true); // Починаємо стрибок
+
+          const timeIncrement = Math.max(0.05, 0.5 - state.points / 100);
+          const newTimeLeft = state.timeLeft + timeIncrement;
+          dispatch(setTimeLeft(newTimeLeft));
+
+          if (newTimeLeft > maxTime) {
+            setMaxTime(newTimeLeft);
+          }
+
+          // Додаємо нову гілку зверху
+          const newSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
+          const newBranch = { side: newSide, top: 0 }; // Починаємо з позиції top = 0
+          let newBranches = [newBranch, ...state.branches];
+
+          // Оновлюємо позиції всіх гілок
+          const spacing = 120; // Відстань між гілками
+          newBranches = newBranches.map((branch, index) => ({
+            ...branch,
+            top: index * spacing,
+          }));
+
+          // Оновлюємо гілки в стані
+          dispatch(setBranches(newBranches));
+
+          // Оновлюємо scrollOffset
+          const scrollAmount = spacing;
+          const newScrollOffset = state.scrollOffset + scrollAmount;
+          dispatch(setScrollOffset(newScrollOffset));
+
+          // Видаляємо гілку після завершення стрибка
+          setTimeout(() => {
+            dispatch(removeBranch());
+            setIsJumping(false); // Завершуємо стрибок
+          }, 500); // 500 мс - тривалість анімації стрибка
+        } else {
+          handleGameOver();
         }
-  
-        // Добавляем новую ветку наверху
-        const newSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
-        const newBranch = { side: newSide, top: state.scrollOffset }; // Начальная позиция с учетом scrollOffset
-        newBranches = [newBranch, ...newBranches];
-  
-        // Обновляем позиции всех веток
-        const spacing = 120; // Определяем расстояние между ветками
-        newBranches = newBranches.map((branch, index) => ({
-          ...branch,
-          top: state.scrollOffset + index * spacing,
-        }));
-  
-        // Обновляем ветки в состоянии
-        dispatch(setBranches(newBranches));
-  
-        // Обновляем scrollOffset
-        const scrollAmount = spacing-85; // Количество прокрутки вверх
-        const newScrollOffset = state.scrollOffset + scrollAmount;
-        dispatch(setScrollOffset(newScrollOffset));
-      } else {
-        handleGameOver();
-      }
-    },
-    [
-      state.branches,
-      state.gameOver,
-      state.points,
-      dispatch,
-      handleGameOver,
-      state.timeLeft,
-      maxTime,
-      state.scrollOffset,
-    ]
+      },
+      [
+        state.branches,
+        state.gameOver,
+        state.points,
+        dispatch,
+        handleGameOver,
+        state.timeLeft,
+        maxTime,
+        state.scrollOffset,
+      ]
   );
 
   return {
@@ -226,7 +230,8 @@ export const useGameLogic = () => {
     dispatch,
     handleScreenClick,
     startGame,
-    generateBranches, 
-    maxTime
+    generateBranches,
+    maxTime,
+    setIsJumping, // Додаємо це
   };
 };
