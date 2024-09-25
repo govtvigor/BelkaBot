@@ -135,7 +135,6 @@
     width: 100%;
     height: calc(100% - var(--tree-trunk-bottom));
     overflow: visible;
-    transition: width 1.5s ease-in-out, height 1.5s ease-in-out;
 }
 
 /* Стовбур дерева */
