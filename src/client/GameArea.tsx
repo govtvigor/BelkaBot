@@ -1,5 +1,3 @@
-// src/components/GameArea.tsx
-
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Squirrel from "../components/sprites/Squirrel/Squirrel";
 import Branch from "../components/Branch/Branch";
@@ -7,7 +5,7 @@ import Score from "../components/Score/Score";
 import Lives from "../components/Lives/Lives";
 import Menu from "../components/Menu/Menu";
 import Profile from "../components/Profile/Profile";
-import Leaderboard from "../components/Leaderboard/Leaderboard"; // Ensure correct path
+import Leaderboard from "../components/Leaderboard/Leaderboard";
 import groundTreeImage from "../assets/groundTree.png";
 import startText from "../assets/startText.png";
 import { useGameLogic } from "../hooks/useGameLogic";
@@ -17,50 +15,34 @@ import './App.css';
 import { resetGame, setGameOver, startGame } from "../actions/gameActions";
 import snowBiomeImage from '../assets/snow-biome.png';
 import forestBgImage from '../assets/forest-bg-2.png';
-import transitionBiomeImage from '../assets/transitionForestToSnow.png'
+import transitionBiomeImage from '../assets/transitionForestToSnow.png';
 
 const GameArea: React.FC = () => {
   const { state, dispatch, handleScreenClick, generateBranches, maxTime } = useGameLogic();
-  const [currentScreen, setCurrentScreen] = useState<"game" | "profile" | "leaderboard">("game"); // Updated type
+  const [currentScreen, setCurrentScreen] = useState<"game" | "profile" | "leaderboard">("game");
 
   const [isJumpingToFirstBranch, setIsJumpingToFirstBranch] = useState(false);
   const [isGroundMovingDown, setIsGroundMovingDown] = useState(false);
   const [isTreeMovingUp, setIsTreeMovingUp] = useState(false);
   const [isGroundHidden, setIsGroundHidden] = useState(false);
   const [isTreePositionAdjusted, setIsTreePositionAdjusted] = useState(false);
-  const [currentBiomeIndex, setCurrentBiomeIndex] = useState(0);
   const [backgroundOffsetY, setBackgroundOffsetY] = useState(0);
-
-
 
   const groundImageRef = useRef<HTMLImageElement | null>(null);
   const biomes = [
+    { image: snowBiomeImage, points: 13 },
+    { image: transitionBiomeImage, points: 10 },
     { image: forestBgImage, points: 0 },
-    { image: transitionBiomeImage, points: 50 }, // This is the transition background
-    { image: snowBiomeImage, points: 55 }, // Final snow biome after the transition
+    
+    
   ];
 
+  // Синхронизация backgroundOffsetY с scrollOffset
   useEffect(() => {
-    const newIndex = biomes.findIndex((biome, index) => {
-      const nextBiome = biomes[index + 1];
-      return state.points >= biome.points && (!nextBiome || state.points < nextBiome.points);
-    });
-
-    console.log("New Biome Index:", newIndex);
-
-    if (newIndex !== -1 && newIndex !== currentBiomeIndex) {
-      setCurrentBiomeIndex(newIndex);
-    }
-  }, [state.points]);
-
-  useEffect(() => {
-    const backgroundSpeedFactor = 0.1; // Adjust this value to control background speed
-    setBackgroundOffsetY(state.scrollOffset * backgroundSpeedFactor);
+    setBackgroundOffsetY(state.scrollOffset);
   }, [state.scrollOffset]);
 
-
-
-  // Adjust tree trunk bottom based on ground height
+  // Корректировка нижнего отступа ствола дерева на основе высоты земли
   useEffect(() => {
     const groundImage = groundImageRef.current;
     if (groundImage) {
@@ -85,12 +67,12 @@ const GameArea: React.FC = () => {
     }
   }, [state.gameStarted]);
 
-  // Generate branches on mount
+  // Генерация веток при монтировании компонента
   useEffect(() => {
     generateBranches();
   }, [generateBranches]);
 
-  const handleMenuClick = (screen: "game" | "profile" | "leaderboard") => { // Updated type
+  const handleMenuClick = (screen: "game" | "profile" | "leaderboard") => {
     setCurrentScreen(screen);
   };
 
@@ -104,15 +86,15 @@ const GameArea: React.FC = () => {
     setIsGroundMovingDown(true);
     setIsTreeMovingUp(true);
 
-    const animationDuration = 1000; // Duration of the jump animation in ms
+    const animationDuration = 1000; // Длительность анимации прыжка в мс
 
     setTimeout(() => {
       setIsJumpingToFirstBranch(false);
-      dispatch(startGame()); // Use the action creator
+      dispatch(startGame()); // Используем action creator
       setIsGroundMovingDown(false);
       setIsTreeMovingUp(false);
-      setIsGroundHidden(true); // Hide ground-wrapper
-      setIsTreePositionAdjusted(true); // Fix the new position of tree-trunk
+      setIsGroundHidden(true); // Скрываем ground-wrapper
+      setIsTreePositionAdjusted(true); // Фиксируем новое положение ствола дерева
     }, animationDuration);
   }, [state.lives, dispatch]);
 
@@ -135,7 +117,7 @@ const GameArea: React.FC = () => {
       const clickX = event.clientX;
       const screenWidth = window.innerWidth;
 
-      // Determine the direction of the jump
+      // Определяем направление прыжка
       if (clickX < screenWidth / 2) {
         handleScreenClick("left");
       } else {
@@ -144,8 +126,7 @@ const GameArea: React.FC = () => {
     }
   };
 
-
-  // Render Profile or Leaderboard based on currentScreen
+  // Рендер профиля или лидерборда на основе текущего экрана
   if (currentScreen === "profile") {
     return <Profile onMenuClick={handleMenuClick} />;
   }
@@ -154,94 +135,94 @@ const GameArea: React.FC = () => {
     return <Leaderboard onMenuClick={handleMenuClick} />;
   }
 
-  // Render Game Screen
+  // Рендер игрового экрана
   return (
     <div className="game-container">
-      <div className="game-area-wrapper">
-        {biomes.map((biome, index) => (
-          <div
-            key={index}
-            className={`background-layer ${index === currentBiomeIndex ? 'visible' : 'hidden'}`}
-            style={{
-              backgroundImage: `url(${biome.image})`,
-              backgroundPositionY: `${backgroundOffsetY}px`, // Use updated backgroundOffsetY
-            }}
-          ></div>
-        ))}
+      <div className="game-area-wrapper" onClick={handleClick}>
         <div
-          className={`game-area ${state.inMenu ? "menu-mode" : "game-mode"}`}
-          onClick={handleClick}
+          className="background-wrapper"
+          style={{
+            transform: `translateY(${backgroundOffsetY}px)`,
+            transition: 'none', // Убираем анимацию
+            height: `${biomes.length * 200}vh`,
+          }}
         >
-          {!state.gameStarted && (
-            <img className="start-text" src={startText} alt="Start Text" />
-          )}
-
-          <div className="tree-wrapper">
-            {/* Display groundTreeImage with ref to calculate its height */}
-            {!isGroundHidden && (
-              <div className={`ground-wrapper ${isGroundMovingDown ? 'move-down' : ''}`}>
-                <img
-                  src={groundTreeImage}
-                  alt="Ground"
-                  ref={groundImageRef}
-                  style={{ width: '100%', height: 'auto' }}
-                />
-              </div>
-            )}
-            {/* Display main tree trunk */}
+          {biomes.map((biome, index) => (
             <div
-              className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''} ${isTreeMovingUp ? 'move-up' : ''} ${isTreePositionAdjusted ? 'fixed-position' : ''}`}
-              style={
-                {
-                  '--tree-trunk-translate-y': `${state.scrollOffset % window.innerHeight}px`,
-                  transition: "transform 0.2s ease-out",
-                } as React.CSSProperties
-              }
-            />
-          </div>
+              key={index}
+              className="background-biome"
+              style={{
+                backgroundImage: `url(${biome.image})`,
+              }}
+            ></div>
+          ))}
+        </div>
 
-          {state.isLivesLoading ? (
-            <div>Loading lives...</div>
-          ) : (
-            <Lives lives={state.lives} />
-          )}
+        {!state.gameStarted && (
+          <img className="start-text" src={startText} alt="Start Text" />
+        )}
 
-
-          {state.gameStarted && (
-            <div className="timer-score-container">
-              <Timer timeLeft={state.timeLeft} maxTime={maxTime} />
-              <Score points={state.points} />
+        <div className="tree-wrapper">
+          {/* Отображение groundTreeImage с ref для расчета его высоты */}
+          {!isGroundHidden && (
+            <div className={`ground-wrapper ${isGroundMovingDown ? 'move-down' : ''}`}>
+              <img
+                src={groundTreeImage}
+                alt="Ground"
+                ref={groundImageRef}
+                style={{ width: '100%', height: 'auto' }}
+              />
             </div>
           )}
+          {/* Отображение основного ствола дерева */}
+          <div
+            className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''} ${isTreeMovingUp ? 'move-up' : ''} ${isTreePositionAdjusted ? 'fixed-position' : ''}`}
+            style={{
+              /* Удаляем transform, чтобы ствол оставался фиксированным */
+            } as React.CSSProperties}
+          />
+        </div>
 
-          {state.branches.length > 0 && (
-            <div className="branches">
-              {state.branches
-                .filter((branch, index) => state.gameStarted || index !== state.branches.length - 1)
-                .map((branch: BranchType, index: number) => (
-                  <Branch
-                    key={index}
-                    side={branch.side}
-                    top={branch.top}
-                    onClick={
-                      state.gameStarted
-                        ? (e) => {
+        {state.isLivesLoading ? (
+          <div>Loading lives...</div>
+        ) : (
+          <Lives lives={state.lives} />
+        )}
+
+        {state.gameStarted && (
+          <div className="timer-score-container">
+            <Timer timeLeft={state.timeLeft} maxTime={maxTime} />
+            <Score points={state.points} />
+          </div>
+        )}
+
+        {state.branches.length > 0 && (
+          <div className="branches">
+            {state.branches
+              .filter((branch, index) => state.gameStarted || index !== state.branches.length - 1)
+              .map((branch: BranchType, index: number) => (
+                <Branch
+                  key={index}
+                  side={branch.side}
+                  top={branch.top - state.scrollOffset} 
+                  onClick={
+                    state.gameStarted
+                      ? (e) => {
                           e.stopPropagation();
                           handleScreenClick(branch.side);
                         }
-                        : undefined // No onClick handler if game hasn't started
-                    }
-                  />
-                ))}
-            </div>
-          )}
+                      : undefined
+                  }
+                />
+              ))}
+          </div>
+        )}
 
-          <Squirrel
-            position={state.squirrelSide}
-            isInGame={state.gameStarted}
-            isJumpingToFirstBranch={isJumpingToFirstBranch}
-          />
-        </div>
+        <Squirrel
+          position={state.squirrelSide}
+          isInGame={state.gameStarted}
+          isJumpingToFirstBranch={isJumpingToFirstBranch}
+        />
       </div>
 
       {state.inMenu && (

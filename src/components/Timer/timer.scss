@@ -1,33 +1,44 @@
-/* src/components/Timer/timer.scss */
-
 .timer {
   position: relative;
-  width: 100%;
+  width: 150px; /* Fixed width for a pixel art look */
+  margin: 50px auto 0px auto;
 }
 
 .timer-bar {
-  width: 80%;
-  margin: 0 auto;
-  height: 20px;
-  background-color: #ccc;
-  border-radius: 10px;
+  width: 100%;
+  height: 20px; /* Taller height for a more obvious pixel art effect */
+  background-color: #e0f7fa; /* Light blue background for contrast */
+  border: 1px dotted #006064; /* Dark blue border for pixel effect */
+  box-shadow: 0 0 0 3px #006064; /* Thick pixel-like outer border */
+  border-radius: 40px; /* Remove rounding for sharp, pixelated edges */
+  position: relative;
   overflow: hidden;
 }
-/* src/components/Timer/timer.scss */
 
 .timer-fill {
   height: 100%;
-  background-color: red;
-  /* Remove the transition to prevent choppy updates */
-  /* transition: width 0.1s linear; */
+  background-color: #03a9f4; /* Bright blue color for the filling bar */
+  width: 0; /* Start with 0 and animate to full width */
+  border-right: 3px solid #01579b; /* Pixelated shadow effect */
+  transition: width 0.5s linear; /* Smooth but quick fill transition */
 }
 
-
 .timer-text {
-  display: block;
-  text-align: center;
-  margin-top: 5px;
-  color: #fff;
-  font-size: 18px;
-  font-weight: bold;
+  position: absolute;
+  top: -25px; /* Position the text slightly above the bar */
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Press Start 2P', sans-serif;
+  font-size: 12px;
+  color: #006064;
+  letter-spacing: 1px;
+}
+
+.loading-icon {
+  position: absolute;
+  top: -35px; /* Adjust the top position to be above the timer */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px; /* Emulate a pixel-like symbol */
+  color: #03a9f4;
 }

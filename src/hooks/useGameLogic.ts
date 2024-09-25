@@ -168,41 +168,41 @@ export const useGameLogic = () => {
   const handleScreenClick = useCallback(
     (side: 'left' | 'right') => {
       if (state.branches.length === 0 || state.gameOver) return;
-
+  
       const currentBranch = state.branches[state.branches.length - 1];
       const correctSide = currentBranch?.side === side;
-
+  
       if (correctSide) {
         dispatch(addPoints(1));
         dispatch(setSquirrelSide(side));
-
-        // Remove the top branch
+  
+        // Удаляем верхнюю ветку
         let newBranches = state.branches.slice(0, -1);
         const timeIncrement = Math.max(0.05, 0.5 - state.points / 100);
         const newTimeLeft = state.timeLeft + timeIncrement;
         dispatch(setTimeLeft(newTimeLeft));
-
+  
         if (newTimeLeft > maxTime) {
           setMaxTime(newTimeLeft);
         }
-
-        // Add a new branch at the top
+  
+        // Добавляем новую ветку наверху
         const newSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
-        const newBranch = { side: newSide, top: 0 }; // Start at top position 0
+        const newBranch = { side: newSide, top: state.scrollOffset }; // Начальная позиция с учетом scrollOffset
         newBranches = [newBranch, ...newBranches];
-
-        // Update top positions of all branches
-        const spacing = 120; // Ensure consistent spacing
+  
+        // Обновляем позиции всех веток
+        const spacing = 120; // Определяем расстояние между ветками
         newBranches = newBranches.map((branch, index) => ({
           ...branch,
-          top: index * spacing,
+          top: state.scrollOffset + index * spacing,
         }));
-
-        // Update the branches in the state
+  
+        // Обновляем ветки в состоянии
         dispatch(setBranches(newBranches));
-
-        // **Update scrollOffset**
-        const scrollAmount = spacing; // Amount to scroll up
+  
+        // Обновляем scrollOffset
+        const scrollAmount = spacing-85; // Количество прокрутки вверх
         const newScrollOffset = state.scrollOffset + scrollAmount;
         dispatch(setScrollOffset(newScrollOffset));
       } else {
