@@ -58,7 +58,6 @@
     background-size: cover;
     background-position: center;
 }
-
 .game-area {
     display: flex;
     flex-direction: column;

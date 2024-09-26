@@ -32,26 +32,22 @@ const GameArea: React.FC = () => {
 
   const groundImageRef = useRef<HTMLImageElement | null>(null);
   const biomes = [
+    { image: snowBiomeImage, points: 50 },
+    { image: transitionBiomeImage, points: 40 },
     { image: forestBgImage, points: 0 },
-    { image: transitionBiomeImage, points: 50 }, // This is the transition background
-    { image: snowBiomeImage, points: 55 }, // Final snow biome after the transition
+    
+    
   ];
 
+  // Синхронизация backgroundOffsetY с scrollOffset
   useEffect(() => {
-    const newIndex = biomes.findIndex((biome, index) => {
-      const nextBiome = biomes[index + 1];
-      return state.points >= biome.points && (!nextBiome || state.points < nextBiome.points);
-    });
-
-    if (newIndex !== -1 && newIndex !== currentBiomeIndex) {
-      setCurrentBiomeIndex(newIndex);
-    }
-  }, [state.points]);
-
-  useEffect(() => {
-    const backgroundSpeedFactor = 0.1; // Adjust this value to control background speed
-    setBackgroundOffsetY(state.scrollOffset * backgroundSpeedFactor);
+    setBackgroundOffsetY(state.scrollOffset);
   }, [state.scrollOffset]);
+
+  // useEffect(() => {
+  //   const backgroundSpeedFactor = 0.1; // Adjust this value to control background speed
+  //   setBackgroundOffsetY(state.scrollOffset * backgroundSpeedFactor);
+  // }, [state.scrollOffset]);
 
   // Adjust tree trunk bottom based on ground height
   useEffect(() => {
@@ -154,16 +150,25 @@ const GameArea: React.FC = () => {
   return (
       <div className="game-container">
         <div className="game-area-wrapper">
+        <div
+          className="background-wrapper"
+          style={{
+            transform: `translateY(${backgroundOffsetY}px)`,
+            transition: 'none', // Убираем анимацию
+            height: `${biomes.length * 200}vh`,
+          }}
+        >
           {biomes.map((biome, index) => (
-              <div
-                  key={index}
-                  className={`background-layer ${index === currentBiomeIndex ? 'visible' : 'hidden'}`}
-                  style={{
-                    backgroundImage: `url(${biome.image})`,
-                    backgroundPositionY: `${backgroundOffsetY}px`, // Use updated backgroundOffsetY
-                  }}
-              ></div>
+            <div
+              key={index}
+              className="background-biome"
+              style={{
+                backgroundImage: `url(${biome.image})`,
+              }}
+            ></div>
           ))}
+        </div>
+
           <div
               className={`game-area ${state.inMenu ? "menu-mode" : "game-mode"}`}
               onClick={handleClick}

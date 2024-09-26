@@ -200,7 +200,7 @@ export const useGameLogic = () => {
           dispatch(setBranches(newBranches));
 
           // Оновлюємо scrollOffset
-          const scrollAmount = spacing;
+          const scrollAmount = spacing - 85;
           const newScrollOffset = state.scrollOffset + scrollAmount;
           dispatch(setScrollOffset(newScrollOffset));
 
