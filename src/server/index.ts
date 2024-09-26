@@ -7,7 +7,7 @@ import { updateUserLives, saveUserByChatId } from '../client/firebaseFunctions';
 
 dotenv.config();
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
+const TELEGRAM_BOT_TOKEN = process.env.REACT_APP_TELEGRAM_BOT_TOKEN as string;
 const vercelAppUrl = 'https://belka-bot.vercel.app';
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
 let webhookSet = false;
