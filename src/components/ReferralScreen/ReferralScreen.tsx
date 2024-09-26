@@ -37,11 +37,7 @@ const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
       });
     }
 
-    // Telegram Web App adjustment to height
-    if (window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp;
-      tg.expand(); // Expands the web app to full height
-    }
+   
   }, [userChatId]);
 
   const handleCopyLink = () => {
