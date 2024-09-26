@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./referralScreen.scss";
 import { ChatIdContext } from "../../client/App";
-import { getReferralData } from "../../client/firebaseFunctions";
+import { getReferralData, getReferralLink } from "../../client/firebaseFunctions";
 
 interface ReferralScreenProps {
   onClose: () => void;
@@ -22,17 +22,9 @@ const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
 
   useEffect(() => {
     if (userChatId) {
-      // Fetch the referral link from the API to keep the bot token hidden
-      fetch(`/api/getReferralLink?userChatId=${userChatId}`)
-        .then((response) => response.json())
-        .then((data) => {
-          setReferralLink(data.referralLink);
-        })
-        .catch((error) => {
-          console.error("Error generating referral link:", error);
-        });
+      const link = getReferralLink(userChatId);
+      setReferralLink(link);
 
-      // Fetch referral data
       getReferralData(userChatId).then((data) => {
         setTotalReferrals(data.totalReferrals);
         setTotalReferralPoints(data.totalReferralPoints);
