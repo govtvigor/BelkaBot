@@ -35,7 +35,7 @@ const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink).then(() => {
-      setCopyMessage("Link copied!");
+      setCopyMessage("Link was copied!");
       setTimeout(() => setCopyMessage(""), 2000);
     });
   };
