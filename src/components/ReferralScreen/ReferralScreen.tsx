@@ -27,28 +27,31 @@ const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
 
   useEffect(() => {
     if (userChatId) {
-      // Generate the referral link
       const link = getReferralLink(userChatId);
       setReferralLink(link);
 
-      // Fetch referral data
       getReferralData(userChatId).then((data) => {
         setTotalReferrals(data.totalReferrals);
         setTotalReferralPoints(data.totalReferralPoints);
         setReferredUsers(data.referredUsers);
       });
     }
+
+    // Telegram Web App adjustment to height
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.expand(); // Expands the web app to full height
+    }
   }, [userChatId]);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink).then(() => {
       setCopyMessage("Link copied!");
-      setTimeout(() => setCopyMessage(""), 2000); // Clear message after 2 seconds
+      setTimeout(() => setCopyMessage(""), 2000);
     });
   };
 
   const handleShareLink = () => {
-    // Use Telegram to share the link
     const url = `https://t.me/share/url?url=${encodeURIComponent(
       referralLink
     )}&text=${encodeURIComponent("Join me on this awesome app!")}`;
