@@ -1,6 +1,6 @@
 // src/components/Profile/Profile.tsx
 
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Menu from "../Menu/Menu";
 import "./profile.scss";
 import heartIcon from "../../assets/heart.png";
@@ -25,6 +25,8 @@ import ShopIcon from "../../assets/shop-icon.png";
 import taskIcon from "../../assets/shop-icon.png"; // Import your task icon
 import ShopModal from "./ShopModal/ShopModal"; 
 import TaskModal from "./TaskModal/TaskModal"; // Import the TaskModal component
+import ReferralScreen from "../ReferralScreen/ReferralScreen"; // Corrected import path
+// import friendIcon from "../../assets/friend-icon.png"; // Import an icon for the Friends button
 
 interface ProfileProps {
   onMenuClick: (screen: "game" | "profile" | "leaderboard") => void; // Updated to include 'leaderboard'
@@ -42,6 +44,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isShopModalOpen, setIsShopModalOpen] = useState<boolean>(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false); // State for TaskModal
+  const [isReferralScreenOpen, setIsReferralScreenOpen] = useState<boolean>(false); // State for ReferralScreen
 
   useEffect(() => {
     if (userChatId) {
@@ -136,16 +139,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
             </div>
             {isGMChecked ? <div>{gmStreak}</div> : <span>GM</span>}
           </div>
-          <div className="profile_lives" onClick={handleBuyLivesAction}>
-            <div className="lives-icon-block">
-              <img
-                src={heartIcon}
-                alt="lives"
-                className="profile-lives-icon"
-              />
-            </div>
-            <div className="lives-amount-block">{lives}+</div>
-          </div>
+          {/* Removed lives option from profile header */}
         </div>
         <div className="crypto-wallet">
           <TonConnectButton />
@@ -159,40 +153,22 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
             <img src={nutIcon} alt="Nut Icon" className="nut-icon-profile" />
           </div>
         </div>
+        {/* Commented out achievements section */}
+        {/* 
         <div className="achievements-section">
-          <div className="achievements-slider">
-            <button
-              className="arrow left-arrow"
-              onClick={handlePrev}
-              disabled={currentIndex === 0}
-            >
-              &lt;
-            </button>
-            <div className="achievements-container">
-              {allAchievements
-                .slice(currentIndex, currentIndex + 3)
-                .map((achievement) => (
-                  <div key={achievement.id} className="achievement">
-                    <img
-                      src={achievement.icon}
-                      alt={achievement.name}
-                      className={`achievement-icon ${
-                        unlockedAchievements.includes(achievement.id)
-                          ? "unlocked"
-                          : "locked"
-                      }`}
-                    />
-                  </div>
-                ))}
-            </div>
-            <button
-              className="arrow right-arrow"
-              onClick={handleNext}
-              disabled={currentIndex >= allAchievements.length - 3}
-            >
-              &gt;
-            </button>
-          </div>
+          ...
+        </div>
+        */}
+
+        {/* Friends Section */}
+        <div className="friend-section">
+          <button
+            className="friend-button"
+            onClick={() => setIsReferralScreenOpen(true)}
+          >
+            {/* <img src={friendIcon} alt="Friends" className="friend-icon" /> */}
+            Friends
+          </button>
         </div>
 
         {/* Shop Section */}
@@ -224,10 +200,19 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       <Menu onMenuClick={onMenuClick} variant="profile" />
 
       {isShopModalOpen && (
-        <ShopModal onClose={() => setIsShopModalOpen(false)} />
+        <ShopModal
+          onClose={() => setIsShopModalOpen(false)}
+          userChatId={userChatId}
+          stars={stars}
+          lives={lives}
+          setLives={setLives}
+        />
       )}
       {isTaskModalOpen && (
         <TaskModal onClose={() => setIsTaskModalOpen(false)} />
+      )}
+      {isReferralScreenOpen && (
+        <ReferralScreen onClose={() => setIsReferralScreenOpen(false)} />
       )}
     </div>
   );

@@ -1,6 +1,7 @@
 .menu {
     position: relative;
     bottom: 0;
+    z-index: 5;
     width: 100%;
     display: flex;
     margin-top: auto;
@@ -42,6 +43,7 @@
     box-shadow: 0 4px #222; /* Darker shadow for depth */
     transition: all 0.2s ease-in-out;
     cursor: pointer;
+    z-index: 10;
     text-shadow: 0 0 2px #FFD700, 0 0 5px #FFD700; /* Gold text shadow */
     
     &:hover {

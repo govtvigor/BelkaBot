@@ -1,0 +1,146 @@
+/* src/components/Profile/referralScreen.scss */
+
+.referral-screen {
+  position: fixed;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  transition: top 0.5s ease-in-out;
+  overflow-y: auto;
+
+  &.active {
+    top: 0;
+  }
+
+  .referral-screen-content {
+    background-color: #222;
+    border: 4px solid #ffd700;
+    padding: 30px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    border-radius: 15px;
+    color: #ffd700;
+    animation: slideIn 0.5s forwards;
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(100%);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    .close-button {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: #ffd700;
+      font-size: 24px;
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        color: #ffae00;
+      }
+    }
+
+    .screen-title {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 25px;
+      color: #ffd700;
+    }
+
+    .referral-link-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 25px;
+
+      input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 10px;
+        font-size: 16px;
+        border: 2px solid #ffd700;
+        border-radius: 5px;
+        background-color: #333;
+        color: #fff;
+      }
+
+      button {
+        background-color: #ffd700;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-family: "Press Start 2P", sans-serif;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        transition: background-color 0.2s, transform 0.2s;
+
+        &:hover {
+          background-color: #ffae00;
+          transform: scale(1.05);
+        }
+      }
+
+      .copy-message {
+        color: #00ff00;
+        margin-top: 10px;
+        font-size: 14px;
+      }
+    }
+
+    .referral-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 25px;
+
+      .stat-block {
+        text-align: center;
+
+        p:first-child {
+          font-size: 18px;
+          margin-bottom: 5px;
+        }
+
+        p:last-child {
+          font-size: 24px;
+          color: #fff;
+        }
+      }
+    }
+
+    .referred-users-list {
+      h3 {
+        text-align: center;
+        color: #ffd700;
+        margin-bottom: 15px;
+      }
+
+      .referred-user {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        background-color: #333;
+        margin-bottom: 8px;
+        border-radius: 5px;
+
+        p {
+          color: #fff;
+          margin: 0;
+        }
+      }
+    }
+  }
+}

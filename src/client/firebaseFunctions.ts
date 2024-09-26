@@ -1,11 +1,19 @@
-import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from './firebase';
+// firebaseFunctions.ts
+
+import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, } from './firebase';
 import { formatTonAddress } from '../utils/convertAddress';
-import { increment, arrayUnion, orderBy, limit } from 'firebase/firestore';
+import {increment, arrayUnion, orderBy, limit} from 'firebase/firestore'
 
 export interface LeaderboardEntry {
   walletAddress: string;
   totalPoints: number;
 }
+
+export interface ReferralUser {
+  username: string;
+  pointsEarned: number;
+}
+
 export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
   try {
     const usersCollection = collection(db, 'users'); // Assuming 'users' collection
@@ -27,23 +35,43 @@ export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
     return [];
   }
 };
-export async function saveUserByChatId(chatId: string) {
+
+export async function saveUserByChatId(chatId: string, referrerId?: string) {
   try {
     const userRef = doc(db, 'users', chatId); 
     const userSnapshot = await getDoc(userRef);
 
     if (!userSnapshot.exists()) {
-      await setDoc(userRef, {
+      const userData: any = {
         chatId: chatId,
         gmStreak: 0,
         lives: 3,
         totalPoints: 0,
+        referralPoints: 0,
+        referredBy: referrerId || null,
+        referrals: [],
+        referredUsers: {},
         walletAddress: null,
-        gamesPlayed: 0,      // Added default value
-        highestScore: 0,     // Added default value
-        achievements: [],    // Added default value
-      });
+        gamesPlayed: 0,
+        highestScore: 0,
+        achievements: [],
+        // Removed 'pointsEarnedForReferrer' as it's redundant
+      };
+      await setDoc(userRef, userData);
       console.log('New user added with chatId:', chatId);
+
+      if (referrerId && referrerId !== chatId) { // Prevent self-referral
+        const referrerRef = doc(db, 'users', referrerId);
+        const referrerSnap = await getDoc(referrerRef);
+        if (referrerSnap.exists()) {
+          await updateDoc(referrerRef, {
+            referrals: arrayUnion(chatId),
+          });
+          console.log(`User ${chatId} referred by ${referrerId}`);
+        } else {
+          console.log(`Referrer with chatId ${referrerId} does not exist.`);
+        }
+      }
     } else {
       console.log('User already exists with chatId:', chatId);
     }
@@ -52,7 +80,62 @@ export async function saveUserByChatId(chatId: string) {
   }
 }
 
+export const getReferralLink = (userChatId: string): string => {
+  return `https://t.me/${process.env.TELEGRAM_BOT_TOKEN}?start=${userChatId}`;
+};
 
+export const getReferralData = async (userChatId: string): Promise<{
+  totalReferrals: number;
+  totalReferralPoints: number;
+  referredUsers: ReferralUser[];
+}> => {
+  try {
+    const userRef = doc(db, 'users', userChatId);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      const totalReferrals = data?.referrals?.length || 0;
+      const totalReferralPoints = data?.referralPoints || 0;
+
+      const referredUsers: ReferralUser[] = [];
+
+      if (data?.referrals && data.referrals.length > 0) {
+        for (const referredUserId of data.referrals) {
+          const referredUserRef = doc(db, 'users', referredUserId);
+          const referredUserSnap = await getDoc(referredUserRef);
+
+          if (referredUserSnap.exists()) {
+            const referredUserData = referredUserSnap.data();
+            referredUsers.push({
+              username: referredUserData?.username || 'Unknown',
+              pointsEarned: referredUserData?.pointsEarnedForReferrer || 0,
+            });
+          }
+        }
+      }
+
+      return {
+        totalReferrals,
+        totalReferralPoints,
+        referredUsers,
+      };
+    } else {
+      return {
+        totalReferrals: 0,
+        totalReferralPoints: 0,
+        referredUsers: [],
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching referral data:', error);
+    return {
+      totalReferrals: 0,
+      totalReferralPoints: 0,
+      referredUsers: [],
+    };
+  }
+};
 
 export async function updateUserWallet(chatId: string | null, walletAddress: string) {
   if (!chatId) {
@@ -67,12 +150,9 @@ export async function updateUserWallet(chatId: string | null, walletAddress: str
 
   try {
     const userRef = doc(db, 'users', chatId);
-
-    
     await updateDoc(userRef, {
       walletAddress: formatTonAddress(walletAddress)  
     });
-
     console.log('Кошелек успешно обновлен для chatId:', chatId);
   } catch (error) {
     console.error('Ошибка при обновлении данных пользователя:', error);
@@ -99,6 +179,7 @@ export const getChatIdFromApi = async (walletAddress: string): Promise<string | 
     return null;
   }
 };
+
 export const getUserLivesData = async (chatId: string): Promise<{ lives: number; lastLivesResetDate: string }> => {
   try {
     const userRef = doc(db, "users", chatId);
@@ -122,6 +203,7 @@ export const getUserLivesData = async (chatId: string): Promise<{ lives: number;
     throw error;
   }
 };
+
 export const updateUserLives = async (chatId: string, newLives: number): Promise<void> => {
   if (typeof chatId !== 'string' || chatId.trim() === '') {
     throw new Error('Invalid chatId passed to updateUserLives');
@@ -162,6 +244,7 @@ export const updateUserLivesAndLastResetDate = async (
     throw error;
   }
 };
+
 export const getUserGMData = async (chatId: string): Promise<{ gmStreak: number; lastGMDate: string }> => {
   const userRef = doc(db, "users", chatId);
   const userSnap = await getDoc(userRef);
@@ -194,14 +277,46 @@ export const updateUserGMStreak = async (chatId: string, gmStreak: number): Prom
     throw error;
   }
 };
+
 export const updateUserTotalPoints = async (chatId: string, pointsToAdd: number): Promise<void> => {
   if (!chatId) throw new Error("Invalid chatId");
   const userRef = doc(db, "users", chatId);
 
-  await updateDoc(userRef, {
-    totalPoints: increment(pointsToAdd),
-  });
+  try {
+    await updateDoc(userRef, {
+      totalPoints: increment(pointsToAdd),
+    });
+
+    // Fetch user data to check for referrer
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      console.error("User does not exist:", chatId);
+      return;
+    }
+
+    const userData = userSnap.data();
+    const referrerId = userData?.referredBy;
+
+    if (referrerId && referrerId !== chatId) { // Prevent self-referral
+      const bonusPoints = Math.floor(pointsToAdd * 0.2); // 20% bonus
+
+      const referrerRef = doc(db, "users", referrerId);
+      await updateDoc(referrerRef, {
+        referralPoints: increment(bonusPoints),
+        [`referredUsers.${chatId}`]: increment(bonusPoints),
+      });
+
+      console.log(`Awarded ${bonusPoints} points to referrer ${referrerId}`);
+
+      // Optionally, notify the referrer via Telegram or other means
+      // This requires integrating with your Telegram bot, possibly using another function
+    }
+  } catch (error) {
+    console.error("Error updating user total points:", error);
+    throw error;
+  }
 };
+
 export const getUserTotalPoints = async (chatId: string): Promise<number> => {
   const userRef = doc(db, "users", chatId);
   const userSnap = await getDoc(userRef);
@@ -213,6 +328,7 @@ export const getUserTotalPoints = async (chatId: string): Promise<number> => {
     return 0;
   }
 };
+
 export const updateUserGameStats = async (chatId: string, score: number): Promise<void> => {
   if (!chatId) throw new Error("Invalid chatId");
   const userRef = doc(db, "users", chatId);
@@ -240,7 +356,6 @@ export const updateUserGameStats = async (chatId: string, score: number): Promis
   });
 };
 
-
 export const getUserData = async (chatId: string): Promise<any> => {
   const userRef = doc(db, "users", chatId);
   const userSnap = await getDoc(userRef);
@@ -259,6 +374,7 @@ export const updateUserAchievements = async (chatId: string, newAchievements: st
     achievements: arrayUnion(...newAchievements),
   });
 };
+
 export const getUserAchievements = async (chatId: string): Promise<string[]> => {
   const userRef = doc(db, "users", chatId);
   const userSnap = await getDoc(userRef);

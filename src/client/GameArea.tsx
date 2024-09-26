@@ -117,6 +117,13 @@ const GameArea: React.FC = () => {
   }, [dispatch, generateBranches]);
 
   const handleClick = (event: React.MouseEvent) => {
+    const target = event.target as HTMLElement;
+
+  // Check if the clicked element is inside the menu buttons or other UI elements
+  if (target.closest(".menu") || target.closest(".menu-buttons button")) {
+    event.stopPropagation(); // Prevent the game click handler from firing
+    return;
+  }
     if (!state.gameStarted) {
       handleGameStartWithJump();
     } else {
@@ -246,9 +253,9 @@ const GameArea: React.FC = () => {
         </div>
 
         {state.inMenu && (
-            <div>
+            
               <Menu onMenuClick={handleMenuClick} />
-            </div>
+            
         )}
 
         {state.gameOver && (

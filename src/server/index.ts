@@ -1,7 +1,9 @@
+// index.ts
+
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import TelegramBot from 'node-telegram-bot-api';
 import dotenv from 'dotenv';
-import { updateUserLives } from '../client/firebaseFunctions';
+import { updateUserLives, saveUserByChatId, getReferralData, getReferralLink } from '../client/firebaseFunctions';
 
 dotenv.config();
 
@@ -18,17 +20,27 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
 
     try {
-        const { message } = req.body;
+        const { message, callback_query } = req.body;
 
         // Command handling logic
         if (message && message.text) {
             const chatId = message.chat.id.toString();
             const command = message.text;
 
+            // Extract referrerId from /start command if present
+            let referrerId: string | undefined = undefined;
+            if (command.startsWith('/start')) {
+                const parts = command.split(' ');
+                if (parts.length > 1) {
+                    referrerId = parts[1];
+                }
+            }
+
             // Handle the /start or /play command to show a welcome message and Play button
-            if (command === '/start' || command === '/play') {
-                console.log(`Received command from chatId: ${chatId}`);
+            if (command.startsWith('/start') || command === '/play') {
+                console.log(`Received command from chatId: ${chatId}, referrerId: ${referrerId}`);
                 try {
+                    await saveUserByChatId(chatId, referrerId);
                     await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
                         reply_markup: {
                             inline_keyboard: [[{
@@ -58,7 +70,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         // Handle successful payment from the profile button. 
         if (message && message.successful_payment) {
             const successfulPayment = message.successful_payment;
-            const chatId = message.chat.id;
+            const chatId = message.chat.id.toString();
 
             console.log('Payment received:', successfulPayment);
 
@@ -82,4 +94,4 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         console.error('Error handling request:', error);
         return res.status(500).send('Error');
     }
-};
+}; 
