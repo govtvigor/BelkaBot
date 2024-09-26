@@ -4,7 +4,7 @@
   position: fixed;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.95);
+  // background-color: rgba(0, 0, 0, 0.95);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -22,6 +22,7 @@
     height: 80%;
     max-width: 600px;
     position: relative;
+    z-index: 2001;
     border-radius: 15px;
     color: #ffd700;
     animation: none;  /* Disable animation for smoother mobile rendering */
