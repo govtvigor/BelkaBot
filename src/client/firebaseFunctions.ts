@@ -81,7 +81,6 @@ export async function saveUserByChatId(chatId: string, referrerId?: string) {
 
 export const getReferralLink = (userChatId: string): string => {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
-
   return `https://t.me/${botToken}?start=${userChatId}`;
 };
 
