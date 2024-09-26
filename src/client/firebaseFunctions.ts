@@ -1,8 +1,8 @@
 // firebaseFunctions.ts
 
-import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, } from './firebase';
+import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from './firebase';
 import { formatTonAddress } from '../utils/convertAddress';
-import {increment, arrayUnion, orderBy, limit} from 'firebase/firestore'
+import { increment, arrayUnion, orderBy, limit } from 'firebase/firestore';
 
 export interface LeaderboardEntry {
   walletAddress: string;
@@ -81,7 +81,11 @@ export async function saveUserByChatId(chatId: string, referrerId?: string) {
 }
 
 export const getReferralLink = (userChatId: string): string => {
-  return `https://t.me/${process.env.TELEGRAM_BOT_TOKEN}?start=${userChatId}`;
+  const botUsername = process.env.TELEGRAM_BOT_TOKEN;
+  if (!botUsername) {
+    throw new Error('Telegram bot username not found');
+  }
+  return `https://t.me/${botUsername}?start=${userChatId}`;
 };
 
 export const getReferralData = async (userChatId: string): Promise<{
@@ -135,7 +139,7 @@ export const getReferralData = async (userChatId: string): Promise<{
       referredUsers: [],
     };
   }
-};
+}
 
 export async function updateUserWallet(chatId: string | null, walletAddress: string) {
   if (!chatId) {

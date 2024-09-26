@@ -12,6 +12,7 @@ const vercelAppUrl = 'https://belka-bot.vercel.app';
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
 let webhookSet = false;
 
+
 export default async (req: VercelRequest, res: VercelResponse) => {
     if (!webhookSet) {
         await bot.setWebHook(`${vercelAppUrl}/api/webhook`);
@@ -95,3 +96,4 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(500).send('Error');
     }
 }; 
+

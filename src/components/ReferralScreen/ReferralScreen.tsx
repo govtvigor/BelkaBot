@@ -48,6 +48,7 @@ const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
   };
 
   const handleShareLink = () => {
+    console.log(process.env.TELEGRAM_BOT_TOKEN)
     // Use Telegram to share the link
     const url = `https://t.me/share/url?url=${encodeURIComponent(
       referralLink
