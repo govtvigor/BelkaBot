@@ -16,8 +16,8 @@ export interface ReferralUser {
 
 export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
   try {
-    const usersCollection = collection(db, 'users'); // Assuming 'users' collection
-    const q = query(usersCollection, orderBy('totalPoints', 'desc'), limit(10)); // Top 10 players
+    const usersCollection = collection(db, 'users');
+    const q = query(usersCollection, orderBy('totalPoints', 'desc'), limit(10));
     const querySnapshot = await getDocs(q);
     const leaderboard: LeaderboardEntry[] = [];
 
@@ -38,7 +38,7 @@ export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
 
 export async function saveUserByChatId(chatId: string, referrerId?: string) {
   try {
-    const userRef = doc(db, 'users', chatId); 
+    const userRef = doc(db, 'users', chatId);
     const userSnapshot = await getDoc(userRef);
 
     if (!userSnapshot.exists()) {
@@ -55,12 +55,11 @@ export async function saveUserByChatId(chatId: string, referrerId?: string) {
         gamesPlayed: 0,
         highestScore: 0,
         achievements: [],
-        // Removed 'pointsEarnedForReferrer' as it's redundant
       };
       await setDoc(userRef, userData);
       console.log('New user added with chatId:', chatId);
 
-      if (referrerId && referrerId !== chatId) { // Prevent self-referral
+      if (referrerId && referrerId !== chatId) {
         const referrerRef = doc(db, 'users', referrerId);
         const referrerSnap = await getDoc(referrerRef);
         if (referrerSnap.exists()) {
@@ -81,11 +80,11 @@ export async function saveUserByChatId(chatId: string, referrerId?: string) {
 }
 
 export const getReferralLink = (userChatId: string): string => {
-  const botUsername = process.env.TELEGRAM_BOT_TOKEN;
-  if (!botUsername) {
-    throw new Error('Telegram bot username not found');
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  if (!botToken) {
+    throw new Error('Telegram bot token not found');
   }
-  return `https://t.me/${botUsername}?start=${userChatId}`;
+  return `https://t.me/${botToken}?start=${userChatId}`;
 };
 
 export const getReferralData = async (userChatId: string): Promise<{
@@ -139,7 +138,7 @@ export const getReferralData = async (userChatId: string): Promise<{
       referredUsers: [],
     };
   }
-}
+};
 
 export async function updateUserWallet(chatId: string | null, walletAddress: string) {
   if (!chatId) {
@@ -155,7 +154,7 @@ export async function updateUserWallet(chatId: string | null, walletAddress: str
   try {
     const userRef = doc(db, 'users', chatId);
     await updateDoc(userRef, {
-      walletAddress: formatTonAddress(walletAddress)  
+      walletAddress: formatTonAddress(walletAddress)
     });
     console.log('Кошелек успешно обновлен для chatId:', chatId);
   } catch (error) {
@@ -311,9 +310,6 @@ export const updateUserTotalPoints = async (chatId: string, pointsToAdd: number)
       });
 
       console.log(`Awarded ${bonusPoints} points to referrer ${referrerId}`);
-
-      // Optionally, notify the referrer via Telegram or other means
-      // This requires integrating with your Telegram bot, possibly using another function
     }
   } catch (error) {
     console.error("Error updating user total points:", error);
