@@ -3,7 +3,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import TelegramBot from 'node-telegram-bot-api';
 import dotenv from 'dotenv';
-import { updateUserLives, saveUserByChatId } from '../client/firebaseFunctions';
+import { updateUserLives, saveUserByChatId} from '../client/firebaseFunctions';
 
 dotenv.config();
 
@@ -22,10 +22,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     try {
         const { message, callback_query } = req.body;
 
+        // Command handling logic
         if (message && message.text) {
             const chatId = message.chat.id.toString();
             const command = message.text;
 
+            // Extract referrerId from /start command if present
             let referrerId: string | undefined = undefined;
             if (command.startsWith('/start')) {
                 const parts = command.split(' ');
@@ -34,6 +36,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 }
             }
 
+            // Handle the /start or /play command to show a welcome message and Play button
             if (command.startsWith('/start') || command === '/play') {
                 console.log(`Received command from chatId: ${chatId}, referrerId: ${referrerId}`);
                 try {
@@ -53,24 +56,28 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             }
         }
 
+        // Payment handling logic: 
         if (req.body.pre_checkout_query) {
             const preCheckoutQuery = req.body.pre_checkout_query;
             console.log('Handling pre_checkout_query:', preCheckoutQuery);
 
+            // Approve the pre-checkout query.
             await bot.answerPreCheckoutQuery(preCheckoutQuery.id, true, { error_message: '' });
             console.log('Pre-checkout query approved.');
             return res.status(200).send('OK');
         }
 
+        // Handle successful payment from the profile button. 
         if (message && message.successful_payment) {
             const successfulPayment = message.successful_payment;
             const chatId = message.chat.id.toString();
 
             console.log('Payment received:', successfulPayment);
 
-            const userId = successfulPayment.invoice_payload.split('_')[1];
+            // Extract user ID from the invoice_payload
+            const userId = successfulPayment.invoice_payload.split('_')[1]; // Expecting 'invoice_userId_...'
 
-            const newLives = 3;
+            const newLives = 3; // Define lives to be added
             try {
                 await updateUserLives(userId, newLives);
                 await bot.sendMessage(chatId, `Payment received! You now have ${newLives} extra lives.`);
