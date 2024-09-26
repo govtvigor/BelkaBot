@@ -24,7 +24,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
         if (message && message.text) {
             const chatId = message.chat.id.toString();
-            const command = message.text.trim();
+            const command = message.text;
 
             let referrerId: string | undefined = undefined;
             if (command.startsWith('/start')) {
@@ -34,9 +34,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 }
             }
 
-            // Updated condition to handle '/play' with additional text
-            if (command.startsWith('/start') || command.startsWith('/play')) {
-                console.log(`Received command from chatId: ${chatId}, command: ${command}, referrerId: ${referrerId}`);
+            if (command.startsWith('/start') || command === '/play') {
+                console.log(`Received command from chatId: ${chatId}, referrerId: ${referrerId}`);
                 try {
                     await saveUserByChatId(chatId, referrerId);
                     await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
@@ -50,7 +49,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                     return res.status(200).send('OK');
                 } catch (error) {
                     console.error('Error sending message:', error);
-                    return res.status(500).send('Error');
                 }
             }
         }
