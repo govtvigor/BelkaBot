@@ -1,27 +1,18 @@
-// api/getReferralLink.ts
-
+// api/getReferralLink.ts (API route)
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
-const getReferralLink = (userChatId: string): string => {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  if (!botToken) {
-    throw new Error('Telegram bot token not found');
-  }
-  return `https://t.me/${botToken}?start=${userChatId}`;
-};
-
 export default async (req: VercelRequest, res: VercelResponse) => {
-  const { userChatId } = req.query;
+  const userChatId = req.query.userChatId;
 
-  if (!userChatId || typeof userChatId !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid userChatId' });
+  if (!userChatId) {
+    return res.status(400).json({ error: 'Missing userChatId' });
   }
 
-  try {
-    const referralLink = getReferralLink(userChatId);
-    return res.status(200).json({ referralLink });
-  } catch (error: any) {
-    console.error('Error generating referral link:', error);
-    return res.status(500).json({ error: error.message });
+  const botToken = process.env.TELEGRAM_BOT_TOKEN; // Safe on server-side
+  if (!botToken) {
+    return res.status(500).json({ error: 'Bot token not found' });
   }
+
+  const referralLink = `https://t.me/${botToken}?start=${userChatId}`;
+  return res.status(200).json({ referralLink });
 };
