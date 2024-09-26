@@ -2,29 +2,31 @@
 
 .referral-screen {
   position: fixed;
+  top: 0;  /* Ensure it starts from the top */
+  left: 0;
   width: 100%;
   height: 100%;
-  // background-color: rgba(0, 0, 0, 0.95);
+  background-color: rgba(0, 0, 0, 0.95); /* Make sure the background is visible */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 2000;
-  transition: none;  /* Remove transitions for Telegram Web App compatibility */
-  
+  overflow-y: auto;
 
+  &.active {
+    top: 0;
+    left: 0;
+  }
 
   .referral-screen-content {
     background-color: #222;
     border: 4px solid #ffd700;
-    padding: 20px;  /* Adjust padding for smaller screens */
+    padding: 20px;
     width: 90%;
-    height: 80%;
     max-width: 600px;
     position: relative;
-    z-index: 2001;
     border-radius: 15px;
     color: #ffd700;
-    animation: none;  /* Disable animation for smoother mobile rendering */
 
     .close-button {
       position: absolute;
@@ -43,7 +45,7 @@
 
     .screen-title {
       text-align: center;
-      font-size: 24px;  /* Reduce font size for mobile compatibility */
+      font-size: 24px;
       margin-bottom: 20px;
       color: #ffd700;
     }
@@ -97,7 +99,7 @@
         text-align: center;
 
         p:first-child {
-          font-size: 16px; /* Adjust font size for mobile */
+          font-size: 16px;
           margin-bottom: 5px;
         }
 

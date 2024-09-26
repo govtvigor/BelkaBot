@@ -81,9 +81,6 @@ export async function saveUserByChatId(chatId: string, referrerId?: string) {
 
 export const getReferralLink = (userChatId: string): string => {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  if (!botToken) {
-    throw new Error('Telegram bot token not found');
-  }
   return `https://t.me/${botToken}?start=${userChatId}`;
 };
 

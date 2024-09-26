@@ -1,12 +1,7 @@
-// src/components/Profile/ReferralScreen.tsx
-
 import React, { useState, useEffect, useContext } from "react";
 import "./referralScreen.scss";
 import { ChatIdContext } from "../../client/App";
-import {
-  getReferralData,
-  getReferralLink,
-} from "../../client/firebaseFunctions";
+import { getReferralData, getReferralLink } from "../../client/firebaseFunctions";
 
 interface ReferralScreenProps {
   onClose: () => void;
@@ -36,8 +31,6 @@ const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
         setReferredUsers(data.referredUsers);
       });
     }
-
-   
   }, [userChatId]);
 
   const handleCopyLink = () => {
@@ -48,9 +41,9 @@ const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
   };
 
   const handleShareLink = () => {
-    const url = `https://t.me/share/url?url=${encodeURIComponent(
-      referralLink
-    )}&text=${encodeURIComponent("Join me on this awesome app!")}`;
+    const url = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(
+      "Join me on this awesome app!"
+    )}`;
     window.open(url, "_blank");
   };
 
