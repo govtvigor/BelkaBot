@@ -83,7 +83,7 @@ export async function saveUserByChatId(chatId: string, referrerId?: string) {
 
 export const getReferralLink = (userChatId: string): string => {
   // Since you can safely expose the bot username, we hardcode it.
-  const botUsername = process.env.REACT_APP_TELEGRAM_BOT_USERNAME;
+  const botUsername = 'squirrelapp_bot';
 
   if (!botUsername) {
     console.error("Telegram bot username is not defined.");
