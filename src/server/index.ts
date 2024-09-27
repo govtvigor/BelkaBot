@@ -1,5 +1,3 @@
-// index.ts
-
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import TelegramBot from 'node-telegram-bot-api';
 import dotenv from 'dotenv';
@@ -20,11 +18,16 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
 
     try {
-        const { message, callback_query } = req.body;
+        const body = req.body || {};
+        const { message, callback_query, pre_checkout_query } = body;
 
+        // Log the full request body for debugging
+        console.log('Request Body:', body);
+
+        // Command handling logic for messages
         if (message && message.text) {
-            const chatId = message.chat.id.toString();
-            const command = message.text;
+            const chatId = message.chat?.id?.toString();
+            const command = message.text.trim();
 
             let referrerId: string | undefined = undefined;
             if (command.startsWith('/start')) {
@@ -49,15 +52,16 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                     return res.status(200).send('OK');
                 } catch (error) {
                     console.error('Error sending message:', error);
+                    return res.status(500).send('Error');
                 }
             }
         }
 
-        if (req.body.pre_checkout_query) {
-            const preCheckoutQuery = req.body.pre_checkout_query;
-            console.log('Handling pre_checkout_query:', preCheckoutQuery);
+        // Handle payment logic
+        if (pre_checkout_query) {
+            console.log('Handling pre_checkout_query:', pre_checkout_query);
 
-            await bot.answerPreCheckoutQuery(preCheckoutQuery.id, true, { error_message: '' });
+            await bot.answerPreCheckoutQuery(pre_checkout_query.id, true, { error_message: '' });
             console.log('Pre-checkout query approved.');
             return res.status(200).send('OK');
         }
@@ -82,6 +86,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             return res.status(200).send('OK');
         }
 
+        // If nothing is matched, return 404
         return res.status(404).send('Not Found');
     } catch (error) {
         console.error('Error handling request:', error);
