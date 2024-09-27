@@ -81,17 +81,31 @@ export async function saveUserByChatId(chatId: string, referrerId?: string) {
 
 // firebaseFunctions.ts
 
+const base62Chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+const encodeBase62 = (num: number): string => {
+  if (num === 0) return '0';
+  let str = '';
+  while (num > 0) {
+    str = base62Chars[num % 62] + str;
+    num = Math.floor(num / 62);
+  }
+  return str;
+};
+
 export const getReferralLink = (userChatId: string): string => {
-  // Since you can safely expose the bot username, we hardcode it.
-  const botUsername = 'squirrelapp_bot';
+  const botUsername = 'squirrelapp_bot'; // Hardcoded bot username
 
   if (!botUsername) {
     console.error("Telegram bot username is not defined.");
     return "";
   }
 
-  // Construct the referral link using the bot's username
-  return `https://t.me/${botUsername}/app?startapp=${userChatId}`;
+  // Attempt to parse userChatId as a number for encoding
+  const chatIdNumber = parseInt(userChatId, 10);
+  const referralCode = isNaN(chatIdNumber) ? userChatId : encodeBase62(chatIdNumber);
+
+  return `https://t.me/${botUsername}/app?startapp=${referralCode}`;
 };
 
 
