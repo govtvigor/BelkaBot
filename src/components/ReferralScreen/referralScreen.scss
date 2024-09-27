@@ -60,16 +60,16 @@
       
         .referral-link-input {
           width: 70%;
-          padding: 10px 60px 10px 10px; /* Adjust padding as needed for the share button */
-          font-size: 8px;
-          border: 2px solid #ffd700;
+          padding: 5px;/* Adjust padding as needed for the share button */
+          font-size: 16px;
+          border: 1px solid #ffd700;
           border-radius: 5px;
           background-color: #333;
           color: #fff;
           cursor: pointer;
-          white-space: nowrap; /* Prevent text from wrapping */
-          overflow: hidden; /* Hide overflowing text */
-          text-overflow: ellipsis; /* Add ellipsis (...) */
+          white-space: nowrap; 
+          overflow: hidden; 
+          text-overflow: ellipsis; 
         }
       
         .share-button {    
@@ -94,7 +94,7 @@
     .referral-stats {
       display: flex;
       justify-content: space-around;
-      margin-bottom: 20px;
+      margin-top: 20px;
 
       .stat-block {
         text-align: center;
