@@ -82,13 +82,15 @@ export async function saveUserByChatId(chatId: string, referrerId?: string) {
 // firebaseFunctions.ts
 
 export const getReferralLink = (userChatId: string): string => {
-  const botUsername = process.env.REACT_APP_TELEGRAM_BOT_USERNAME;
-  
+  // Since you can safely expose the bot username, we hardcode it.
+  const botUsername = 'squirrelapp_bot';
+
   if (!botUsername) {
-    console.error("Telegram bot username is not defined in environment variables.");
+    console.error("Telegram bot username is not defined.");
     return "";
   }
 
+  // Construct the referral link using the bot's username
   return `https://t.me/${botUsername}/app?startapp=${userChatId}`;
 };
 
