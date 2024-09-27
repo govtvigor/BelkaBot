@@ -38,44 +38,44 @@ export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
 
 export async function saveUserByChatId(chatId: string, referrerId?: string) {
   try {
-    const userRef = doc(db, 'users', chatId);
-    const userSnapshot = await getDoc(userRef);
+      const userRef = doc(db, 'users', chatId);
+      const userSnapshot = await getDoc(userRef);
 
-    if (!userSnapshot.exists()) {
-      const userData: any = {
-        chatId: chatId,
-        gmStreak: 0,
-        lives: 3,
-        totalPoints: 0,
-        referralPoints: 0,
-        referredBy: referrerId || null,
-        referrals: [],
-        referredUsers: {},
-        walletAddress: null,
-        gamesPlayed: 0,
-        highestScore: 0,
-        achievements: [],
-      };
-      await setDoc(userRef, userData);
-      console.log('New user added with chatId:', chatId);
+      if (!userSnapshot.exists()) {
+          const userData: any = {
+              chatId: chatId,
+              gmStreak: 0,
+              lives: 3,
+              totalPoints: 0,
+              referralPoints: 0,
+              referredBy: referrerId || null, // Set referredBy correctly
+              referrals: [],
+              referredUsers: {},
+              walletAddress: null,
+              gamesPlayed: 0,
+              highestScore: 0,
+              achievements: [],
+          };
+          await setDoc(userRef, userData);
+          console.log('New user added with chatId:', chatId);
 
-      if (referrerId && referrerId !== chatId) {
-        const referrerRef = doc(db, 'users', referrerId);
-        const referrerSnap = await getDoc(referrerRef);
-        if (referrerSnap.exists()) {
-          await updateDoc(referrerRef, {
-            referrals: arrayUnion(chatId),
-          });
-          console.log(`User ${chatId} referred by ${referrerId}`);
-        } else {
-          console.log(`Referrer with chatId ${referrerId} does not exist.`);
-        }
+          if (referrerId && referrerId !== chatId) { // Prevent self-referral
+              const referrerRef = doc(db, 'users', referrerId);
+              const referrerSnap = await getDoc(referrerRef);
+              if (referrerSnap.exists()) {
+                  await updateDoc(referrerRef, {
+                      referrals: arrayUnion(chatId),
+                  });
+                  console.log(`User ${chatId} referred by ${referrerId}`);
+              } else {
+                  console.log(`Referrer with chatId ${referrerId} does not exist.`);
+              }
+          }
+      } else {
+          console.log('User already exists with chatId:', chatId);
       }
-    } else {
-      console.log('User already exists with chatId:', chatId);
-    }
   } catch (error) {
-    console.error('Error saving user by chatId:', error);
+      console.error('Error saving user by chatId:', error);
   }
 }
 
