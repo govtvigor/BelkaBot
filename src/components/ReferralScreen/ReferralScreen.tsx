@@ -41,7 +41,7 @@ const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
     if (!referralLink) return;
     navigator.clipboard.writeText(referralLink).then(() => {
       setCopyMessage("Link was copied!");
-      setTimeout(() => setCopyMessage(""), 2000);
+      setTimeout(() => setCopyMessage(""), 1000);
     }).catch((error) => {
       console.error("Error copying link:", error);
     });
