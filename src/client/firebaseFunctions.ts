@@ -79,10 +79,19 @@ export async function saveUserByChatId(chatId: string, referrerId?: string) {
   }
 }
 
+// firebaseFunctions.ts
+
 export const getReferralLink = (userChatId: string): string => {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  return `https://t.me/${botToken}?start=${userChatId}`;
+  const botUsername = process.env.REACT_APP_TELEGRAM_BOT_USERNAME;
+  
+  if (!botUsername) {
+    console.error("Telegram bot username is not defined in environment variables.");
+    return "";
+  }
+
+  return `https://t.me/${botUsername}/app?startapp=${userChatId}`;
 };
+
 
 export const getReferralData = async (userChatId: string): Promise<{
   totalReferrals: number;
