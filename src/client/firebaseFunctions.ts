@@ -3,6 +3,8 @@
 import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from './firebase';
 import { formatTonAddress } from '../utils/convertAddress';
 import { increment, arrayUnion, orderBy, limit } from 'firebase/firestore';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export interface LeaderboardEntry {
   walletAddress: string;
