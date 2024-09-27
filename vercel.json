@@ -1,18 +1,30 @@
 {
   "builds": [
     {
-      "src": "package.json", 
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
+      "src": "server/index.ts",
+      "use": "@vercel/node"
     },
     {
-      "src": "src/server/index.ts",
+      "src": "server/api/create-invoice.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "server/api/getReferralLink.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/src/server/index.ts" }
+    {
+      "src": "/api/index",
+      "dest": "/server/index.ts"
+    },
+    {
+      "src": "/api/create-invoice",
+      "dest": "/server/api/create-invoice.ts"
+    },
+    {
+      "src": "/api/getReferralLink",
+      "dest": "/server/api/getReferralLink.ts"
+    }
   ]
 }
