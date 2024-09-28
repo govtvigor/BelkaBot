@@ -94,18 +94,17 @@ const encodeBase62 = (num: number): string => {
 };
 
 export const getReferralLink = (userChatId: string): string => {
-  const botUsername = 'squirrelapp_bot'; // Hardcoded bot username
+  const botUsername = 'squirrelapp_bot'; // Replace with your bot's username
 
   if (!botUsername) {
     console.error("Telegram bot username is not defined.");
     return "";
   }
 
-  // Attempt to parse userChatId as a number for encoding
   const chatIdNumber = parseInt(userChatId, 10);
   const referralCode = isNaN(chatIdNumber) ? userChatId : encodeBase62(chatIdNumber);
 
-  return `https://t.me/${botUsername}/app?startapp=${referralCode}`;
+  return `https://t.me/${botUsername}?start=${referralCode}`;
 };
 
 

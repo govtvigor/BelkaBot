@@ -1,0 +1,70 @@
+/* SocialTasks.scss */
+.tasks-container {
+  background-color: #3a3333;
+}
+.social-tasks {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #2b2b2b;
+    font-family: "Press Start 2P", sans-serif;
+    color: #ffba42;
+    h2 {
+      padding-top: 10px;
+      text-align: center;
+    }
+    .menu {
+      position: absolute;
+      bottom: 0;
+    }
+  
+  
+    .task {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 20px auto 0px auto;
+      width: 90%;
+      padding: 10px 5px 10px 5px;
+      border-radius: 20px;
+      &-text {
+        width: 70%;
+        line-height: 16px;
+      }
+      p {
+        text-align: justify;
+        font-size: 10px;
+      }
+  
+      button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+  
+        &.join-button {
+          background-color: #0088cc;
+          color: #fff;
+  
+          &:hover {
+            background-color: #006699;
+          }
+        }
+  
+        &.verify-button {
+          background-color: #28a745;
+          color: #fff;
+  
+          &:hover {
+            background-color: #1e7e34;
+          }
+  
+          &.disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+  }
+  

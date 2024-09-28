@@ -5,7 +5,6 @@ import Score from "../components/Score/Score";
 import Lives from "../components/Lives/Lives";
 import Menu from "../components/Menu/Menu";
 import Profile from "../components/Profile/Profile";
-import Leaderboard from "../components/Leaderboard/Leaderboard"; // Ensure correct path
 import groundTreeImage from "../assets/groundTree.png";
 import startText from "../assets/startText.png";
 import { useGameLogic } from "../hooks/useGameLogic";
@@ -16,10 +15,11 @@ import { resetGame, setGameOver, startGame } from "../actions/gameActions";
 import snowBiomeImage from '../assets/snow-biome.png';
 import forestBgImage from '../assets/forest-bg-2.png';
 import transitionBiomeImage from '../assets/transitionForestToSnow.png';
+import SocialTasks from "../components/SocialTasks/SocialTasks";
 
 const GameArea: React.FC = () => {
   const { state, dispatch, handleScreenClick, generateBranches, maxTime, setIsJumping } = useGameLogic();
-  const [currentScreen, setCurrentScreen] = useState<"game" | "profile" | "leaderboard">("game");
+  const [currentScreen, setCurrentScreen] = useState<"game" | "profile" | "social">("game");
 
   const [isJumpingToFirstBranch, setIsJumpingToFirstBranch] = useState(false);
   const [isGroundMovingDown, setIsGroundMovingDown] = useState(false);
@@ -78,7 +78,7 @@ const GameArea: React.FC = () => {
     generateBranches();
   }, [generateBranches]);
 
-  const handleMenuClick = (screen: "game" | "profile" | "leaderboard") => {
+  const handleMenuClick = (screen: "game" | "profile" | "social") => {
     setCurrentScreen(screen);
   };
 
@@ -149,8 +149,8 @@ const GameArea: React.FC = () => {
     return <Profile onMenuClick={handleMenuClick} />;
   }
 
-  if (currentScreen === "leaderboard") {
-    return <Leaderboard onMenuClick={handleMenuClick} />;
+  if (currentScreen === "social") {
+    return <SocialTasks onMenuClick={handleMenuClick} />;
   }
 
   // Render Game Screen

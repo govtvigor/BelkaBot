@@ -29,7 +29,7 @@ import ReferralScreen from "../ReferralScreen/ReferralScreen"; // Corrected impo
 // import friendIcon from "../../assets/friend-icon.png"; // Import an icon for the Friends button
 
 interface ProfileProps {
-  onMenuClick: (screen: "game" | "profile" | "leaderboard") => void; // Updated to include 'leaderboard'
+  onMenuClick: (screen: "game" | "profile" | "social") => void; // Updated to include 'leaderboard'
 }
 
 const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
