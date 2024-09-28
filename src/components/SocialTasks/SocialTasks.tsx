@@ -12,7 +12,7 @@ interface SocialTask {
   
 }
 
-const TELEGRAM_CHANNEL_URL = "https://t.me/YourChannelName"; // Replace with your channel URL
+const TELEGRAM_CHANNEL_URL = "https://t.me/squirlTest"; // Replace with your channel URL
 
 const SocialTasks: React.FC<SocialTask> = ({ onMenuClick }) => {
   const userChatId = useContext(ChatIdContext); // Ensure ChatIdContext provides the user's Telegram chat ID
