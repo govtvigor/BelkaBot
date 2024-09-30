@@ -2,10 +2,18 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import TelegramBot from "node-telegram-bot-api";
 import dotenv from "dotenv";
+import fetch from "node-fetch"; // Import node-fetch
 
 dotenv.config();
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
+
+if (!TELEGRAM_BOT_TOKEN) {
+  throw new Error("Missing TELEGRAM_BOT_TOKEN in environment variables.");
+}
+
+// Initialize Telegram Bot
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
 
 // Define the expected response structure from Telegram API
 interface TelegramInvoiceResponse {
@@ -14,6 +22,14 @@ interface TelegramInvoiceResponse {
   description?: string;
 }
 
+/**
+ * Creates an invoice link using Telegram Bot API.
+ * @param chatId - User's Telegram chat ID.
+ * @param title - Title of the invoice.
+ * @param description - Description of the invoice.
+ * @param amount - Amount in the smallest currency unit.
+ * @returns Invoice link as a string.
+ */
 export const createInvoice = async (
   chatId: string,
   title: string,
@@ -26,7 +42,12 @@ export const createInvoice = async (
     description,
     payload: `invoice_${chatId}_${Date.now()}`,
     currency: "XTR", // Ensure "XTR" is a supported currency
-    prices: [{ label: "Life", amount: amount }], // Amount should be in the smallest currency unit
+    prices: [
+      {
+        label: "Life",
+        amount: amount, // Amount should be in the smallest currency unit
+      },
+    ],
   };
 
   const response = await fetch(url, {
@@ -35,8 +56,8 @@ export const createInvoice = async (
     body: JSON.stringify(requestBody),
   });
 
-  // Type the response according to the interface
-  const data: TelegramInvoiceResponse = await response.json();
+  // Assert the type of the response to TelegramInvoiceResponse
+  const data = (await response.json()) as TelegramInvoiceResponse;
 
   if (data.ok && data.result) {
     return data.result; // Return the invoice link
@@ -45,7 +66,9 @@ export const createInvoice = async (
   }
 };
 
-// If you have an API endpoint in the same file, ensure it's properly exported
+/**
+ * Serverless function to handle invoice creation requests.
+ */
 export default async (req: VercelRequest, res: VercelResponse) => {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);

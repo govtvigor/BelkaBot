@@ -23,13 +23,8 @@ export const handleBuyLives = async (
         return;
       }
 
-      // Define your API base URL
-      // If deploying to Vercel, replace with your actual deployed URL
-      // For local development, you can use a relative URL
-      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || ""; // Ensure this is set in your environment variables
-
-      // Make a POST request to the create-invoice serverless function
-      const response = await fetch(`${API_BASE_URL}/api/create-invoice`, {
+      // Make a POST request to the create-invoice serverless function using a relative URL
+      const response = await fetch("/api/create-invoice", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,8 +39,15 @@ export const handleBuyLives = async (
 
       // Handle non-OK responses
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create invoice.");
+        let errorMessage = "Failed to create invoice.";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          // If response is not JSON
+          console.error("Non-JSON error response:", await response.text());
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
