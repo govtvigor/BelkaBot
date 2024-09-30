@@ -6,7 +6,13 @@
       "config": {
         "distDir": "build"
       }
+    },
+    {
+      "src": "src/server/index.ts",
+      "use": "@vercel/node"
     }
   ],
-  "routes": []
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/src/server/index.ts" }
+  ]
 }

@@ -3,7 +3,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import TelegramBot from 'node-telegram-bot-api';
 import dotenv from 'dotenv';
-import { updateUserLives, saveUserByChatId } from '../src/client/firebaseFunctions';
+import { updateUserLives, saveUserByChatId } from '../client/firebaseFunctions';
 
 dotenv.config();
 
