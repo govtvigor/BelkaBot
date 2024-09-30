@@ -41,11 +41,19 @@ export const handleBuyLives = async (
       if (!response.ok) {
         let errorMessage = "Failed to create invoice.";
         try {
-          const errorData = await response.json();
+          // Clone the response to read it again
+          const clonedResponse = response.clone();
+          const errorData = await clonedResponse.json();
           errorMessage = errorData.error || errorMessage;
         } catch (e) {
           // If response is not JSON
-          console.error("Non-JSON error response:", await response.text());
+          try {
+            const clonedResponse = response.clone();
+            const errorText = await clonedResponse.text();
+            console.error("Non-JSON error response:", errorText);
+          } catch (innerError) {
+            console.error("Failed to read error response:", innerError);
+          }
         }
         throw new Error(errorMessage);
       }
