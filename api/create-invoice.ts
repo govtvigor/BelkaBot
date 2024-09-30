@@ -1,5 +1,12 @@
+import { VercelRequest, VercelResponse } from "@vercel/node";
+import TelegramBot from "node-telegram-bot-api";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 export const createInvoice = async (chatId: string, title: string, description: string, amount: number) => {
-    const url = `https://api.telegram.org/bot6337298860:AAH9mmBbjc34kmc3IVwwb_vc_s8-rD1S3wk/createInvoiceLink`;
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/createInvoiceLink`;
     const requestBody = {
         title,
         description,
