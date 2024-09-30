@@ -14,6 +14,7 @@ interface SocialTaskProps {
 
 const TELEGRAM_CHANNEL_URL = "https://t.me/squirlTest"; // Replace with your channel URL
 const TASK_ID = "joinTelegramChannel"; // Unique identifier for the task
+const API_BASE_URL = "https://belka-bot.vercel.app"; // Replace with your actual API base URL
 
 const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
   const userChatId = useContext(ChatIdContext); // User's Telegram chat ID
@@ -21,6 +22,7 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
   const [timer, setTimer] = useState<number>(0);
   const [taskCompleted, setTaskCompleted] = useState<boolean>(false);
   const [hasJoined, setHasJoined] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Handle cooldown timer
   useEffect(() => {
@@ -63,8 +65,10 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
       return;
     }
 
+    setIsLoading(true); // Start loading
+
     try {
-      const response = await fetch("/api/checkSubscription", {
+      const response = await fetch(`${API_BASE_URL}/api/checkSubscription`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,6 +103,8 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
       alert(
         "An error occurred during verification. Please ensure you have joined the channel and try again."
       );
+    } finally {
+      setIsLoading(false); // End loading
     }
   };
 
@@ -119,9 +125,13 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
               <button
                 className={`verify-button ${!canVerify ? "disabled" : ""}`}
                 onClick={handleVerify}
-                disabled={!canVerify}
+                disabled={!canVerify || isLoading}
               >
-                {canVerify ? "Verify" : `Verify (${timer})`}
+                {isLoading
+                  ? "Verifying..."
+                  : canVerify
+                  ? "Verify"
+                  : `Verify (${timer})`}
               </button>
             ) : (
               <button className="join-button" onClick={handleJoin}>
