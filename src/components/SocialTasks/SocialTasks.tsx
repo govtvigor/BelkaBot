@@ -2,25 +2,27 @@ import React, { useState, useEffect, useContext } from "react";
 import "./socialTasks.scss";
 import { ChatIdContext } from "../../client/App";
 import Menu from "../../components/Menu/Menu";
-import { getUserData, updateUserTotalPoints, updateUserTaskCompletion } from "../../client/firebaseFunctions";
+import {
+  getUserData,
+  updateUserTotalPoints,
+  updateUserTaskCompletion,
+} from "../../client/firebaseFunctions";
 
 interface SocialTaskProps {
   onMenuClick: (screen: "game" | "profile" | "social") => void;
 }
 
-interface TaskCompletionStatus {
-  [taskId: string]: boolean;
-}
-
 const TELEGRAM_CHANNEL_URL = "https://t.me/squirlTest"; // Replace with your channel URL
+const TASK_ID = "joinTelegramChannel"; // Unique identifier for the task
 
 const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
-  const userChatId = useContext(ChatIdContext); // Ensure ChatIdContext provides the user's Telegram chat ID
-  const [hasJoined, setHasJoined] = useState<boolean>(false);
+  const userChatId = useContext(ChatIdContext); // User's Telegram chat ID
   const [canVerify, setCanVerify] = useState<boolean>(true);
   const [timer, setTimer] = useState<number>(0);
   const [taskCompleted, setTaskCompleted] = useState<boolean>(false);
+  const [hasJoined, setHasJoined] = useState<boolean>(false);
 
+  // Handle cooldown timer
   useEffect(() => {
     let countdown: NodeJS.Timeout;
     if (timer > 0) {
@@ -31,14 +33,14 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
     return () => clearTimeout(countdown);
   }, [timer, canVerify]);
 
+  // Check if the user has already completed the task
   useEffect(() => {
     const checkTaskCompletion = async () => {
       if (userChatId) {
         try {
           const userData = await getUserData(userChatId);
-          if (userData?.completedTasks?.includes("joinTelegramChannel")) {
+          if (userData?.completedTasks?.includes(TASK_ID)) {
             setTaskCompleted(true);
-            setHasJoined(true); // Assume task is completed if joined
           }
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -48,11 +50,13 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
     checkTaskCompletion();
   }, [userChatId]);
 
+  // Handle the Join button click
   const handleJoin = () => {
     window.open(TELEGRAM_CHANNEL_URL, "_blank");
     setHasJoined(true);
   };
 
+  // Handle the Verify button click
   const handleVerify = async () => {
     if (!userChatId) {
       alert("User not authenticated.");
@@ -68,9 +72,15 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
         body: JSON.stringify({ chatId: userChatId }),
       });
 
+      // Check if the response is OK
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to verify subscription.");
+      }
+
       const data = await response.json();
 
-      if (response.ok && data.isMember) {
+      if (data.isMember) {
         setTaskCompleted(true);
         alert("Subscription verified! You have earned 500 NUT points.");
 
@@ -78,15 +88,17 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
         await updateUserTotalPoints(userChatId, 500);
 
         // Update task completion status in Firebase
-        await updateUserTaskCompletion(userChatId, "joinTelegramChannel");
+        await updateUserTaskCompletion(userChatId, TASK_ID);
       } else {
         alert("You are not a member of the channel.");
         setCanVerify(false);
-        setTimer(30); // Start cooldown
+        setTimer(30); // Start 30-second cooldown
       }
-    } catch (error) {
-      console.error("Error verifying subscription:", error);
-      alert("An error occurred during verification. Please try again.");
+    } catch (error: any) {
+      console.error("Error verifying subscription:", error.message || error);
+      alert(
+        "An error occurred during verification. Please ensure you have joined the channel and try again."
+      );
     }
   };
 
