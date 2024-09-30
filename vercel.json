@@ -6,10 +6,6 @@
       "config": {
         "distDir": "build"
       }
-    },
-    {
-      "src": "src/server/index.ts",
-      "use": "@vercel/node"
     }
   ],
   "routes": []
