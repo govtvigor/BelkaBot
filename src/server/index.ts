@@ -62,6 +62,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             if (command.startsWith('/start') || command === '/play') {
                 console.log(`Received command '${command}' from chatId: ${chatId}, referrerId: ${referrerId}`);
                 try {
+                    const username = message.chat.username || '';
+                    await saveUserByChatId(chatId, referrerId, username);
                     await saveUserByChatId(chatId, referrerId);
                     await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
                         reply_markup: {

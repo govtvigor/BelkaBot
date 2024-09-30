@@ -36,7 +36,7 @@ export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
   }
 };
 
-export async function saveUserByChatId(chatId: string, referrerId?: string) {
+export async function saveUserByChatId(chatId: string, referrerId?: string, username?: string) {
   try {
       const userRef = doc(db, 'users', chatId);
       const userSnapshot = await getDoc(userRef);
@@ -47,6 +47,7 @@ export async function saveUserByChatId(chatId: string, referrerId?: string) {
               gmStreak: 0,
               lives: 3,
               totalPoints: 0,
+              username: username || '',
               referralPoints: 0,
               referredBy: referrerId || null, // Set referredBy correctly
               referrals: [],
@@ -55,6 +56,7 @@ export async function saveUserByChatId(chatId: string, referrerId?: string) {
               gamesPlayed: 0,
               highestScore: 0,
               achievements: [],
+              completedTasks: [],
           };
           await setDoc(userRef, userData);
           console.log('New user added with chatId:', chatId);
@@ -79,7 +81,19 @@ export async function saveUserByChatId(chatId: string, referrerId?: string) {
   }
 }
 
-// firebaseFunctions.ts
+export const updateUserTaskCompletion = async (chatId: string, taskId: string): Promise<void> => {
+  try {
+    const userRef = doc(db, 'users', chatId);
+    await updateDoc(userRef, {
+      completedTasks: arrayUnion(taskId),
+    });
+    console.log(`Task '${taskId}' marked as completed for user '${chatId}'`);
+  } catch (error) {
+    console.error(`Error updating task completion for user '${chatId}':`, error);
+    throw error;
+  }
+};
+
 
 const base62Chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -124,18 +138,25 @@ export const getReferralData = async (userChatId: string): Promise<{
 
       const referredUsers: ReferralUser[] = [];
 
-      if (data?.referrals && data.referrals.length > 0) {
-        for (const referredUserId of data.referrals) {
+      if (data?.referredUsers) {
+        const referredUsersData = data.referredUsers; // { chatId: bonusPoints }
+
+        for (const referredUserId in referredUsersData) {
+          const bonusPoints = referredUsersData[referredUserId];
+
           const referredUserRef = doc(db, 'users', referredUserId);
           const referredUserSnap = await getDoc(referredUserRef);
 
+          let username = 'Unknown';
           if (referredUserSnap.exists()) {
             const referredUserData = referredUserSnap.data();
-            referredUsers.push({
-              username: referredUserData?.username || 'Unknown',
-              pointsEarned: referredUserData?.pointsEarnedForReferrer || 0,
-            });
+            username = referredUserData?.username || 'Unknown';
           }
+
+          referredUsers.push({
+            username,
+            pointsEarned: bonusPoints,
+          });
         }
       }
 
@@ -322,14 +343,14 @@ export const updateUserTotalPoints = async (chatId: string, pointsToAdd: number)
     const referrerId = userData?.referredBy;
 
     if (referrerId && referrerId !== chatId) { // Prevent self-referral
-      const bonusPoints = Math.floor(pointsToAdd * 0.2); // 20% bonus
-
+      const bonusPoints = Math.round(pointsToAdd * 0.2); // Use Math.round instead of Math.floor
+    
       const referrerRef = doc(db, "users", referrerId);
       await updateDoc(referrerRef, {
         referralPoints: increment(bonusPoints),
         [`referredUsers.${chatId}`]: increment(bonusPoints),
       });
-
+    
       console.log(`Awarded ${bonusPoints} points to referrer ${referrerId}`);
     }
   } catch (error) {
