@@ -32,21 +32,7 @@
     }
   }
 
-  .leaderboard-rank-section {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 18px;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 10px 20px;
-    border-radius: 10px;
-    color: #ffd700; // Gold color for prominence
-    box-shadow: 0 0 10px #ffd700;
-    animation: pulse 2s infinite;
-
-    .rank-text {
-      font-family: "Press Start 2P", sans-serif;
-    }
-  }
+  
 
   .profile-lives-icon {
     width: 35px;
@@ -211,7 +197,7 @@
     display: flex;
     width: 90%;
     justify-content: flex-end;
-    position: relative; // For any future positioning needs
+    position: relative; 
 
     &:active .shop-section-icon,
     &:focus .shop-section-icon {
@@ -224,24 +210,8 @@
       height: auto;
       transition: transform 0.2s, box-shadow 0.2s;
     }
-
-    /* Removed tooltip styles as per requirement */
   }
 
-  @keyframes pulse {
-    0% {
-      transform: scaleX(1);
-      box-shadow: 0 0 5px #ffd700;
-    }
-    50% {
-      transform: scaleX(1.05);
-      box-shadow: 0 0 20px #ffd700;
-    }
-    100% {
-      transform: scaleX(1);
-      box-shadow: 0 0 5px #ffd700;
-    }
-  }
 
   .friend-section {
     display: flex;
@@ -252,17 +222,17 @@
   }
 
   .friend-button {
-    background-color: #333; /* dark background like leaderboard button */
-    color: #ffba42; /* golden-yellow text */
-    border: 2px solid #222; /* pixelated border */
-    font-family: 'Press Start 2P', sans-serif; /* Use a pixelated font like the bottom buttons */
-    padding: 12px 20px; /* give the button some space */
-    border-radius: 4px; /* rounded edges to fit the UI */
+    background-color: #333; 
+    color: #ffba42; 
+    border: 2px solid #222; 
+    font-family: 'Press Start 2P', sans-serif; 
+    padding: 12px 20px; 
+    border-radius: 4px; 
     display: flex;
     align-items: center;
   }
 
-  /* New Styles for Leaderboard Rank Section */
+ 
   .leaderboard-rank-section {
     margin-top: 20px;
     text-align: center;
@@ -270,12 +240,11 @@
     background: rgba(0, 0, 0, 0.6);
     padding: 10px 20px;
     border-radius: 10px;
-    color: #ffd700; // Gold color for prominence
+    color: #ffd700; 
     box-shadow: 0 0 10px #ffd700;
-    animation: pulse 2s infinite;
-
     .rank-text {
       font-family: "Press Start 2P", sans-serif;
     }
   }
 }
+

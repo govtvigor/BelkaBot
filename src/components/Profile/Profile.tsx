@@ -14,7 +14,8 @@ import {
   updateUserWallet,
   getUserGMData,
   getLeaderboardData,
-  LeaderboardEntry
+  LeaderboardEntry,
+  getUserData // Import getUserData
 } from "../../client/firebaseFunctions";
 import { ChatIdContext } from "../../client/App";
 import { handleGMClick } from "./gmStreakHandler";
@@ -41,10 +42,11 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
   const [isReferralScreenOpen, setIsReferralScreenOpen] = useState<boolean>(false);
 
-  // New states for leaderboard
+  // New states for leaderboard and username
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
   const [totalUsers, setTotalUsers] = useState<number>(0);
+  const [username, setUsername] = useState<string>(''); // Added username state
 
   // Fetch user data and leaderboard
   useEffect(() => {
@@ -91,6 +93,15 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         })
         .catch((error) => {
           console.error("Error fetching leaderboard data:", error);
+        });
+
+      // Fetch username
+      getUserData(userChatId)
+        .then((data) => {
+          setUsername(data?.username || '');
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
         });
     }
   }, [userChatId]);
@@ -171,13 +182,15 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           />
         </div>
 
-        {/* New Leaderboard Rank Section */}
+        {/* Updated Leaderboard Rank Section */}
         {userRank !== null && (
           <div className="leaderboard-rank-section">
             <div className="rank-text">
-              {userRank === 1
-                ? "You're the top squirrel! 🏆"
-                : `Your place is #${userRank} among ${totalUsers} squirrels!`}
+              {userRank === 1 ? (
+                "You're the top squirrel! 🏆"
+              ) : (
+                `@${username}, Rank: #${userRank}`
+              )}
             </div>
           </div>
         )}
