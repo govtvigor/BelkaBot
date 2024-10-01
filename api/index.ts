@@ -25,11 +25,11 @@ const decodeBase62 = (str: string): string => {
 };
 
 export default async (req: VercelRequest, res: VercelResponse) => {
-    if (!webhookSet) {
-        await bot.setWebHook(`${vercelAppUrl}/api/webhook`);
-        console.log(`Webhook set to: ${vercelAppUrl}/api/webhook`);
-        webhookSet = true;
-    }
+    // if (!webhookSet) {
+    //     await bot.setWebHook(`${vercelAppUrl}/api/webhook`);
+    //     console.log(`Webhook set to: ${vercelAppUrl}/api/webhook`);
+    //     webhookSet = true;
+    // }
 
     try {
         const body = req.body || {};
