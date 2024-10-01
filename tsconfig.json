@@ -15,7 +15,7 @@
         "*": ["types/*"]                      // Allowing to map imports to paths
       }
     },
-    "include": ["src/**/*", "successful-payment.js", "api/index.ts", "api/checkSubscription.ts", "api/create-invoice.ts"],                  // Include all files in the `src` folder
+    "include": ["src/**/*", "successful-payment.js", "api/index.ts", "api/checkSubscription.ts", "src/components/Profile/create-invoice.ts"],                  // Include all files in the `src` folder
     "exclude": ["node_modules", "build"]      // Exclude `node_modules` and `build` directories
   }
   

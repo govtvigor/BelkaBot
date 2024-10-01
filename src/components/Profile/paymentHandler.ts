@@ -1,6 +1,6 @@
 // paymentHandler.ts
 import { updateUserLives } from "../../client/firebaseFunctions";
-import { createInvoice } from "../../../api/create-invoice";
+import { createInvoice } from "./create-invoice";
 
 export const handleBuyLives = async (
   stars: number,
