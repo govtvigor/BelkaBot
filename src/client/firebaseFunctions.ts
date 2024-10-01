@@ -5,7 +5,7 @@ import { formatTonAddress } from '../utils/convertAddress';
 import { increment, arrayUnion, orderBy, limit } from 'firebase/firestore';
 
 export interface LeaderboardEntry {
-  walletAddress: string;
+  chatId: string;     
   totalPoints: number;
 }
 
@@ -17,14 +17,14 @@ export interface ReferralUser {
 export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
   try {
     const usersCollection = collection(db, 'users');
-    const q = query(usersCollection, orderBy('totalPoints', 'desc')); // Removed limit
+    const q = query(usersCollection, orderBy('totalPoints', 'desc')); // No limit to fetch all users
     const querySnapshot = await getDocs(q);
     const leaderboard: LeaderboardEntry[] = [];
 
     querySnapshot.forEach((docSnapshot) => {
       const data = docSnapshot.data();
       leaderboard.push({
-        walletAddress: data.walletAddress || 'Unknown',
+        chatId: docSnapshot.id,        // Use document ID as chatId
         totalPoints: data.totalPoints || 0,
       });
     });

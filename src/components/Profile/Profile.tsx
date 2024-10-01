@@ -14,8 +14,7 @@ import {
   updateUserWallet,
   getUserGMData,
   getLeaderboardData,
-  getUserData,
-  LeaderboardEntry // Import getUserData
+  LeaderboardEntry
 } from "../../client/firebaseFunctions";
 import { ChatIdContext } from "../../client/App";
 import { handleGMClick } from "./gmStreakHandler";
@@ -25,7 +24,6 @@ import ShopIcon from "../../assets/shop-icon.png";
 import ShopModal from "./ShopModal/ShopModal"; 
 import TaskModal from "./TaskModal/TaskModal"; 
 import ReferralScreen from "../ReferralScreen/ReferralScreen"; 
-// import friendIcon from "../../assets/friend-icon.png"; // Import an icon for the Friends button
 
 interface ProfileProps {
   onMenuClick: (screen: "game" | "profile" | "social") => void;
@@ -47,9 +45,8 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
   const [totalUsers, setTotalUsers] = useState<number>(0);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
-  // Fetch user data including walletAddress
+  // Fetch user data and leaderboard
   useEffect(() => {
     if (userChatId) {
       saveUserByChatId(userChatId);
@@ -81,44 +78,22 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           console.error("Error fetching total points from Firebase:", error);
         });
 
-      // Fetch user's walletAddress
-      getUserData(userChatId)
-        .then((userData) => {
-          if (userData && userData.walletAddress) {
-            setWalletAddress(userData.walletAddress);
-          } else {
-            setWalletAddress(null);
-            console.warn("User does not have a wallet address.");
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-        });
-    }
-  }, [userChatId]);
-
-  // Fetch leaderboard data
-  useEffect(() => {
-    if (userChatId) {
+      // Fetch leaderboard data
       getLeaderboardData()
         .then((data) => {
           setLeaderboard(data);
           setTotalUsers(data.length);
+          // Compute rank
+          const rank = data.findIndex(entry => entry.chatId === userChatId) + 1;
+          setUserRank(rank > 0 ? rank : null);
+          console.log("Leaderboard Data:", data);
+          console.log("User Rank:", rank > 0 ? rank : "Not in Leaderboard");
         })
         .catch((error) => {
           console.error("Error fetching leaderboard data:", error);
         });
     }
   }, [userChatId]);
-
-  // Compute user rank
-  useEffect(() => {
-    if (leaderboard.length > 0 && walletAddress) {
-      // Assuming leaderboard is sorted in descending order by totalPoints
-      const rank = leaderboard.findIndex(entry => entry.walletAddress === walletAddress) + 1;
-      setUserRank(rank > 0 ? rank : null);
-    }
-  }, [leaderboard, walletAddress]);
 
   // Update wallet address on status change
   useEffect(() => {
@@ -128,7 +103,8 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           const walletAddr = wallet.account.address.toString();
           if (userChatId) {
             await updateUserWallet(userChatId, walletAddr);
-            setWalletAddress(walletAddr); // Update state
+            // Since rank is based on chatId, no need to re-fetch leaderboard
+            // Optionally, you can re-fetch leaderboard if needed
           } else {
             console.error("Chat ID is null, cannot save wallet address.");
           }
