@@ -17,7 +17,7 @@ export interface ReferralUser {
 export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
   try {
     const usersCollection = collection(db, 'users');
-    const q = query(usersCollection, orderBy('totalPoints', 'desc'), limit(10));
+    const q = query(usersCollection, orderBy('totalPoints', 'desc')); // Removed limit
     const querySnapshot = await getDocs(q);
     const leaderboard: LeaderboardEntry[] = [];
 

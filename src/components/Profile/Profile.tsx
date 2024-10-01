@@ -14,7 +14,8 @@ import {
   updateUserWallet,
   getUserGMData,
   getLeaderboardData,
-  LeaderboardEntry 
+  getUserData,
+  LeaderboardEntry // Import getUserData
 } from "../../client/firebaseFunctions";
 import { ChatIdContext } from "../../client/App";
 import { handleGMClick } from "./gmStreakHandler";
@@ -27,7 +28,7 @@ import ReferralScreen from "../ReferralScreen/ReferralScreen";
 // import friendIcon from "../../assets/friend-icon.png"; // Import an icon for the Friends button
 
 interface ProfileProps {
-  onMenuClick: (screen: "game" | "profile" | "social") => void; // Updated to include 'leaderboard'
+  onMenuClick: (screen: "game" | "profile" | "social") => void;
 }
 
 const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
@@ -39,36 +40,38 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [tonConnectUI] = useTonConnectUI();
   const userChatId = useContext(ChatIdContext);
   const [isShopModalOpen, setIsShopModalOpen] = useState<boolean>(false);
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false); // State for TaskModal
-  const [isReferralScreenOpen, setIsReferralScreenOpen] = useState<boolean>(false); // State for ReferralScreen
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
+  const [isReferralScreenOpen, setIsReferralScreenOpen] = useState<boolean>(false);
 
   // New states for leaderboard
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
   const [totalUsers, setTotalUsers] = useState<number>(0);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
+  // Fetch user data including walletAddress
   useEffect(() => {
     if (userChatId) {
       saveUserByChatId(userChatId);
+      
+      // Fetch user lives
       getUserLivesData(userChatId).then((livesData) => {
         if (livesData !== undefined) {
           setLives(livesData.lives);
         }
       });
+
+      // Fetch GM data
       getUserGMData(userChatId)
         .then((data) => {
           setGMStreak(data.gmStreak || 0);
-
           const today = new Date().toDateString();
-          if (data.lastGMDate === today) {
-            setIsGMChecked(true);
-          } else {
-            setIsGMChecked(false);
-          }
+          setIsGMChecked(data.lastGMDate === today);
         })
         .catch((error) => {
           console.error("Error fetching GM data from Firebase:", error);
         });
+
       // Fetch total points
       getUserTotalPoints(userChatId)
         .then((points) => {
@@ -78,14 +81,29 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           console.error("Error fetching total points from Firebase:", error);
         });
 
-      // Fetch leaderboard data and determine user rank
+      // Fetch user's walletAddress
+      getUserData(userChatId)
+        .then((userData) => {
+          if (userData && userData.walletAddress) {
+            setWalletAddress(userData.walletAddress);
+          } else {
+            setWalletAddress(null);
+            console.warn("User does not have a wallet address.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
+    }
+  }, [userChatId]);
+
+  // Fetch leaderboard data
+  useEffect(() => {
+    if (userChatId) {
       getLeaderboardData()
         .then((data) => {
           setLeaderboard(data);
           setTotalUsers(data.length);
-          const sortedLeaderboard = data.sort((a, b) => b.totalPoints - a.totalPoints);
-          const rank = sortedLeaderboard.findIndex(entry => entry.walletAddress === userChatId) + 1;
-          setUserRank(rank > 0 ? rank : null);
         })
         .catch((error) => {
           console.error("Error fetching leaderboard data:", error);
@@ -93,13 +111,24 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     }
   }, [userChatId]);
 
+  // Compute user rank
+  useEffect(() => {
+    if (leaderboard.length > 0 && walletAddress) {
+      // Assuming leaderboard is sorted in descending order by totalPoints
+      const rank = leaderboard.findIndex(entry => entry.walletAddress === walletAddress) + 1;
+      setUserRank(rank > 0 ? rank : null);
+    }
+  }, [leaderboard, walletAddress]);
+
+  // Update wallet address on status change
   useEffect(() => {
     if (tonConnectUI) {
       tonConnectUI.onStatusChange(async (wallet) => {
         if (wallet) {
-          const walletAddress = wallet.account.address.toString();
+          const walletAddr = wallet.account.address.toString();
           if (userChatId) {
-            await updateUserWallet(userChatId, walletAddress);
+            await updateUserWallet(userChatId, walletAddr);
+            setWalletAddress(walletAddr); // Update state
           } else {
             console.error("Chat ID is null, cannot save wallet address.");
           }
