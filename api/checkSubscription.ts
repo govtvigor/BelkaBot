@@ -26,8 +26,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     res.status(400).json({ error: "Missing chatId" });
     return;
   }
-  console.log("TELEGRAM_BOT_TOKEN:", TELEGRAM_BOT_TOKEN ? "Set" : "Not Set");
-  console.log("TELEGRAM_CHANNEL_USERNAME:", TELEGRAM_CHANNEL_USERNAME ? "Set" : "Not Set");
+
 
   try {
     // Get chat member status

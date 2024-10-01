@@ -13,19 +13,17 @@ import {
   getUserLivesData,
   updateUserWallet,
   getUserGMData,
-  getUserAchievements,
+  getLeaderboardData,
+  LeaderboardEntry 
 } from "../../client/firebaseFunctions";
 import { ChatIdContext } from "../../client/App";
 import { handleGMClick } from "./gmStreakHandler";
-import { handleBuyLives } from "./paymentHandler";
-import { achievements as allAchievements } from "../../constants/achievements";
 import nutIcon from "../../assets/nut.png";
 import SquirrelIcon from "../../assets/squirt.png";
 import ShopIcon from "../../assets/shop-icon.png";
-import taskIcon from "../../assets/shop-icon.png"; // Import your task icon
 import ShopModal from "./ShopModal/ShopModal"; 
-import TaskModal from "./TaskModal/TaskModal"; // Import the TaskModal component
-import ReferralScreen from "../ReferralScreen/ReferralScreen"; // Corrected import path
+import TaskModal from "./TaskModal/TaskModal"; 
+import ReferralScreen from "../ReferralScreen/ReferralScreen"; 
 // import friendIcon from "../../assets/friend-icon.png"; // Import an icon for the Friends button
 
 interface ProfileProps {
@@ -40,11 +38,14 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
   const [stars, setStars] = useState<number>(100);
   const [tonConnectUI] = useTonConnectUI();
   const userChatId = useContext(ChatIdContext);
-  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isShopModalOpen, setIsShopModalOpen] = useState<boolean>(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false); // State for TaskModal
   const [isReferralScreenOpen, setIsReferralScreenOpen] = useState<boolean>(false); // State for ReferralScreen
+
+  // New states for leaderboard
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [userRank, setUserRank] = useState<number | null>(null);
+  const [totalUsers, setTotalUsers] = useState<number>(0);
 
   useEffect(() => {
     if (userChatId) {
@@ -76,9 +77,19 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
         .catch((error) => {
           console.error("Error fetching total points from Firebase:", error);
         });
-      getUserAchievements(userChatId).then((achievements) =>
-        setUnlockedAchievements(achievements || [])
-      );
+
+      // Fetch leaderboard data and determine user rank
+      getLeaderboardData()
+        .then((data) => {
+          setLeaderboard(data);
+          setTotalUsers(data.length);
+          const sortedLeaderboard = data.sort((a, b) => b.totalPoints - a.totalPoints);
+          const rank = sortedLeaderboard.findIndex(entry => entry.walletAddress === userChatId) + 1;
+          setUserRank(rank > 0 ? rank : null);
+        })
+        .catch((error) => {
+          console.error("Error fetching leaderboard data:", error);
+        });
     }
   }, [userChatId]);
 
@@ -97,20 +108,6 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
     }
   }, [tonConnectUI, userChatId]);
 
-  const handleNext = () => {
-    if (currentIndex < allAchievements.length - 3) {
-      setCurrentIndex((prevIndex) =>
-        Math.min(prevIndex + 3, allAchievements.length - 3)
-      );
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prevIndex) => Math.max(prevIndex - 3, 0));
-    }
-  };
-
   const handleGMClickAction = () => {
     handleGMClick(
       isGMChecked,
@@ -119,10 +116,6 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
       setGMStreak,
       userChatId
     );
-  };
-
-  const handleBuyLivesAction = () => {
-    handleBuyLives(stars, lives, setLives, userChatId);
   };
 
   return (
@@ -139,7 +132,6 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
             </div>
             {isGMChecked ? <div>{gmStreak}</div> : <span>GM</span>}
           </div>
-          {/* Removed lives option from profile header */}
         </div>
         <div className="crypto-wallet">
           <TonConnectButton />
@@ -153,12 +145,6 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
             <img src={nutIcon} alt="Nut Icon" className="nut-icon-profile" />
           </div>
         </div>
-        {/* Commented out achievements section */}
-        {/* 
-        <div className="achievements-section">
-          ...
-        </div>
-        */}
 
         {/* Friends Section */}
         <div className="friend-section">
@@ -180,14 +166,16 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           />
         </div>
 
-        {/* Task Section */}
-        <div className="task-section" onClick={() => setIsTaskModalOpen(true)}>
-          <img
-            src={taskIcon}
-            alt="task-icon"
-            className="task-section-icon"
-          />
-        </div>
+        {/* New Leaderboard Rank Section */}
+        {userRank !== null && (
+          <div className="leaderboard-rank-section">
+            <div className="rank-text">
+              {userRank === 1
+                ? "You're the top squirrel! 🏆"
+                : `Your place is #${userRank} among ${totalUsers} squirrels!`}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="squirrel-profile">
