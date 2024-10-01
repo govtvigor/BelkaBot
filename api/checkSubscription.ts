@@ -1,8 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import TelegramBot from "node-telegram-bot-api";
-import dotenv from "dotenv";
 
-dotenv.config();
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 const TELEGRAM_CHANNEL_USERNAME = process.env.TELEGRAM_CHANNEL_USERNAME as string; // e.g., 'YourChannelName'
@@ -28,6 +26,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     res.status(400).json({ error: "Missing chatId" });
     return;
   }
+  console.log("TELEGRAM_BOT_TOKEN:", TELEGRAM_BOT_TOKEN ? "Set" : "Not Set");
+  console.log("TELEGRAM_CHANNEL_USERNAME:", TELEGRAM_CHANNEL_USERNAME ? "Set" : "Not Set");
 
   try {
     // Get chat member status

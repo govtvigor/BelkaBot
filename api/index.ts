@@ -2,10 +2,10 @@
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import TelegramBot from 'node-telegram-bot-api';
-import dotenv from 'dotenv';
+
 import { updateUserLives, saveUserByChatId } from '../src/client/firebaseFunctions';
 
-dotenv.config();
+
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 const vercelAppUrl = 'https://belka-bot.vercel.app';
@@ -25,11 +25,16 @@ const decodeBase62 = (str: string): string => {
 };
 
 export default async (req: VercelRequest, res: VercelResponse) => {
-    // if (!webhookSet) {
-    //     await bot.setWebHook(`${vercelAppUrl}/api/webhook`);
-    //     console.log(`Webhook set to: ${vercelAppUrl}/api/webhook`);
-    //     webhookSet = true;
-    // }
+    if (!webhookSet) {
+        try {
+          await bot.setWebHook(`${vercelAppUrl}/api/webhook`);
+          console.log(`Webhook set to: ${vercelAppUrl}/api/webhook`);
+          webhookSet = true;
+        } catch (error) {
+          console.error("Error setting webhook:", error);
+          return res.status(500).send('Error setting webhook');
+        }
+      }
 
     try {
         const body = req.body || {};
