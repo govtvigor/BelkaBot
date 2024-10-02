@@ -14,7 +14,7 @@ const Menu: React.FC<MenuProps> = ({ onMenuClick, variant = 'default' }) => {
     <div className={`menu ${variant === 'profile' ? 'menu-profile' : ''}`}>
       <div className="menu-buttons">
         <button onClick={() => onMenuClick('game')}>Home</button>
-        <button onClick={() => onMenuClick('social')}>Leaderboard</button>
+        <button onClick={() => onMenuClick('social')}>Tasks</button>
         <button onClick={() => onMenuClick('profile')}>Profile</button>
       </div>
     </div>
