@@ -12,7 +12,7 @@ interface SocialTaskProps {
   onMenuClick: (screen: "game" | "profile" | "social") => void;
 }
 
-const TELEGRAM_CHANNEL_URL = "https://t.me/squirlTest"; // Replace with your channel URL
+const TELEGRAM_CHANNEL_URL = "https://t.me/squirreala"; // Replace with your channel URL
 const TASK_ID = "joinTelegramChannel"; // Unique identifier for the task
 const API_BASE_URL = "https://belka-bot.vercel.app"; // Replace with your actual API base URL
 
