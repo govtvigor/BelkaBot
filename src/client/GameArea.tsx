@@ -26,9 +26,8 @@ const GameArea: React.FC = () => {
   const [isTreeMovingUp, setIsTreeMovingUp] = useState(false);
   const [isGroundHidden, setIsGroundHidden] = useState(false);
   const [isTreePositionAdjusted, setIsTreePositionAdjusted] = useState(false);
-  const [currentBiomeIndex, setCurrentBiomeIndex] = useState(0);
   const [backgroundOffsetY, setBackgroundOffsetY] = useState(0);
-  const [isJumping, setIsJumpingLocal] = useState(false); // Додано локальний стан для isJumping
+  const [isJumping, setIsJumpingLocal] = useState(false); 
 
   const groundImageRef = useRef<HTMLImageElement | null>(null);
   const biomes = [
@@ -39,17 +38,12 @@ const GameArea: React.FC = () => {
     
   ];
 
-  // Синхронизация backgroundOffsetY с scrollOffset
+ 
   useEffect(() => {
     setBackgroundOffsetY(state.scrollOffset);
   }, [state.scrollOffset]);
 
-  // useEffect(() => {
-  //   const backgroundSpeedFactor = 0.1; // Adjust this value to control background speed
-  //   setBackgroundOffsetY(state.scrollOffset * backgroundSpeedFactor);
-  // }, [state.scrollOffset]);
-
-  // Adjust tree trunk bottom based on ground height
+  
   useEffect(() => {
     const groundImage = groundImageRef.current;
     if (groundImage) {
@@ -121,7 +115,7 @@ const GameArea: React.FC = () => {
 
   // Check if the clicked element is inside the menu buttons or other UI elements
   if (target.closest(".menu") || target.closest(".menu-buttons button")) {
-    event.stopPropagation(); // Prevent the game click handler from firing
+    event.stopPropagation(); 
     return;
   }
     if (!state.gameStarted) {
@@ -144,7 +138,7 @@ const GameArea: React.FC = () => {
     setIsJumpingLocal(state.isJumping);
   }, [state.isJumping]);
 
-  // Render Profile or Leaderboard based on currentScreen
+  
   if (currentScreen === "profile") {
     return <Profile onMenuClick={handleMenuClick} />;
   }
@@ -153,7 +147,7 @@ const GameArea: React.FC = () => {
     return <SocialTasks onMenuClick={handleMenuClick} />;
   }
 
-  // Render Game Screen
+  
   return (
       <div className="game-container">
         <div className="game-area-wrapper">
@@ -185,7 +179,7 @@ const GameArea: React.FC = () => {
             )}
 
             <div className="tree-wrapper">
-              {/* Display groundTreeImage with ref to calculate its height */}
+             
               {!isGroundHidden && (
                   <div className={`ground-wrapper ${isGroundMovingDown ? 'move-down' : ''}`}>
                     <img
@@ -196,7 +190,7 @@ const GameArea: React.FC = () => {
                     />
                   </div>
               )}
-              {/* Display main tree trunk */}
+              
               <div
                   className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''} ${isTreeMovingUp ? 'move-up' : ''} ${isTreePositionAdjusted ? 'fixed-position' : ''}`}
                   style={
@@ -236,7 +230,7 @@ const GameArea: React.FC = () => {
                                       e.stopPropagation();
                                       handleScreenClick(branch.side);
                                     }
-                                    : undefined // No onClick handler if game hasn't started
+                                    : undefined 
                               }
                           />
                       ))}
@@ -247,7 +241,7 @@ const GameArea: React.FC = () => {
                 position={state.squirrelSide}
                 isInGame={state.gameStarted}
                 isJumpingToFirstBranch={isJumpingToFirstBranch}
-                isJumping={isJumping} // Передаємо isJumping
+                isJumping={isJumping} 
             />
           </div>
         </div>

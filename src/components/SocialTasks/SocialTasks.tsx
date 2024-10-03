@@ -187,6 +187,7 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
       <h2>Social Tasks</h2>
       <div className="tasks-container">
         {tasksState.map((task, index) => (
+          <>
           <div className="task" key={task.id}>
             <div className="task-text">
               <p>{task.description}</p>
@@ -214,7 +215,11 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
                 </button>
               )}
             </div>
+            
           </div>
+          <div className="sep-line"></div>
+          </>
+          
         ))}
       </div>
       <Menu onMenuClick={onMenuClick} variant="social" />

@@ -32,6 +32,8 @@ export const useGameLogic = () => {
   const timerRef = useRef<number | null>(null);
   const [maxTime, setMaxTime] = useState(initialState.timeLeft);
   const lastUpdateTimeRef = useRef<number | null>(null);
+  const branchToRemoveOnNextJump = useRef<number | null>(null);
+  const branchIndexToRemove = useRef<number | null>(null);
 
   // Стан для відстеження стрибка
   const [isJumping, setIsJumping] = useState(false);
