@@ -1,3 +1,5 @@
+// socialTasks.tsx
+
 import React, { useState, useEffect, useContext } from "react";
 import "./socialTasks.scss";
 import { ChatIdContext } from "../../client/App";
@@ -12,38 +14,88 @@ interface SocialTaskProps {
   onMenuClick: (screen: "game" | "profile" | "social") => void;
 }
 
-const TELEGRAM_CHANNEL_URL = "https://t.me/squirreala"; // Replace with your channel URL
-const TASK_ID = "joinTelegramChannel"; // Unique identifier for the task
-const API_BASE_URL = "https://belka-bot.vercel.app"; // Replace with your actual API base URL
+interface Task {
+  id: string;
+  description: string;
+  channelUrl: string;
+  points: number;
+  taskCompleted: boolean;
+  hasJoined: boolean;
+  canVerify: boolean;
+  timer: number;
+  isLoading: boolean;
+}
+
+
+const API_BASE_URL = "https://belka-bot.vercel.app"; // Ensure this points to your API
+
+// Define your tasks here
+const predefinedTasks: Omit<Task, "taskCompleted" | "hasJoined" | "canVerify" | "timer" | "isLoading">[] = [
+  {
+    id: "joinTelegramChannel",
+    description: "Join Telegram Channel to get 500 NUT points",
+    channelUrl: "https://t.me/squirreala", 
+    points: 500,
+  },
+  {
+    id: "joinAnotherChannel",
+    description: "Join our second channel to get 300 NUT points",
+    channelUrl: "https://t.me/avcryptoo", 
+    points: 300,
+  },
+  // Add more tasks here as needed
+];
 
 const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
   const userChatId = useContext(ChatIdContext); // User's Telegram chat ID
-  const [canVerify, setCanVerify] = useState<boolean>(true);
-  const [timer, setTimer] = useState<number>(0);
-  const [taskCompleted, setTaskCompleted] = useState<boolean>(false);
-  const [hasJoined, setHasJoined] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [tasksState, setTasksState] = useState<Task[]>(
+    predefinedTasks.map(task => ({
+      ...task,
+      taskCompleted: false,
+      hasJoined: false,
+      canVerify: true,
+      timer: 0,
+      isLoading: false,
+    }))
+  );
 
-  // Handle cooldown timer
+  // Handle cooldown timers for all tasks
   useEffect(() => {
-    let countdown: NodeJS.Timeout;
-    if (timer > 0) {
-      countdown = setTimeout(() => setTimer(timer - 1), 1000);
-    } else if (timer === 0 && !canVerify) {
-      setCanVerify(true);
-    }
-    return () => clearTimeout(countdown);
-  }, [timer, canVerify]);
+    const timers: NodeJS.Timeout[] = [];
 
-  // Check if the user has already completed the task
+    tasksState.forEach((task, index) => {
+      if (task.timer > 0) {
+        const timerId = setTimeout(() => {
+          setTasksState(prev => {
+            const newTasks = [...prev];
+            newTasks[index].timer -= 1;
+            if (newTasks[index].timer === 0) {
+              newTasks[index].canVerify = true;
+            }
+            return newTasks;
+          });
+        }, 1000);
+        timers.push(timerId);
+      }
+    });
+
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+    };
+  }, [tasksState]);
+
+  // Check if the user has already completed any of the tasks
   useEffect(() => {
     const checkTaskCompletion = async () => {
       if (userChatId) {
         try {
           const userData = await getUserData(userChatId);
-          if (userData?.completedTasks?.includes(TASK_ID)) {
-            setTaskCompleted(true);
-          }
+          setTasksState(prev =>
+            prev.map(task => ({
+              ...task,
+              taskCompleted: userData?.completedTasks?.includes(task.id) || false,
+            }))
+          );
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
@@ -52,28 +104,38 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
     checkTaskCompletion();
   }, [userChatId]);
 
-  // Handle the Join button click
-  const handleJoin = () => {
-    window.open(TELEGRAM_CHANNEL_URL, "_blank");
-    setHasJoined(true);
+  // Handle the Join button click for a specific task
+  const handleJoin = (index: number) => {
+    const task = tasksState[index];
+    window.open(task.channelUrl, "_blank");
+    setTasksState(prev => {
+      const newTasks = [...prev];
+      newTasks[index].hasJoined = true;
+      return newTasks;
+    });
   };
 
-  // Handle the Verify button click
-  const handleVerify = async () => {
+  // Handle the Verify button click for a specific task
+  const handleVerify = async (index: number) => {
+    const task = tasksState[index];
     if (!userChatId) {
       alert("User not authenticated.");
       return;
     }
 
-    setIsLoading(true); // Start loading
+    setTasksState(prev => {
+      const newTasks = [...prev];
+      newTasks[index].isLoading = true;
+      return newTasks;
+    });
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/checkSubscription`, {
+      const response = await fetch(`${API_BASE_URL}/checkSubscription`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ chatId: userChatId }),
+        body: JSON.stringify({ chatId: userChatId, taskId: task.id }),
       });
 
       // Check if the response is OK
@@ -85,18 +147,26 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
       const data = await response.json();
 
       if (data.isMember) {
-        setTaskCompleted(true);
-        alert("Subscription verified! You have earned 500 NUT points.");
+        setTasksState(prev => {
+          const newTasks = [...prev];
+          newTasks[index].taskCompleted = true;
+          return newTasks;
+        });
+        alert(`Subscription verified! You have earned ${task.points} NUT points.`);
 
         // Award points
-        await updateUserTotalPoints(userChatId, 500);
+        await updateUserTotalPoints(userChatId, task.points);
 
         // Update task completion status in Firebase
-        await updateUserTaskCompletion(userChatId, TASK_ID);
+        await updateUserTaskCompletion(userChatId, task.id);
       } else {
         alert("You are not a member of the channel.");
-        setCanVerify(false);
-        setTimer(30); // Start 30-second cooldown
+        setTasksState(prev => {
+          const newTasks = [...prev];
+          newTasks[index].canVerify = false;
+          newTasks[index].timer = 30; // Start 30-second cooldown
+          return newTasks;
+        });
       }
     } catch (error: any) {
       console.error("Error verifying subscription:", error.message || error);
@@ -104,7 +174,11 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
         "An error occurred during verification. Please ensure you have joined the channel and try again."
       );
     } finally {
-      setIsLoading(false); // End loading
+      setTasksState(prev => {
+        const newTasks = [...prev];
+        newTasks[index].isLoading = false;
+        return newTasks;
+      });
     }
   };
 
@@ -112,34 +186,36 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
     <div className="social-tasks">
       <h2>Social Tasks</h2>
       <div className="tasks-container">
-        <div className="task">
-          <div className="task-text">
-            <p>Join Telegram Channel to get 500 NUT points</p>
+        {tasksState.map((task, index) => (
+          <div className="task" key={task.id}>
+            <div className="task-text">
+              <p>{task.description}</p>
+            </div>
+            <div className="task-button">
+              {task.taskCompleted ? (
+                <button className="completed-button" disabled>
+                  Completed
+                </button>
+              ) : task.hasJoined ? (
+                <button
+                  className={`verify-button ${!task.canVerify ? "disabled" : ""}`}
+                  onClick={() => handleVerify(index)}
+                  disabled={!task.canVerify || task.isLoading}
+                >
+                  {task.isLoading
+                    ? "Verifying..."
+                    : task.canVerify
+                    ? "Verify"
+                    : `Verify (${task.timer})`}
+                </button>
+              ) : (
+                <button className="join-button" onClick={() => handleJoin(index)}>
+                  Join
+                </button>
+              )}
+            </div>
           </div>
-          <div className="task-button">
-            {taskCompleted ? (
-              <button className="completed-button" disabled>
-                Completed
-              </button>
-            ) : hasJoined ? (
-              <button
-                className={`verify-button ${!canVerify ? "disabled" : ""}`}
-                onClick={handleVerify}
-                disabled={!canVerify || isLoading}
-              >
-                {isLoading
-                  ? "Verifying..."
-                  : canVerify
-                  ? "Verify"
-                  : `Verify (${timer})`}
-              </button>
-            ) : (
-              <button className="join-button" onClick={handleJoin}>
-                Join
-              </button>
-            )}
-          </div>
-        </div>
+        ))}
       </div>
       <Menu onMenuClick={onMenuClick} variant="social" />
     </div>
