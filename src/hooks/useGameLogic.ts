@@ -207,8 +207,8 @@ export const useGameLogic = () => {
           // Видаляємо гілку після завершення стрибка
           setTimeout(() => {
             dispatch(removeBranch());
-            setIsJumping(false); // Завершуємо стрибок
-          }, 500); // 500 мс - тривалість анімації стрибка
+            setIsJumping(false); 
+          }, 100); // 500 мс - тривалість анімації стрибка
         } else {
           handleGameOver();
         }
@@ -232,6 +232,6 @@ export const useGameLogic = () => {
     startGame,
     generateBranches,
     maxTime,
-    setIsJumping, // Додаємо це
+    setIsJumping, 
   };
 };
