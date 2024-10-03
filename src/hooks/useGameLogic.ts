@@ -23,7 +23,7 @@ import {
   setLives,
   setLivesLoading,
   setScrollOffset,
-  removeBranch, // Додано
+  removeBranch, 
 } from '../actions/gameActions';
 
 export const useGameLogic = () => {
@@ -72,17 +72,16 @@ export const useGameLogic = () => {
   useEffect(() => {
     if (state.gameStarted && !state.gameOver && state.timeLeft <= 0) {
       dispatch(actionSetGameOver(true));
-      // Optionally, you can perform any additional actions here
     }
   }, [state.gameStarted, state.gameOver, state.timeLeft, dispatch]);
 
   // Generate branches function
   const generateBranches = useCallback(() => {
     const newBranches = [];
-    const spacing = 120; // Define spacing between branches
+    const spacing = 120; 
     for (let i = 0; i < 6; i++) {
       const side: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
-      const top = i * spacing; // Start from 0 and use consistent spacing
+      const top = i * spacing; 
       newBranches.push({ side, top });
     }
     dispatch(setBranches(newBranches));
@@ -208,7 +207,7 @@ export const useGameLogic = () => {
           setTimeout(() => {
             dispatch(removeBranch());
             setIsJumping(false); 
-          }, 100); // 500 мс - тривалість анімації стрибка
+          }, 100); 
         } else {
           handleGameOver();
         }
