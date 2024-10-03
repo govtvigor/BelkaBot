@@ -27,7 +27,7 @@ interface Task {
 }
 
 
-const API_BASE_URL = "https://belka-bot.vercel.app"; // Ensure this points to your API
+const API_BASE_URL = "https://belka-bot.vercel.app/api"; // Ensure this points to your API
 
 // Define your tasks here
 const predefinedTasks: Omit<Task, "taskCompleted" | "hasJoined" | "canVerify" | "timer" | "isLoading">[] = [
