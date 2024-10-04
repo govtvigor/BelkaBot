@@ -1,3 +1,5 @@
+// src/components/SocialTasks/SocialTasks.tsx
+
 import React, { useState, useEffect, useContext } from "react";
 import "./socialTasks.scss";
 import { ChatIdContext } from "../../client/App";
@@ -91,6 +93,28 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
     }))
   );
 
+  // Effect to handle the countdown timer for tasks
+  useEffect(() => {
+    const timerInterval = setInterval(() => {
+      setTasksState((prevTasks) =>
+        prevTasks.map((task) => {
+          if (task.timer > 0) {
+            const newTimer = task.timer - 1;
+            return {
+              ...task,
+              timer: newTimer,
+              canVerify: newTimer === 0 ? true : task.canVerify,
+            };
+          }
+          return task;
+        })
+      );
+    }, 1000); // Tick every second
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(timerInterval);
+  }, []);
+
   useEffect(() => {
     const checkTaskCompletion = async () => {
       if (userChatId) {
@@ -173,7 +197,7 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
             setTasksState((prev) => {
               const newTasks = [...prev];
               newTasks[index].canVerify = false;
-              newTasks[index].timer = 30;
+              newTasks[index].timer = 30; // Start a 30-second countdown
               return newTasks;
             });
           }
@@ -233,7 +257,7 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
                       ? t('tasks.verifying')
                       : task.canVerify
                       ? t('tasks.verify')
-                      : `(${task.timer})`}
+                      : `${t('tasks.verify')} (${task.timer})`}
                   </button>
                 ) : (
                   <button className="join-button" onClick={() => handleAction(index)}>

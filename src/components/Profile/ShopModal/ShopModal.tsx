@@ -4,6 +4,7 @@ import SnowLandscapeIcon from "../../../assets/snowLandscape.png";
 import DesertLandscapeIcon from "../../../assets/desertLandscape.png";
 import heartIcon from "../../../assets/heart.png"; // Import heart icon
 import { handleBuyLives } from "../paymentHandler";
+import { useTranslation } from 'react-i18next';
 
 interface ShopModalProps {
   onClose: () => void;
@@ -20,6 +21,7 @@ const ShopModal: React.FC<ShopModalProps> = ({
   lives,
   setLives,
 }) => {
+  const { t } = useTranslation(); // Initialize the translation function
   const landscapes = [
     { id: 1, name: "Snow Landscape", image: SnowLandscapeIcon },
     { id: 2, name: "Desert Landscape", image: DesertLandscapeIcon },
@@ -35,7 +37,7 @@ const ShopModal: React.FC<ShopModalProps> = ({
         <button className="close-button" onClick={onClose}>
           X
         </button>
-        <h2 className="modal-title">Shop</h2>
+        <h2 className="modal-title">{t('profile.shop')}</h2>
 
         {/* Buy Lives Section */}
         <div className="buy-lives-section">
@@ -43,9 +45,9 @@ const ShopModal: React.FC<ShopModalProps> = ({
             <img src={heartIcon} alt="Lives" className="lives-icon" />
           </div>
           <div className="buy-lives-info">
-            <p>Need more lives? Buy them here!</p>
+            <p>{t('profile.lives_title')}</p>
             <button className="buy-button" onClick={handleBuyLivesAction}>
-              Buy Lives
+              {t('profile.buy_lives')}
             </button>
           </div>
         </div>

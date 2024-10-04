@@ -21,7 +21,6 @@ import nutIcon from "../../assets/nut.png";
 import SquirrelIcon from "../../assets/squirt.png";
 import ShopIcon from "../../assets/shop-icon.png";
 import ShopModal from "./ShopModal/ShopModal"; 
-import TaskModal from "./TaskModal/TaskModal"; 
 import ReferralScreen from "../ReferralScreen/ReferralScreen"; 
 
 interface ProfileProps {
@@ -214,9 +213,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           setLives={setLives}
         />
       )}
-      {isTaskModalOpen && (
-        <TaskModal onClose={() => setIsTaskModalOpen(false)} />
-      )}
+      
       {isReferralScreenOpen && (
         <ReferralScreen onClose={() => setIsReferralScreenOpen(false)} />
       )}

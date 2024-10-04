@@ -42,7 +42,9 @@
     "total_refs": "Total Referrals",
     "points_earned_ref": "Points Earned",
     "ref_friends": "Your Referred Friends",
-    "no_refs": "No referrals yet."
+    "no_refs": "No referrals yet.",
+    "lives_title": "3 lives",
+    "buy_lives": "Buy lives"
   }
   
 }
