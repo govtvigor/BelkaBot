@@ -5,8 +5,6 @@ import TelegramBot from 'node-telegram-bot-api';
 
 import { updateUserLives, saveUserByChatId } from '../src/client/firebaseFunctions';
 
-
-
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 const vercelAppUrl = 'https://belka-bot.vercel.app';
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
@@ -27,14 +25,14 @@ const decodeBase62 = (str: string): string => {
 export default async (req: VercelRequest, res: VercelResponse) => {
     if (!webhookSet) {
         try {
-          await bot.setWebHook(`${vercelAppUrl}/api/webhook`);
-          console.log(`Webhook set to: ${vercelAppUrl}/api/webhook`);
-          webhookSet = true;
+            await bot.setWebHook(`${vercelAppUrl}/api/webhook`);
+            console.log(`Webhook set to: ${vercelAppUrl}/api/webhook`);
+            webhookSet = true;
         } catch (error) {
-          console.error("Error setting webhook:", error);
-          return res.status(500).send('Error setting webhook');
+            console.error("Error setting webhook:", error);
+            return res.status(500).send('Error setting webhook');
         }
-      }
+    }
 
     try {
         const body = req.body || {};
@@ -68,13 +66,16 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 console.log(`Received command '${command}' from chatId: ${chatId}, referrerId: ${referrerId}`);
                 try {
                     const username = message.chat.username || '';
-                    await saveUserByChatId(chatId, referrerId, username);
-                    await saveUserByChatId(chatId, referrerId);
+                    const languageCode = message.from?.language_code || 'en'; // Extract language code
+
+                    // Pass languageCode to saveUserByChatId
+                    await saveUserByChatId(chatId, referrerId, username, languageCode);
+
                     await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
                         reply_markup: {
                             inline_keyboard: [[{
                                 text: 'Play',
-                                web_app: { url: `${vercelAppUrl}/?chatId=${chatId}` }
+                                web_app: { url: `${vercelAppUrl}/?chatId=${chatId}&lang=${languageCode}` } // Pass lang as query parameter
                             }]]
                         },
                     });

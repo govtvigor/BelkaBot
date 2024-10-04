@@ -1,0 +1,13 @@
+{
+    "welcome": "Welcome! Click 'Play' to start the game!",
+    "play": "Play",
+    "payment_received": "Payment received! You now have {{lives}} extra lives.",
+    "error_updating_lives": "Payment received, but there was an error updating your lives.",
+    "game_title": "Game Title",
+    "current_lives": "You have {{lives}} lives remaining.",
+    "menu": {
+        "game": "Game",
+        "tasks": "Tasks",
+        "profile": "Profile"
+    }
+}

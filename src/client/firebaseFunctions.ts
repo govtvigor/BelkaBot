@@ -36,7 +36,7 @@ export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
   }
 };
 
-export async function saveUserByChatId(chatId: string, referrerId?: string, username?: string) {
+export async function saveUserByChatId(chatId: string, referrerId?: string, username?: string, languageCode?: string) {
   try {
       const userRef = doc(db, 'users', chatId);
       const userSnapshot = await getDoc(userRef);
@@ -57,6 +57,7 @@ export async function saveUserByChatId(chatId: string, referrerId?: string, user
               highestScore: 0,
               achievements: [],
               completedTasks: [],
+              languageCode: languageCode || 'en', // Save languageCode
           };
           await setDoc(userRef, userData);
           console.log('New user added with chatId:', chatId);
@@ -75,11 +76,19 @@ export async function saveUserByChatId(chatId: string, referrerId?: string, user
           }
       } else {
           console.log('User already exists with chatId:', chatId);
+
+          // Optionally, update the languageCode if it's different
+          const existingData = userSnapshot.data();
+          if (languageCode && existingData.languageCode !== languageCode) {
+              await updateDoc(userRef, { languageCode });
+              console.log(`Updated languageCode for user ${chatId} to ${languageCode}`);
+          }
       }
   } catch (error) {
       console.error('Error saving user by chatId:', error);
   }
 }
+
 
 
 // Update user data
