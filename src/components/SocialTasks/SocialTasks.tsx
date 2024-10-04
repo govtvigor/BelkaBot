@@ -257,7 +257,7 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
                       ? t('tasks.verifying')
                       : task.canVerify
                       ? t('tasks.verify')
-                      : `${t('tasks.verify')} (${task.timer})`}
+                      : ` (${task.timer})`}
                   </button>
                 ) : (
                   <button className="join-button" onClick={() => handleAction(index)}>
