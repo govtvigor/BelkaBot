@@ -9,5 +9,27 @@
         "game": "Game",
         "tasks": "Tasks",
         "profile": "Profile"
-    }
+    },
+    "tasks": {
+    "social_tasks": "Social Tasks",
+    "main_task": "Join Telegram Channel to get 500 NUT points",
+    "second_task": "Join our second channel to get 300 NUT points",
+    "twitter_follow": "Follow us on Twitter to earn 200 NUT points",
+    "twitter_like": "Like our pinned tweet to earn 100 NUT points",
+    "twitter_repost": "Retweet our pinned tweet to earn 150 NUT points",
+    "completed": "Completed",
+    "verify": "Verify",
+    "verifying": "Verifying...",
+    "join": "Join",
+    "follow": "Follow",
+    "like": "Like",
+    "retweet": "Retweet",
+    "error_user_not_authenticated": "User not authenticated.",
+    "error_verifying_subscription": "Failed to verify subscription.",
+    "subscription_verified": "Subscription verified! You have earned {{points}} NUT points.",
+    "not_a_member": "You are not a member of the channel.",
+    "points_earned": "You have earned {{points}} NUT points!",
+    "error_occurred": "An error occurred. Please try again.",
+    "task_channel_image_alt": "Task Channel"
+  }
 }

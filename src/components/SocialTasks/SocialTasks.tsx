@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import "./socialTasks.scss";
 import { ChatIdContext } from "../../client/App";
 import Menu from "../../components/Menu/Menu";
+import { useTranslation } from 'react-i18next';
 import {
   getUserData,
   updateUserTotalPoints,
@@ -30,42 +31,42 @@ interface Task {
 
 const API_BASE_URL = "https://belka-bot.vercel.app/api"; // Ensure this points to your API
 
-// Define your tasks here
+// Define your tasks here with translation keys for descriptions
 const predefinedTasks: Omit<
   Task,
   "taskCompleted" | "hasJoined" | "canVerify" | "timer" | "isLoading" | "type"
 >[] = [
   {
     id: "joinTelegramChannel",
-    description: "Join Telegram Channel to get 500 NUT points",
+    description: "tasks.main_task",
     channelUrl: "https://t.me/squirreala",
     points: 500,
     imageUrl: mainChannelIcon, // Replace with the correct image URL
   },
   {
     id: "joinAnotherChannel",
-    description: "Join our second channel to get 300 NUT points",
+    description: "tasks.second_task",
     channelUrl: "https://t.me/avcryptoo",
     points: 300,
-    imageUrl: secondChannelIcon // Replace with the correct image URL
+    imageUrl: secondChannelIcon, // Replace with the correct image URL
   },
   // Twitter Tasks
   {
     id: "followTwitter",
-    description: "Follow us on Twitter to earn 200 NUT points",
+    description: "tasks.twitter_follow",
     channelUrl: "https://twitter.com/peysubz",
     points: 200,
   },
   {
     id: "likeTweet",
-    description: "Like our pinned tweet to earn 100 NUT points",
+    description: "tasks.twitter_like",
     channelUrl:
       "https://x.com/peysubz/status/1833581877338509620",
     points: 100,
   },
   {
     id: "retweetTweet",
-    description: "Retweet our pinned tweet to earn 150 NUT points",
+    description: "tasks.twitter_repost",
     channelUrl:
       "https://x.com/peysubz/status/1833581877338509620",
     points: 150,
@@ -73,6 +74,7 @@ const predefinedTasks: Omit<
 ];
 
 const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
+  const { t } = useTranslation(); // Initialize the translation function
   const userChatId = useContext(ChatIdContext); // User's Telegram chat ID
   const [tasksState, setTasksState] = useState<Task[]>(
     predefinedTasks.map((task) => ({
@@ -129,7 +131,7 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
   const handleVerify = async (index: number) => {
     const task = tasksState[index];
     if (!userChatId) {
-      alert("User not authenticated.");
+      alert(t('tasks.error_user_not_authenticated') || "User not authenticated.");
       return;
     }
 
@@ -152,7 +154,7 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
 
           if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(errorText || "Failed to verify subscription.");
+            throw new Error(errorText || t('tasks.error_verifying_subscription') || "Failed to verify subscription.");
           }
 
           const data = await response.json();
@@ -165,9 +167,9 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
 
             await updateUserTotalPoints(userChatId, task.points);
             await updateUserTaskCompletion(userChatId, task.id);
-            alert(`Subscription verified! You have earned ${task.points} NUT points.`);
+            alert(t('tasks.subscription_verified', { points: task.points }) || `Subscription verified! You have earned ${task.points} NUT points.`);
           } else {
-            alert("You are not a member of the channel.");
+            alert(t('tasks.not_a_member') || "You are not a member of the channel.");
             setTasksState((prev) => {
               const newTasks = [...prev];
               newTasks[index].canVerify = false;
@@ -185,11 +187,11 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
 
           await updateUserTotalPoints(userChatId, task.points);
           await updateUserTaskCompletion(userChatId, task.id);
-          alert(`You have earned ${task.points} NUT points!`);
+          alert(t('tasks.points_earned', { points: task.points }) || `You have earned ${task.points} NUT points!`);
         }
       } catch (error) {
         console.error("Error verifying task:", error);
-        alert("An error occurred. Please try again.");
+        alert(t('tasks.error_occurred') || "An error occurred. Please try again.");
       } finally {
         setTasksState((prev) => {
           const newTasks = [...prev];
@@ -202,25 +204,24 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
 
   return (
     <div className="social-tasks">
-      <h2>Social Tasks</h2>
+      <h2>{t('tasks.social_tasks')}</h2>
       <div className="tasks-container">
         {tasksState.map((task, index) => (
           <React.Fragment key={task.id}>
             <div className={`task ${task.type}`}>
               <div className="task-text">
-                <p>{task.description}</p>
+                <p>{t(task.description)}</p>
                 {/* Only show image if task is of type telegram and has an imageUrl */}
-                
               </div>
               <div className="task-image-block">
-              {task.type === "telegram" && task.imageUrl && (
-                  <img src={task.imageUrl} alt="Task Channel" className="task-image" />
+                {task.type === "telegram" && task.imageUrl && (
+                  <img src={task.imageUrl} alt={t('tasks.task_channel_image_alt') || "Task Channel"} className="task-image" />
                 )}
               </div>
               <div className="task-button">
                 {task.taskCompleted ? (
                   <button className="completed-button" disabled>
-                    Completed
+                    {t('tasks.completed')}
                   </button>
                 ) : task.hasJoined ? (
                   <button
@@ -229,20 +230,20 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
                     disabled={!task.canVerify || task.isLoading}
                   >
                     {task.isLoading
-                      ? "Verifying..."
+                      ? t('tasks.verifying')
                       : task.canVerify
-                      ? "Verify"
-                      : `Verify (${task.timer})`}
+                      ? t('tasks.verify')
+                      : `${t('tasks.verify')} (${task.timer})`}
                   </button>
                 ) : (
                   <button className="join-button" onClick={() => handleAction(index)}>
                     {task.type === "telegram"
-                      ? "Join"
+                      ? t('tasks.join')
                       : task.id === "followTwitter"
-                      ? "Follow"
+                      ? t('tasks.follow')
                       : task.id === "likeTweet"
-                      ? "Like"
-                      : "Retweet"}
+                      ? t('tasks.like')
+                      : t('tasks.retweet')}
                   </button>
                 )}
               </div>
