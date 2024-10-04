@@ -248,6 +248,20 @@ export const getUserLivesData = async (chatId: string): Promise<{ lives: number;
     throw error;
   }
 };
+export const getUserAccessTokens = async (chatId: string) => {
+  const userDoc = doc(db, "users", chatId);
+  const userSnapshot = await getDoc(userDoc);
+
+  if (!userSnapshot.exists()) {
+    throw new Error("User not found.");
+  }
+
+  const userData = userSnapshot.data();
+  return {
+    accessToken: userData.twitterAccessToken,
+    accessSecret: userData.twitterAccessSecret,
+  };
+};
 
 export const updateUserLives = async (chatId: string, newLives: number): Promise<void> => {
   if (typeof chatId !== 'string' || chatId.trim() === '') {

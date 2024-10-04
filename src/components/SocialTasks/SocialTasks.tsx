@@ -124,6 +124,9 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
               taskCompleted: userData?.completedTasks?.includes(task.id) || false,
             }))
           );
+          if (userData?.twitterUsername) {
+            setTwitterUsername(userData.twitterUsername);
+          }
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
@@ -155,7 +158,7 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
     const payload: any = { chatId: userChatId, taskId: task.id };
     if (task.type === "twitter") {
       if (!twitterUsername.trim()) {
-        alert("Please enter your Twitter username.");
+        alert("Please connect your Twitter account.");
         return;
       }
       payload.twitterUsername = twitterUsername.trim();
@@ -239,18 +242,35 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
     }
   };
 
+  const handleConnectTwitter = () => {
+    // Redirect to your backend endpoint that initiates Twitter OAuth
+    window.location.href = `${API_BASE_URL}/auth/twitter?chatId=${userChatId}`;
+  };
+
+  useEffect(() => {
+    const fetchTwitterUsername = async () => {
+      if (userChatId) {
+        const response = await fetch(`${API_BASE_URL}/getTwitterUsername?chatId=${userChatId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setTwitterUsername(data.username);
+        }
+      }
+    };
+    fetchTwitterUsername();
+  }, [userChatId]);
+
   return (
     <div className="social-tasks">
       <h2>Social Tasks</h2>
 
-      {/* Twitter Username Input */}
-      <div className="twitter-username-input">
-        <input
-          type="text"
-          placeholder="Enter your Twitter username"
-          value={twitterUsername}
-          onChange={(e) => setTwitterUsername(e.target.value)}
-        />
+      {/* Twitter Authentication */}
+      <div className="twitter-auth">
+        {!twitterUsername ? (
+          <button onClick={handleConnectTwitter}>Connect Twitter</button>
+        ) : (
+          <p>Connected as @{twitterUsername}</p>
+        )}
       </div>
 
       <div className="tasks-container">
