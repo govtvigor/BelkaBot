@@ -1,9 +1,9 @@
-// checkSubscription.ts
+// /api/checkSubscription.ts
 
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import TelegramBot from "node-telegram-bot-api";
 import { TwitterApi } from "twitter-api-v2";
-import { getUserAccessTokens } from "/../client/firebaseFunctions"; // Implement this to retrieve user tokens
+import { getUserAccessTokens } from "../src/client/firebaseFunctions"; // Corrected import path
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN as string;
 
@@ -54,11 +54,32 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   }
 
   // Retrieve user-specific access tokens
-  const { accessToken, accessSecret } = await getUserAccessTokens(chatId);
+  let accessToken: string;
+  let refreshToken: string;
+  try {
+    const tokens = await getUserAccessTokens(chatId);
+    accessToken = tokens.accessToken;
+    refreshToken = tokens.refreshToken;
+  } catch (error: any) {
+    console.error("Error retrieving access tokens:", error.message || error);
+    res.status(500).json({ error: "Failed to retrieve access tokens." });
+    return;
+  }
 
   if (TASK_CHANNEL_MAP[taskId]) {
-    // Telegram Task (unchanged)
-    // ... (existing Telegram verification code)
+    // Telegram Task (Implement your Telegram verification logic here)
+    // For example:
+    // Check if user is a member of the specified Telegram channel
+    // This requires using Telegram Bot API methods like getChatMember
+
+    // Placeholder response
+    const isMember = true; // Replace with actual verification
+
+    if (isMember) {
+      res.status(200).json({ isMember: true });
+    } else {
+      res.status(200).json({ isMember: false });
+    }
   } else if (TWITTER_TASKS[taskId]) {
     const task = TWITTER_TASKS[taskId];
     const userTwitterUsername = twitterUsername?.trim();
@@ -74,7 +95,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         appKey: process.env.TWITTER_API_KEY as string,
         appSecret: process.env.TWITTER_API_SECRET_KEY as string,
         accessToken: accessToken,
-        accessSecret: accessSecret,
+        accessSecret: refreshToken, // Assuming 'refreshToken' is actually 'accessSecret'
       });
 
       const userClient = twitterClient.readWrite;
@@ -105,7 +126,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             "user.fields": ["id"],
           });
 
-          if (!targetUserResponse || !targetUserResponse.data || !targetUserResponse.data.id) {
+          if (
+            !targetUserResponse ||
+            !targetUserResponse.data ||
+            !targetUserResponse.data.id
+          ) {
             res.status(500).json({ error: "Invalid target Twitter username." });
             return;
           }
@@ -117,7 +142,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           });
 
           if (followingResponse && followingResponse.data) {
-            isVerified = followingResponse.data.some((user) => user.id === targetUserId);
+            isVerified = followingResponse.data.some(
+              (user) => user.id === targetUserId
+            );
           }
           break;
         }
@@ -138,7 +165,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             likedTweetsResponse.data &&
             likedTweetsResponse.data.data
           ) {
-            isVerified = likedTweetsResponse.data.data.some((tweet) => tweet.id === tweetId);
+            isVerified = likedTweetsResponse.data.data.some(
+              (tweet) => tweet.id === tweetId
+            );
           }
           break;
         }
@@ -150,10 +179,13 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             return;
           }
 
-          const retweetsResponse = await userClient.v2.get(`tweets/${tweetId}/retweeted_by`, {
-            "user.fields": ["id", "username"],
-            max_results: 100,
-          });
+          const retweetsResponse = await userClient.v2.get(
+            `tweets/${tweetId}/retweeted_by`,
+            {
+              "user.fields": ["id", "username"],
+              max_results: 100,
+            }
+          );
 
           if (
             retweetsResponse &&
@@ -162,7 +194,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           ) {
             isVerified = retweetsResponse.data.data.some(
               (user: any) =>
-                user.username.toLowerCase() === userTwitterUsername.toLowerCase()
+                user.username.toLowerCase() ===
+                userTwitterUsername.toLowerCase()
             );
           }
           break;

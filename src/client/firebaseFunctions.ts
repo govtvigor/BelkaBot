@@ -1,8 +1,8 @@
-// firebaseFunctions.ts
+// /client/firebaseFunctions.ts
 
 import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from './firebase';
 import { formatTonAddress } from '../utils/convertAddress';
-import { increment, arrayUnion, orderBy, limit } from 'firebase/firestore';
+import { increment, arrayUnion, orderBy, deleteDoc } from 'firebase/firestore';
 
 export interface LeaderboardEntry {
   chatId: string;     
@@ -81,9 +81,22 @@ export async function saveUserByChatId(chatId: string, referrerId?: string, user
   }
 }
 
-export const updateUserTaskCompletion = async (chatId: string, taskId: string): Promise<void> => {
+
+// Update user data
+export const updateUserData = async (
+  chatId: string,
+  data: Partial<any>
+): Promise<void> => {
+  await updateDoc(doc(db, "users", chatId), data);
+};
+
+// Update task completion status
+export const updateUserTaskCompletion = async (
+  chatId: string,
+  taskId: string
+): Promise<void> => {
   try {
-    const userRef = doc(db, 'users', chatId);
+    const userRef = doc(db, "users", chatId);
     await updateDoc(userRef, {
       completedTasks: arrayUnion(taskId),
     });
@@ -93,7 +106,6 @@ export const updateUserTaskCompletion = async (chatId: string, taskId: string): 
     throw error;
   }
 };
-
 
 const base62Chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -120,7 +132,6 @@ export const getReferralLink = (userChatId: string): string => {
 
   return `https://t.me/${botUsername}?start=${referralCode}`;
 };
-
 
 export const getReferralData = async (userChatId: string): Promise<{
   totalReferrals: number;
@@ -248,6 +259,7 @@ export const getUserLivesData = async (chatId: string): Promise<{ lives: number;
     throw error;
   }
 };
+
 export const getUserAccessTokens = async (chatId: string) => {
   const userDoc = doc(db, "users", chatId);
   const userSnapshot = await getDoc(userDoc);
@@ -257,9 +269,13 @@ export const getUserAccessTokens = async (chatId: string) => {
   }
 
   const userData = userSnapshot.data();
+  if (!userData.twitter || !userData.twitter.accessToken || !userData.twitter.refreshToken) {
+    throw new Error("Twitter tokens are missing for this user.");
+  }
+
   return {
-    accessToken: userData.twitterAccessToken,
-    accessSecret: userData.twitterAccessSecret,
+    accessToken: userData.twitter.accessToken,
+    refreshToken: userData.twitter.refreshToken,
   };
 };
 
@@ -278,6 +294,45 @@ export const updateUserLives = async (chatId: string, newLives: number): Promise
     console.error('Error updating user lives in Firebase:', error);
     throw error;
   }
+};
+
+export const setOAuthState = async (state: string, chatId: string, codeVerifier: string): Promise<void> => {
+  await setDoc(doc(db, "oauthStates", state), {
+    chatId,
+    codeVerifier,
+    createdAt: new Date(),
+  });
+};
+
+// Update getOAuthState to retrieve codeVerifier
+
+export const getOAuthState = async (
+  state: string
+): Promise<{ chatId: string; codeVerifier: string } | null> => {
+  const docSnap = await getDoc(doc(db, "oauthStates", state));
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    await deleteDoc(doc(db, "oauthStates", state)); // Prevent reuse
+    return {
+      chatId: data.chatId || "",
+      codeVerifier: data.codeVerifier || "",
+    };
+  }
+  return null;
+};
+
+// Store user access tokens
+export const storeUserTokens = async (
+  chatId: string,
+  accessToken: string,
+  refreshToken: string
+): Promise<void> => {
+  await updateDoc(doc(db, "users", chatId), {
+    twitter: {
+      accessToken,
+      refreshToken,
+    },
+  });
 };
 
 export const updateUserLivesAndLastResetDate = async (

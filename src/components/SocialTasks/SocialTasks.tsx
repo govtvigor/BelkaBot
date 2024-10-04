@@ -80,12 +80,40 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
       canVerify: true,
       timer: 0,
       isLoading: false,
-      type: task.id.startsWith("joinTelegram") || task.id.startsWith("joinAnotherChannel") ? "telegram" : "twitter",
+      type:
+        task.id.startsWith("joinTelegram") || task.id.startsWith("joinAnotherChannel")
+          ? "telegram"
+          : "twitter",
     }))
   );
 
   // State to store Twitter username
   const [twitterUsername, setTwitterUsername] = useState<string>("");
+
+  useEffect(() => {
+    const fetchTwitterUsername = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const twitterUsernameParam = urlParams.get("twitterUsername");
+
+      if (twitterUsernameParam) {
+        setTwitterUsername(twitterUsernameParam);
+        // Optionally, remove the query parameter from the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      if (userChatId) {
+        try {
+          const userData = await getUserData(userChatId);
+          if (userData?.twitterUsername) {
+            setTwitterUsername(userData.twitterUsername);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    };
+    fetchTwitterUsername();
+  }, [userChatId]);
 
   // Handle cooldown timers for all tasks
   useEffect(() => {
@@ -219,7 +247,9 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
         if (task.type === "telegram") {
           alert("You are not a member of the channel.");
         } else if (task.type === "twitter") {
-          alert("Verification failed. Please ensure you have completed the required actions on Twitter.");
+          alert(
+            "Verification failed. Please ensure you have completed the required actions on Twitter."
+          );
         }
         setTasksState((prev) => {
           const newTasks = [...prev];
@@ -250,7 +280,9 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
   useEffect(() => {
     const fetchTwitterUsername = async () => {
       if (userChatId) {
-        const response = await fetch(`${API_BASE_URL}/getTwitterUsername?chatId=${userChatId}`);
+        const response = await fetch(
+          `${API_BASE_URL}/getTwitterUsername?chatId=${userChatId}`
+        );
         if (response.ok) {
           const data = await response.json();
           setTwitterUsername(data.username);
@@ -287,7 +319,9 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
                   </button>
                 ) : task.hasJoined ? (
                   <button
-                    className={`verify-button ${!task.canVerify ? "disabled" : ""}`}
+                    className={`verify-button ${
+                      !task.canVerify ? "disabled" : ""
+                    }`}
                     onClick={() => handleVerify(index)}
                     disabled={!task.canVerify || task.isLoading}
                   >
