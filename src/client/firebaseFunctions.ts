@@ -35,6 +35,23 @@ export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
     return [];
   }
 };
+export const getUserLanguage = async (chatId: string): Promise<string> => {
+  try {
+    const userRef = doc(db, 'users', chatId);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      return data.languageCode || 'en'; // Return user's language or default to English
+    } else {
+      console.log("No such document for user:", chatId);
+      return 'en'; // Default to English if no data found
+    }
+  } catch (error) {
+    console.error('Error fetching user language from Firebase:', error);
+    return 'en'; // Default to English if there's an error
+  }
+};
 
 export async function saveUserByChatId(chatId: string, referrerId?: string, username?: string, languageCode?: string) {
   try {
