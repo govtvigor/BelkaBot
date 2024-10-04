@@ -162,9 +162,7 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
       window.open(task.channelUrl, "_blank");
 
       // Inform the user
-      alert("After performing the action, your task will be verified and points will be awarded in 10 seconds.");
-
-      // Start a 10-second timer to mark the task as complete
+     
       setTasksState((prev) => {
         const newTasks = [...prev];
         newTasks[index].isLoading = true;

@@ -260,24 +260,7 @@ export const getUserLivesData = async (chatId: string): Promise<{ lives: number;
   }
 };
 
-export const getUserAccessTokens = async (chatId: string) => {
-  const userDoc = doc(db, "users", chatId);
-  const userSnapshot = await getDoc(userDoc);
 
-  if (!userSnapshot.exists()) {
-    throw new Error("User not found.");
-  }
-
-  const userData = userSnapshot.data();
-  if (!userData.twitter || !userData.twitter.accessToken || !userData.twitter.refreshToken) {
-    throw new Error("Twitter tokens are missing for this user.");
-  }
-
-  return {
-    accessToken: userData.twitter.accessToken,
-    refreshToken: userData.twitter.refreshToken,
-  };
-};
 
 export const updateUserLives = async (chatId: string, newLives: number): Promise<void> => {
   if (typeof chatId !== 'string' || chatId.trim() === '') {
@@ -321,19 +304,7 @@ export const getOAuthState = async (
   return null;
 };
 
-// Store user access tokens
-export const storeUserTokens = async (
-  chatId: string,
-  accessToken: string,
-  refreshToken: string
-): Promise<void> => {
-  await updateDoc(doc(db, "users", chatId), {
-    twitter: {
-      accessToken,
-      refreshToken,
-    },
-  });
-};
+
 
 export const updateUserLivesAndLastResetDate = async (
   chatId: string,
