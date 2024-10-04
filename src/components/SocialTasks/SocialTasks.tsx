@@ -232,7 +232,7 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
                     {task.isLoading
                       ? t('tasks.verifying')
                       : task.canVerify
-                      ? t('tasks.verify')
+                      ? ""
                       : `${t('tasks.verify')} (${task.timer})`}
                   </button>
                 ) : (
