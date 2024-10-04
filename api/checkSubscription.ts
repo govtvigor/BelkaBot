@@ -111,25 +111,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       return;
     }
 
-    // Retrieve user Access Token and Access Token Secret from your database
-    const userTokens = await getUserTokens(chatId); // Implement this function based on your storage
-
-    if (!userTokens || !userTokens.accessToken || !userTokens.accessSecret) {
-      res.status(400).json({ error: "Twitter account not connected." });
-      return;
-    }
-
-    // Initialize Twitter client with user-specific tokens
-    const userTwitterClient = new TwitterApi({
-      appKey: process.env.TWITTER_API_KEY as string,
-      appSecret: process.env.TWITTER_API_SECRET_KEY as string,
-      accessToken: userTokens.accessToken,
-      accessSecret: userTokens.accessSecret,
-    }).readOnly;
-
     try {
+      // Initialize Twitter client with app credentials
+      const twitterClient = new TwitterApi(process.env.TWITTER_BEARER_TOKEN as string).readOnly;
+
       // Get user ID from Twitter handle
-      const userResponse = await userTwitterClient.v2.userByUsername(userTwitterUsername, {
+      const userResponse = await twitterClient.v2.userByUsername(userTwitterUsername, {
         "user.fields": ["id", "username"],
       });
 
@@ -151,7 +138,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           }
 
           // Get target user ID
-          const targetUserResponse = await userTwitterClient.v2.userByUsername(targetUsername, {
+          const targetUserResponse = await twitterClient.v2.userByUsername(targetUsername, {
             "user.fields": ["id"],
           });
 
@@ -163,7 +150,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           const targetUserId = targetUserResponse.data.id;
 
           // Check if user follows the target user
-          const followingResponse = await userTwitterClient.v2.following(userId, {
+          const followingResponse = await twitterClient.v2.following(userId, {
             asPaginator: false,
           });
 
@@ -181,7 +168,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           }
 
           // Check if user has liked the tweet
-          const likedTweetsResponse = await userTwitterClient.v2.userLikedTweets(userId, {
+          const likedTweetsResponse = await twitterClient.v2.userLikedTweets(userId, {
             max_results: 100, // Adjust as needed
           });
 
@@ -202,11 +189,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             return;
           }
 
-          // Twitter API v2 does not provide a direct way to check if a user has retweeted a specific tweet
-          // As a workaround, fetch recent retweets of the tweet and check if the user is among them
-
-          // Note: This endpoint may require elevated access
-          const retweetsResponse = await userTwitterClient.v2.get(
+          // Fetch recent retweets of the tweet and check if the user is among them
+          const retweetsResponse = await twitterClient.v2.get(
             `tweets/${tweetId}/retweeted_by`,
             {
               "user.fields": ["id", "username"],
@@ -256,14 +240,3 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     res.status(400).json({ error: "Invalid taskId" });
   }
 };
-
-// Example function to retrieve user tokens
-async function getUserTokens(chatId: string): Promise<{
-  accessToken: string;
-  accessSecret: string;
-} | null> {
-  // Implement this function based on your database or storage solution
-  // Example:
-  // return await db.collection('users').findOne({ chatId })?.tokens || null;
-  return null; // Placeholder
-}
