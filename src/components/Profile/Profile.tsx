@@ -190,27 +190,10 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           </div>
         )}
 
-        {/* Share Link Section */}
-        <div className="share-link-section">
-          <p>{t('profile.share_link')}</p>
-          <button className="share-button">{t('profile.share_button')}</button>
-        </div>
+        
 
-        {/* Total Referrals and Points Earned Section */}
-        <div className="referral-stats-section">
-          <div className="total-referrals">
-            <p>{t('profile.total_refs')}</p>
-          </div>
-          <div className="points-earned">
-            <p>{t('profile.points_earned_ref')}</p>
-          </div>
-        </div>
-
-        {/* Referred Friends Section */}
-        <div className="referred-friends-section">
-          <p>{t('profile.ref_friends')}</p>
-          <p>{t('profile.no_refs')}</p>
-        </div>
+       
+        
       </div>
 
       <div className="squirrel-profile">
