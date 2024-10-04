@@ -23,20 +23,28 @@
       align-items: center;
       justify-content: space-between;
       margin: 20px auto 0px auto;
-      width: 90%;
+      width: 95%;
       padding: 10px 5px 10px 5px;
       border-radius: 20px;
       &-text {
-        width: 70%;
+        width: 65%;
         line-height: 16px;
       }
       p {
-        text-align: justify;
+       
         font-size: 10px;
       }
-  
+      &-image {
+        width: 50px;
+        height: auto;
+        border-radius: 20px;
+        &-block {
+          margin-right: 15px;
+        }
+      }
       button {
         padding: 10px 20px;
+        text-align: center;
         border: none;
         border-radius: 5px;
         cursor: pointer;
@@ -45,6 +53,8 @@
         &.join-button {
           background-color: #0088cc;
           color: #fff;
+          
+          
   
           &:hover {
             background-color: #006699;
@@ -60,6 +70,7 @@
           }
   
           &.disabled {
+            width: 70px;
             background-color: #6c757d;
             cursor: not-allowed;
           }
@@ -69,5 +80,10 @@
   }
 .sep-line {
   border: 2px solid #525252;
+}
+.twitter {
+  .task-text {
+    width: 70%;
+  }
 }
   

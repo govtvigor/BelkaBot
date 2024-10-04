@@ -7,6 +7,8 @@ import {
   updateUserTotalPoints,
   updateUserTaskCompletion,
 } from "../../client/firebaseFunctions";
+import mainChannelIcon from '../../assets/mainChannelAvatar.jpg';
+import secondChannelIcon from '../../assets/secondChannelAvatar.jpg';
 
 interface SocialTaskProps {
   onMenuClick: (screen: "game" | "profile" | "social") => void;
@@ -23,6 +25,7 @@ interface Task {
   timer: number;
   isLoading: boolean;
   type: "telegram" | "twitter";
+  imageUrl?: string; // Optional property for Telegram task images
 }
 
 const API_BASE_URL = "https://belka-bot.vercel.app/api"; // Ensure this points to your API
@@ -37,12 +40,14 @@ const predefinedTasks: Omit<
     description: "Join Telegram Channel to get 500 NUT points",
     channelUrl: "https://t.me/squirreala",
     points: 500,
+    imageUrl: mainChannelIcon, // Replace with the correct image URL
   },
   {
     id: "joinAnotherChannel",
     description: "Join our second channel to get 300 NUT points",
     channelUrl: "https://t.me/avcryptoo",
     points: 300,
+    imageUrl: secondChannelIcon // Replace with the correct image URL
   },
   // Twitter Tasks
   {
@@ -204,6 +209,13 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
             <div className={`task ${task.type}`}>
               <div className="task-text">
                 <p>{task.description}</p>
+                {/* Only show image if task is of type telegram and has an imageUrl */}
+                
+              </div>
+              <div className="task-image-block">
+              {task.type === "telegram" && task.imageUrl && (
+                  <img src={task.imageUrl} alt="Task Channel" className="task-image" />
+                )}
               </div>
               <div className="task-button">
                 {task.taskCompleted ? (
