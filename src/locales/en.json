@@ -31,5 +31,18 @@
     "points_earned": "You have earned {{points}} NUT points!",
     "error_occurred": "An error occurred. Please try again.",
     "task_channel_image_alt": "Task Channel"
+  },
+  "profile": {
+    "friends": "Friends",
+    "shop": "Shop",
+    "rank": "Rank",
+    "top_rank": "You're the top squirrel! 🏆",
+    "share_link": "Share the link & earn",
+    "share_button": "Share",
+    "total_refs": "Total Referrals",
+    "points_earned_ref": "Points Earned",
+    "ref_friends": "Your Referred Friends",
+    "no_refs": "No referrals yet."
   }
+  
 }

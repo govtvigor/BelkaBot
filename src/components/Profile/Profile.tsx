@@ -1,9 +1,7 @@
-// src/components/Profile/Profile.tsx
-
 import React, { useState, useEffect, useContext } from "react";
 import Menu from "../Menu/Menu";
 import "./profile.scss";
-import heartIcon from "../../assets/heart.png";
+import { useTranslation } from 'react-i18next';
 import fireIconGrey from "../../assets/fireIcon-gray.png";
 import fireIconActive from "../../assets/fireIcon.png";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
@@ -15,7 +13,7 @@ import {
   getUserGMData,
   getLeaderboardData,
   LeaderboardEntry,
-  getUserData // Import getUserData
+  getUserData
 } from "../../client/firebaseFunctions";
 import { ChatIdContext } from "../../client/App";
 import { handleGMClick } from "./gmStreakHandler";
@@ -31,6 +29,7 @@ interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
+  const { t } = useTranslation(); // Initialize the translation function
   const [totalScore, setTotalScore] = useState<number>(0);
   const [isGMChecked, setIsGMChecked] = useState<boolean>(false);
   const [gmStreak, setGMStreak] = useState<number>(0);
@@ -88,8 +87,6 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           // Compute rank
           const rank = data.findIndex(entry => entry.chatId === userChatId) + 1;
           setUserRank(rank > 0 ? rank : null);
-          console.log("Leaderboard Data:", data);
-          console.log("User Rank:", rank > 0 ? rank : "Not in Leaderboard");
         })
         .catch((error) => {
           console.error("Error fetching leaderboard data:", error);
@@ -114,8 +111,6 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           const walletAddr = wallet.account.address.toString();
           if (userChatId) {
             await updateUserWallet(userChatId, walletAddr);
-            // Since rank is based on chatId, no need to re-fetch leaderboard
-            // Optionally, you can re-fetch leaderboard if needed
           } else {
             console.error("Chat ID is null, cannot save wallet address.");
           }
@@ -168,8 +163,7 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
             className="friend-button"
             onClick={() => setIsReferralScreenOpen(true)}
           >
-            {/* <img src={friendIcon} alt="Friends" className="friend-icon" /> */}
-            Friends
+            {t('profile.friends')}
           </button>
         </div>
 
@@ -180,20 +174,43 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
             alt="shop-icon"
             className="shop-section-icon"
           />
+          {/* <p>{t('profile.shop')}</p> */}
         </div>
 
-        {/* Updated Leaderboard Rank Section */}
+        {/* Leaderboard Rank Section */}
         {userRank !== null && (
           <div className="leaderboard-rank-section">
             <div className="rank-text">
               {userRank === 1 ? (
-                "You're the top squirrel! 🏆"
+                t('profile.top_rank')
               ) : (
-                `@${username}, Rank: #${userRank}`
+                `@${username}, ${t('profile.rank')}: #${userRank}`
               )}
             </div>
           </div>
         )}
+
+        {/* Share Link Section */}
+        <div className="share-link-section">
+          <p>{t('profile.share_link')}</p>
+          <button className="share-button">{t('profile.share_button')}</button>
+        </div>
+
+        {/* Total Referrals and Points Earned Section */}
+        <div className="referral-stats-section">
+          <div className="total-referrals">
+            <p>{t('profile.total_refs')}</p>
+          </div>
+          <div className="points-earned">
+            <p>{t('profile.points_earned_ref')}</p>
+          </div>
+        </div>
+
+        {/* Referred Friends Section */}
+        <div className="referred-friends-section">
+          <p>{t('profile.ref_friends')}</p>
+          <p>{t('profile.no_refs')}</p>
+        </div>
       </div>
 
       <div className="squirrel-profile">
