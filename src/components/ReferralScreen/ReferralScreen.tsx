@@ -4,6 +4,7 @@ import React, { useState, useEffect, useContext } from "react";
 import "./referralScreen.scss";
 import { ChatIdContext } from "../../client/App";
 import { getReferralData, getReferralLink } from "../../client/firebaseFunctions";
+import { useTranslation } from "react-i18next";
 
 interface ReferralScreenProps {
   onClose: () => void;
@@ -15,6 +16,7 @@ interface ReferralUser {
 }
 
 const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
+  const { t } = useTranslation();
   const userChatId = useContext(ChatIdContext);
   const [referralLink, setReferralLink] = useState<string>("");
   const [totalReferrals, setTotalReferrals] = useState<number>(0);
@@ -58,7 +60,7 @@ const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
   return (
     <div className="referral-screen active">
       <div className="referral-screen-content">
-        <div className="screen-title">Share the link & earn</div>
+        <div className="screen-title">{t('refs.share_link')}</div>
         <button className="close-button" onClick={onClose}>
           X
         </button>
@@ -74,7 +76,7 @@ const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
               title="Click to copy the referral link"
             />
             <button className="share-button" onClick={handleShareLink}>
-              Share
+              {t('refs.share_button')}
             </button>
           </div>
           {copyMessage && <div className="copy-message">{copyMessage}</div>}
@@ -82,16 +84,16 @@ const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
 
         <div className="referral-stats">
           <div className="stat-block">
-            <p>Total Referrals</p>
+            <p>{t('refs.total_refs')}</p>
             <p>{totalReferrals}</p>
           </div>
           <div className="stat-block">
-            <p>Points Earned</p>
+            <p>{t('refs.points_earned_ref')}</p>
             <p>{totalReferralPoints}</p>
           </div>
         </div>
         <div className="referred-users-list">
-          <h3>Your Referred Friends</h3>
+          <h3>{t('refs.ref_friends')}</h3>
           {referredUsers.length > 0 ? (
             referredUsers.map((user, index) => (
               <div key={index} className="referred-user">
@@ -100,7 +102,7 @@ const ReferralScreen: React.FC<ReferralScreenProps> = ({ onClose }) => {
               </div>
             ))
           ) : (
-            <p>No referrals yet.</p>
+            <p className="no-refs">{t('refs.no_refs')}</p>
           )}
         </div>
       </div>

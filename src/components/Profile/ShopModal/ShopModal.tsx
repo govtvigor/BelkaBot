@@ -23,8 +23,8 @@ const ShopModal: React.FC<ShopModalProps> = ({
 }) => {
   const { t } = useTranslation(); // Initialize the translation function
   const landscapes = [
-    { id: 1, name: "Snow Landscape", image: SnowLandscapeIcon },
-    { id: 2, name: "Desert Landscape", image: DesertLandscapeIcon },
+    { id: 1, name: "landscape.snow", image: SnowLandscapeIcon },
+    { id: 2, name: "landscape.desert", image: DesertLandscapeIcon },
   ];
 
   const handleBuyLivesAction = () => {
@@ -47,7 +47,7 @@ const ShopModal: React.FC<ShopModalProps> = ({
           <div className="buy-lives-info">
             <p>{t('profile.lives_title')}</p>
             <button className="buy-button" onClick={handleBuyLivesAction}>
-              {t('profile.buy_lives')}
+              {t('profile.buy')}
             </button>
           </div>
         </div>
@@ -57,17 +57,12 @@ const ShopModal: React.FC<ShopModalProps> = ({
           {landscapes.map((landscape) => (
             <div key={landscape.id} className="landscape-item">
               <div
-                className="landscape-image"
-                style={{
-                  backgroundImage: `url(${landscape.image})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              ></div>
+                className="landscape-image-block"
+              ><img src={landscape.image} alt="" className="landscape-image" /></div>
               <div className="landscape-info">
-                <p className="landscape-name">{landscape.name}</p>
+                <p className="landscape-name">{t(landscape.name)}</p>
                 <p className="multiplier-info">1.5x NUT</p>
-                <button className="buy-button">Buy</button>
+                <button className="buy-button">{t('profile.buy')}</button>
               </div>
             </div>
           ))}

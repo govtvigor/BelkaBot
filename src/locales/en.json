@@ -37,14 +37,21 @@
     "shop": "Shop",
     "rank": "Rank",
     "top_rank": "You're the top squirrel! 🏆",
+    
+    "lives_title": "3 lives",
+    "buy": "Buy"
+  },
+  "landscape": {
+    "snow": "Snow Landscape",
+    "desert": "Desert Landscape"
+  },
+  "refs": {
     "share_link": "Share the link & earn",
     "share_button": "Share",
     "total_refs": "Total Referrals",
     "points_earned_ref": "Points Earned",
     "ref_friends": "Your Referred Friends",
-    "no_refs": "No referrals yet.",
-    "lives_title": "3 lives",
-    "buy_lives": "Buy lives"
+    "no_refs": "No referrals yet."
   }
   
 }

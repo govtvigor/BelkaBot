@@ -147,6 +147,18 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           <TonConnectButton />
         </div>
       </div>
+       {/* {userRank !== null && ( */}
+       <div className="leaderboard-rank-section">
+            <div className="rank-text">
+              {userRank === 1 ? (
+                t('profile.top_rank')
+              ) : (
+                `@${username}Nabuuuuuuu, ${t('profile.rank')}: #${userRank}`
+              )}
+              
+            </div>
+          </div>
+        {/* )} */}
 
       <div className="profile-content">
         <div className="total-points-section">
@@ -155,8 +167,9 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
             <img src={nutIcon} alt="Nut Icon" className="nut-icon-profile" />
           </div>
         </div>
-
-        {/* Friends Section */}
+        
+      </div>
+      <div className="friends-and-shop-container">
         <div className="friend-section">
           <button
             className="friend-button"
@@ -168,32 +181,10 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
 
         {/* Shop Section */}
         <div className="shop-section" onClick={() => setIsShopModalOpen(true)}>
-          <img
-            src={ShopIcon}
-            alt="shop-icon"
-            className="shop-section-icon"
-          />
-          {/* <p>{t('profile.shop')}</p> */}
+          <p>{t('profile.shop')}</p>
         </div>
 
-        {/* Leaderboard Rank Section */}
-        {userRank !== null && (
-          <div className="leaderboard-rank-section">
-            <div className="rank-text">
-              {userRank === 1 ? (
-                t('profile.top_rank')
-              ) : (
-                `@${username}, ${t('profile.rank')}: #${userRank}`
-              )}
-            </div>
-          </div>
-        )}
-
-        
-
-       
-        
-      </div>
+        </div>
 
       <div className="squirrel-profile">
         <img

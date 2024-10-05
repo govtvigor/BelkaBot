@@ -76,7 +76,7 @@ const predefinedTasks: Omit<
 ];
 
 const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
-  const { t } = useTranslation(); // Initialize the translation function
+  const { t } = useTranslation();
   const userChatId = useContext(ChatIdContext); // User's Telegram chat ID
   const [tasksState, setTasksState] = useState<Task[]>(
     predefinedTasks.map((task) => ({
