@@ -147,18 +147,18 @@ const Profile: React.FC<ProfileProps> = ({ onMenuClick }) => {
           <TonConnectButton />
         </div>
       </div>
-       {/* {userRank !== null && ( */}
+       {userRank !== null && (
        <div className="leaderboard-rank-section">
             <div className="rank-text">
               {userRank === 1 ? (
                 t('profile.top_rank')
               ) : (
-                `@${username}Nabuuuuuuu, ${t('profile.rank')}: #${userRank}`
+                `@${username}, ${t('profile.rank')}: #${userRank}`
               )}
               
             </div>
           </div>
-        {/* )} */}
+        )}
 
       <div className="profile-content">
         <div className="total-points-section">
