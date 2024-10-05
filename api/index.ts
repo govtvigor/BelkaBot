@@ -1,7 +1,7 @@
 // index.ts
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import TelegramBot from 'node-telegram-bot-api';
+import TelegramBot, { SendPhotoOptions } from 'node-telegram-bot-api';
 
 import { updateUserLives, saveUserByChatId } from '../src/client/firebaseFunctions';
 
@@ -21,6 +21,9 @@ const decodeBase62 = (str: string): string => {
     }
     return num.toString();
 };
+
+// Path to your welcome image (use a valid HTTPS URL)
+const WELCOME_IMAGE_URL = 'https://belka-bot.vercel.app/welcome.jpg'; // Replace with your actual image URL
 
 export default async (req: VercelRequest, res: VercelResponse) => {
     if (!webhookSet) {
@@ -71,14 +74,17 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                     // Pass languageCode to saveUserByChatId
                     await saveUserByChatId(chatId, referrerId, username, languageCode);
 
-                    await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
+                    // Send Welcome Photo
+                    await bot.sendPhoto(chatId, WELCOME_IMAGE_URL, {
+                        caption: "Welcome! Click 'Play' to start the game!",
                         reply_markup: {
                             inline_keyboard: [[{
                                 text: 'Play',
                                 web_app: { url: `${vercelAppUrl}/?chatId=${chatId}&lang=${languageCode}` } // Pass lang as query parameter
                             }]]
                         },
-                    });
+                    } as SendPhotoOptions);
+
                     return res.status(200).send('OK');
                 } catch (error) {
                     console.error('Error sending message:', error);
