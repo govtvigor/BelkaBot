@@ -71,15 +71,14 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                     // Pass languageCode to saveUserByChatId
                     await saveUserByChatId(chatId, referrerId, username, languageCode);
 
-                    await bot.sendPhoto(chatId, 'blob:https://web.telegram.org/20365cc4-d354-4231-a96a-349ec8d8b8df', {
-                        caption: "Welcome! Click 'Play' to start the game!",
+                    await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
                         reply_markup: {
-                          inline_keyboard: [[{
-                            text: 'Play',
-                            web_app: { url: `${vercelAppUrl}/?chatId=${chatId}&lang=${languageCode}` }
-                          }]]
-                        }
-                      });
+                            inline_keyboard: [[{
+                                text: 'Play',
+                                web_app: { url: `${vercelAppUrl}/?chatId=${chatId}&lang=${languageCode}` } // Pass lang as query parameter
+                            }]]
+                        },
+                    });
                     return res.status(200).send('OK');
                 } catch (error) {
                     console.error('Error sending message:', error);
