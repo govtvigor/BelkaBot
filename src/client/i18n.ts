@@ -15,8 +15,8 @@ i18n
       uk: { translation: uk }
       // Add other languages here
     },
-    lng: 'en',
-    fallbackLng: 'en',
+    lng: 'ru',
+    fallbackLng: 'ru',
     interpolation: {
       escapeValue: false,
     },
