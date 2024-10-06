@@ -50,25 +50,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             const userId = callback_query.from.id;
             const data = callback_query.data;
 
-            if (data === 'subscribe') {
-                try {
-                    const chatMember = await bot.getChatMember(`@${CHANNEL_USERNAME}`, userId);
-                    if (
-                        chatMember.status === 'member' ||
-                        chatMember.status === 'administrator' ||
-                        chatMember.status === 'creator'
-                    ) {
-                        await bot.answerCallbackQuery(callback_query.id, { text: 'Спасибо за подписку!', show_alert: false });
-                        await bot.sendMessage(chatId!, 'Спасибо за подписку на наш канал!');
-                    } else {
-                        await bot.answerCallbackQuery(callback_query.id, { text: 'Пожалуйста, подпишитесь на наш канал.', show_alert: true });
-                    }
-                } catch (error) {
-                    console.error('Error checking subscription:', error);
-                    await bot.answerCallbackQuery(callback_query.id, { text: 'Произошла ошибка. Попробуйте позже.', show_alert: true });
-                }
-                return res.status(200).send('OK');
-            }
+            // Since we changed the button to URL, no need to handle 'subscribe' callback_data
+            return res.status(200).send('OK');
         }
 
         // Command handling logic for messages
@@ -129,7 +112,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                                 [
                                     {
                                         text: 'Subscribe to Channel',
-                                        callback_data: 'subscribe',
+                                        url: `https://t.me/${CHANNEL_USERNAME}`,
                                     },
                                 ],
                             ],

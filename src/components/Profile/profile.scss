@@ -199,6 +199,7 @@
     align-items: center;
     justify-content: space-evenly;
     flex-grow: 0.4;
+    
 
   }
   .shop-section {
@@ -211,7 +212,10 @@
     color: #ffba42;
     border: 2px solid #222; 
     font-family: 'Press Start 2P', sans-serif; 
-    padding: 12px 20px; 
+    padding: 12px 20px;
+    p {
+      font-size: 16px;
+    } 
     
 
     &:active .shop-section-icon,
@@ -232,6 +236,7 @@
     display: flex;
     justify-content: center;
     align-items: flex-end;
+    
   }
 
   .friend-button {
@@ -241,6 +246,7 @@
     font-family: 'Press Start 2P', sans-serif; 
     padding: 12px 20px; 
     border-radius: 4px; 
+    font-size: 16px;
     display: flex;
     height: 45px;
     width: 150px;
