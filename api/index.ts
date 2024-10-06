@@ -11,7 +11,7 @@ const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
 let webhookSet = false;
 
 // Replace with your channel's username (without @)
-const CHANNEL_USERNAME = 'yourchannelusername';
+const CHANNEL_USERNAME = 'squirreala';
 
 // Helper function to decode Base62 referral code
 const decodeBase62 = (str: string): string => {
