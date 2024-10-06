@@ -71,7 +71,23 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                     // Pass languageCode to saveUserByChatId
                     await saveUserByChatId(chatId, referrerId, username, languageCode);
 
-                    await bot.sendMessage(chatId, "Welcome! Click 'Play' to start the game!", {
+                    const welcomeMessage = `Приветствую тебя в "NUTTY CORPORATION", юный грызун!
+
+Сегодня твой первый день на рабочем месте, обустраивайся. Твоей задачей будет добыча орехов для нашей корпорации.
+
+Сколько ты будешь зарабатывать? Это зависит только от тебя бельчонок.
+
+Собирай орешки на самом высоком дереве во вселенной, выполняй задания и приглашай друзей к нам в кампанию, за это ты будешь получать орешки.
+
+В общем. Орехи, орехи и еще раз орехи...
+
+Заходи в нашу рабочую группу по кнопке ниже и следи за новостями.`;
+
+                    const welcomeImageUrl = `${vercelAppUrl}/welcome.jpg`; // Ensure this path is correct
+
+                    await bot.sendPhoto(chatId, welcomeImageUrl, {
+                        caption: welcomeMessage,
+                        parse_mode: 'HTML',
                         reply_markup: {
                             inline_keyboard: [[{
                                 text: 'Play',
