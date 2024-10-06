@@ -10,6 +10,9 @@ const vercelAppUrl = 'https://belka-bot.vercel.app';
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
 let webhookSet = false;
 
+// Replace with your channel's username (without @)
+const CHANNEL_USERNAME = 'yourchannelusername';
+
 // Helper function to decode Base62 referral code
 const decodeBase62 = (str: string): string => {
     const base62Chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -40,6 +43,33 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
         // Log the full request body for debugging
         console.log('Request Body:', JSON.stringify(body, null, 2));
+
+        // Handle callback queries
+        if (callback_query) {
+            const chatId = callback_query.message?.chat?.id;
+            const userId = callback_query.from.id;
+            const data = callback_query.data;
+
+            if (data === 'subscribe') {
+                try {
+                    const chatMember = await bot.getChatMember(`@${CHANNEL_USERNAME}`, userId);
+                    if (
+                        chatMember.status === 'member' ||
+                        chatMember.status === 'administrator' ||
+                        chatMember.status === 'creator'
+                    ) {
+                        await bot.answerCallbackQuery(callback_query.id, { text: 'Спасибо за подписку!', show_alert: false });
+                        await bot.sendMessage(chatId!, 'Спасибо за подписку на наш канал!');
+                    } else {
+                        await bot.answerCallbackQuery(callback_query.id, { text: 'Пожалуйста, подпишитесь на наш канал.', show_alert: true });
+                    }
+                } catch (error) {
+                    console.error('Error checking subscription:', error);
+                    await bot.answerCallbackQuery(callback_query.id, { text: 'Произошла ошибка. Попробуйте позже.', show_alert: true });
+                }
+                return res.status(200).send('OK');
+            }
+        }
 
         // Command handling logic for messages
         if (message && message.text) {
@@ -89,10 +119,20 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                         caption: welcomeMessage,
                         parse_mode: 'HTML',
                         reply_markup: {
-                            inline_keyboard: [[{
-                                text: 'Play',
-                                web_app: { url: `${vercelAppUrl}/?chatId=${chatId}&lang=${languageCode}` } // Pass lang as query parameter
-                            }]]
+                            inline_keyboard: [
+                                [
+                                    {
+                                        text: 'Play',
+                                        web_app: { url: `${vercelAppUrl}/?chatId=${chatId}&lang=${languageCode}` },
+                                    },
+                                ],
+                                [
+                                    {
+                                        text: 'Subscribe to Channel',
+                                        callback_data: 'subscribe',
+                                    },
+                                ],
+                            ],
                         },
                     });
                     return res.status(200).send('OK');
