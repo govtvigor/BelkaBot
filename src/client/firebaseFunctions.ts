@@ -334,7 +334,7 @@ export const getOAuthState = async (
 
 export const updateUserLivesAndLastResetDate = async (
   chatId: string,
-  newLives: number,
+  newLives: number | undefined,
   lastLivesResetDate: string
 ): Promise<void> => {
   if (typeof chatId !== "string" || chatId.trim() === "") {
@@ -343,12 +343,16 @@ export const updateUserLivesAndLastResetDate = async (
 
   try {
     const userRef = doc(db, "users", chatId);
-    await updateDoc(userRef, {
-      lives: newLives,
+    const updateData: any = {
       lastLivesResetDate: lastLivesResetDate,
-    });
+    };
+    if (newLives !== undefined) {
+      updateData.lives = newLives;
+    }
+    await updateDoc(userRef, updateData);
     console.log(
-      `Updated lives for user ${chatId} to ${newLives} and lastLivesResetDate to ${lastLivesResetDate}`
+      `Updated lastLivesResetDate for user ${chatId} to ${lastLivesResetDate}` +
+      (newLives !== undefined ? ` and lives to ${newLives}` : '')
     );
   } catch (error) {
     console.error("Error updating user lives and last reset date in Firebase:", error);

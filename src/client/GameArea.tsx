@@ -18,9 +18,7 @@ import snowBiomeImage from '../assets/snow-biome.png';
 import forestBgImage from '../assets/forest-bg-2.png';
 import transitionBiomeImage from '../assets/transitionForestToSnow.png';
 import SocialTasks from "../components/SocialTasks/SocialTasks";
-
-// **1. Import the loading background image**
-import loadingBackgroundImage from "../assets/loadingBackground.png"; // Ensure this image exists in src/assets/
+import loadingBackgroundImage from "../assets/loadingBackground.png";
 
 const GameArea: React.FC = () => {
   const { state, dispatch, handleScreenClick, generateBranches, maxTime, setIsJumping } = useGameLogic();
@@ -41,33 +39,28 @@ const GameArea: React.FC = () => {
     { image: forestBgImage, points: 0 },
   ];
 
-  // **2. Add Loading States**
-  const [isLoading, setIsLoading] = useState(true); // Controls visibility of loading screen
-  const [fadeOut, setFadeOut] = useState(false); // Controls fade-out effect
+  const [isLoading, setIsLoading] = useState(true);
+  const [fadeOut, setFadeOut] = useState(false);
 
-  // **3. Define setTrunkBottom outside of useEffect**
   const setTrunkBottom = () => {
     const groundImage = groundImageRef.current;
     if (groundImage) {
       const groundHeight = groundImage.clientHeight;
-      console.log(`Setting trunk bottom to: ${groundHeight}px`); // Debugging line
+      console.log(`Setting trunk bottom to: ${groundHeight}px`);
       document.documentElement.style.setProperty('--tree-trunk-bottom', `${groundHeight}px`);
       document.documentElement.style.setProperty('--tree-trunk-bottom-mobile', `${groundHeight}px`);
     }
   };
 
   useEffect(() => {
-    // Start fade-out shortly before loading ends
     const fadeOutTimer = setTimeout(() => {
       setFadeOut(true);
-    }, 4500); // Start fade-out at 4.5 seconds
+    }, 4500);
 
-    // End loading after 5 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 5000); // Total loading duration: 5 seconds
+    }, 5000);
 
-    // Cleanup timers on unmount
     return () => {
       clearTimeout(timer);
       clearTimeout(fadeOutTimer);
@@ -99,14 +92,12 @@ const GameArea: React.FC = () => {
     }
   }, [state.gameStarted]);
 
-  // **4. Recalculate tree position after loading**
   useEffect(() => {
     if (!isLoading) {
       setTrunkBottom();
     }
   }, [isLoading]);
 
-  // Generate branches on mount
   useEffect(() => {
     generateBranches();
   }, [generateBranches]);
@@ -125,15 +116,15 @@ const GameArea: React.FC = () => {
     setIsGroundMovingDown(true);
     setIsTreeMovingUp(true);
 
-    const animationDuration = 1000; // Duration of the jump animation in ms
+    const animationDuration = 1000;
 
     setTimeout(() => {
       setIsJumpingToFirstBranch(false);
-      dispatch(startGame()); // Use the action creator
+      dispatch(startGame());
       setIsGroundMovingDown(false);
       setIsTreeMovingUp(false);
-      setIsGroundHidden(true); // Hide ground-wrapper
-      setIsTreePositionAdjusted(true); // Fix the new position of tree-trunk
+      setIsGroundHidden(true);
+      setIsTreePositionAdjusted(true);
     }, animationDuration);
   }, [state.lives, dispatch]);
 
@@ -145,14 +136,13 @@ const GameArea: React.FC = () => {
     setIsTreePositionAdjusted(false);
 
     dispatch(resetGame());
-    dispatch(setGameOver(false));
+    dispatch(setGameOver(false, 'normal'));
     generateBranches();
   }, [dispatch, generateBranches]);
 
   const handleClick = (event: React.MouseEvent) => {
     const target = event.target as HTMLElement;
 
-    // Check if the clicked element is inside the menu buttons or other UI elements
     if (target.closest(".menu") || target.closest(".menu-buttons button")) {
       event.stopPropagation(); 
       return;
@@ -163,7 +153,6 @@ const GameArea: React.FC = () => {
       const clickX = event.clientX;
       const screenWidth = window.innerWidth;
 
-      // Determine the direction of the jump
       if (clickX < screenWidth / 2) {
         handleScreenClick("left");
       } else {
@@ -172,12 +161,10 @@ const GameArea: React.FC = () => {
     }
   };
 
-  // Update local isJumping state
   useEffect(() => {
     setIsJumpingLocal(state.isJumping);
   }, [state.isJumping]);
 
-  // **5. Render Loading Screen if loading**
   if (isLoading) {
     return (
       <div className={`loading-screen ${fadeOut ? "fade-out" : ""}`}>
@@ -188,13 +175,11 @@ const GameArea: React.FC = () => {
         />
         <h1 className="loading-text">Welcome to Nutty Corporation!</h1>
         <p className="loading-subtext">Get ready to collect some nuts!</p>
-        {/* Optional: Add a spinner or animation */}
         <div className="spinner"></div>
       </div>
     );
   }
 
-  // **6. Render Profile or Social Tasks if selected**
   if (currentScreen === "profile") {
     return <Profile onMenuClick={handleMenuClick} />;
   }
@@ -205,15 +190,14 @@ const GameArea: React.FC = () => {
 
   const spacing = 120;
 
-  // **7. Main Game Render**
   return (
     <div className="game-container">
       <div className="game-area-wrapper">
         <div
           className="background-wrapper"
           style={{
-            transform: `translateY(${backgroundOffsetY}px)`, // Ensures tree moves up
-            transition: 'none', // Remove animation
+            transform: `translateY(${backgroundOffsetY}px)`,
+            transition: 'none',
             height: `${biomes.length * 200}vh`,
           }}
         >
@@ -309,13 +293,22 @@ const GameArea: React.FC = () => {
 
       {state.gameOver && (
         <div className="game-over-screen">
-          <h2>Game Over</h2>
-          <p>Your Score: {state.points}</p>
-          <button onClick={resetGameHandler}>Play Again</button>
+          {state.gameOverReason === 'afk' ? (
+            <>
+              <h2>You were AFK</h2>
+              <p>Please stay active to continue playing!</p>
+            </>
+          ) : (
+            <>
+              <h2>Game Over</h2>
+              <p>Your Score: {state.points}</p>
+              <button onClick={resetGameHandler}>Play Again</button>
+            </>
+          )}
         </div>
       )}
     </div>
   );
 };
 
-export default GameArea; 
+export default GameArea;  

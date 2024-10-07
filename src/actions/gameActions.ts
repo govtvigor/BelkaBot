@@ -86,9 +86,9 @@ export const setScrollOffset = (offset: number) => ({
     payload: offset,
 });
 
-export const setGameOver = (isGameOver: boolean) => ({
+export const setGameOver = (isGameOver: boolean, reason?: 'normal' | 'afk') => ({
     type: 'SET_GAME_OVER' as const,
-    payload: isGameOver,
+    payload: { isGameOver, reason },
 });
 
 export const setBranchPendingRemoval = (pending: boolean) => ({
@@ -96,7 +96,6 @@ export const setBranchPendingRemoval = (pending: boolean) => ({
     payload: pending,
 });
 
-// **New Action**
 export const setCurrentBranchIndex = (index: number) => ({
     type: 'SET_CURRENT_BRANCH_INDEX' as const,
     payload: index,

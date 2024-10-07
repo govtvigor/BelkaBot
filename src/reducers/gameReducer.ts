@@ -10,7 +10,7 @@ import {
   resetGame,
   setLifeDeducted,
   setMenu,
-  setSquirrelSide, 
+  setSquirrelSide,
   startGame,
   updateScrollOffset,
   updateSpeed,
@@ -21,7 +21,7 @@ import {
   setLivesLoading,
   setTimeLeft,
   setBranchPendingRemoval,
-  setCurrentBranchIndex, // Added import
+  setCurrentBranchIndex,
 } from "../actions/gameActions";
 
 export interface Branch {
@@ -48,10 +48,11 @@ export interface GameState {
   bonuses: Bonus[];
   lifeDeducted: boolean;
   gameOver: boolean;
+  gameOverReason?: 'normal' | 'afk';
   isLivesLoading: boolean;
   isJumping: boolean;
   branchPendingRemoval: boolean;
-  currentBranchIndex: number; // Added property
+  currentBranchIndex: number;
 }
 
 export const initialState: GameState = {
@@ -71,7 +72,7 @@ export const initialState: GameState = {
   isLivesLoading: true,
   isJumping: false,
   branchPendingRemoval: false,
-  currentBranchIndex: -1, // Initialized to -1 (no branches interacted with yet)
+  currentBranchIndex: -1,
 };
 
 export type GameAction =
@@ -95,7 +96,7 @@ export type GameAction =
   | ReturnType<typeof setTimeLeft>
   | ReturnType<typeof setLivesLoading>
   | ReturnType<typeof setBranchPendingRemoval>
-  | ReturnType<typeof setCurrentBranchIndex>; // Included new action
+  | ReturnType<typeof setCurrentBranchIndex>;
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -160,10 +161,14 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     case 'SET_LIVES_LOADING':
       return { ...state, isLivesLoading: action.payload };
     case 'SET_GAME_OVER':
-      return { ...state, gameOver: action.payload };
+      return { 
+        ...state, 
+        gameOver: action.payload.isGameOver, 
+        gameOverReason: action.payload.reason 
+      };
     case 'SET_BRANCH_PENDING_REMOVAL':
       return { ...state, branchPendingRemoval: action.payload };
-    case 'SET_CURRENT_BRANCH_INDEX': // Handle new action
+    case 'SET_CURRENT_BRANCH_INDEX':
       return { ...state, currentBranchIndex: action.payload };
     default:
       return state;

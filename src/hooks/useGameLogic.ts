@@ -1,6 +1,8 @@
+// src/hooks/useGameLogic.ts
+
 import { useReducer, useCallback, useEffect, useContext, useRef, useState } from 'react';
 import { gameReducer, initialState } from '../reducers/gameReducer';
-import { setTimeLeft, setGameOver } from '../actions/gameActions';
+import { setTimeLeft, setLivesLoading, setSquirrelSide, setGameOver, startGame, resetGame, deductLife, addPoints, setBranches, setLives, removeBranch, setScrollOffset } from '../actions/gameActions';
 import { ChatIdContext } from '../client/App';
 import { achievements } from '../constants/achievements';
 import {
@@ -12,46 +14,42 @@ import {
   getUserData,
   updateUserAchievements,
 } from '../client/firebaseFunctions';
-import {
-  startGame,
-  resetGame,
-  deductLife,
-  addPoints,
-  setSquirrelSide,
-  setBranches,
-  setGameOver as actionSetGameOver,
-  setLives,
-  setLivesLoading,
-  setScrollOffset,
-  removeBranch, 
-} from '../actions/gameActions';
 
 export const useGameLogic = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const userChatId = useContext(ChatIdContext);
   const timerRef = useRef<number | null>(null);
-  const [maxTime, setMaxTime] = useState(initialState.timeLeft);
   const lastUpdateTimeRef = useRef<number | null>(null);
-  
+  const afkTimerRef = useRef<number | null>(null);
 
-  // Стан для відстеження стрибка
+  const [maxTime, setMaxTime] = useState(initialState.timeLeft);
   const [isJumping, setIsJumping] = useState(false);
 
-  // Timer to decrease time left
+  const resetAfkTimer = useCallback(() => {
+    if (afkTimerRef.current) {
+      clearTimeout(afkTimerRef.current);
+    }
+    afkTimerRef.current = window.setTimeout(() => {
+      dispatch(setGameOver(true, 'afk'));
+    }, 5000);
+  }, [dispatch]);
+
   useEffect(() => {
     if (state.gameStarted && !state.gameOver) {
+      resetAfkTimer();
+
       const gameLoop = (currentTime: number) => {
         if (lastUpdateTimeRef.current === null) {
           lastUpdateTimeRef.current = currentTime;
         }
-        const deltaTime = (currentTime - lastUpdateTimeRef.current) / 1000; // Convert to seconds
+        const deltaTime = (currentTime - lastUpdateTimeRef.current) / 1000;
         lastUpdateTimeRef.current = currentTime;
 
         const newTimeLeft = Math.max(state.timeLeft - deltaTime, 0);
         dispatch(setTimeLeft(newTimeLeft));
 
         if (newTimeLeft <= 0) {
-          dispatch(setGameOver(true));
+          dispatch(setGameOver(true, 'normal'));
           return;
         }
 
@@ -65,18 +63,35 @@ export const useGameLogic = () => {
           cancelAnimationFrame(timerRef.current);
         }
         lastUpdateTimeRef.current = null;
+
+        if (afkTimerRef.current) {
+          clearTimeout(afkTimerRef.current);
+          afkTimerRef.current = null;
+        }
       };
     }
-  }, [state.gameStarted, state.gameOver, state.timeLeft, dispatch]);
+  }, [state.gameStarted, state.gameOver, state.timeLeft, dispatch, resetAfkTimer]);
 
-  // End game when time runs out without deducting a life
+  useEffect(() => {
+    if (state.gameStarted && !state.gameOver) {
+      const handleUserActivity = () => {
+        resetAfkTimer();
+      };
+
+      window.addEventListener('pointerdown', handleUserActivity);
+
+      return () => {
+        window.removeEventListener('pointerdown', handleUserActivity);
+      };
+    }
+  }, [state.gameStarted, state.gameOver, resetAfkTimer]);
+
   useEffect(() => {
     if (state.gameStarted && !state.gameOver && state.timeLeft <= 0) {
-      dispatch(actionSetGameOver(true));
+      dispatch(setGameOver(true, 'normal'));
     }
   }, [state.gameStarted, state.gameOver, state.timeLeft, dispatch]);
 
-  // Generate branches function
   const generateBranches = useCallback(() => {
     const newBranches = [];
     const spacing = 120; 
@@ -88,21 +103,22 @@ export const useGameLogic = () => {
     dispatch(setBranches(newBranches));
   }, [dispatch]);
 
-  // Fetch lives from Firebase
   useEffect(() => {
     const fetchLives = async () => {
       if (userChatId) {
         try {
           const livesData = await getUserLivesData(userChatId);
           if (livesData !== undefined) {
-            // Reset lives if last reset date is not today
             const today = new Date().toDateString();
             let updatedLives = livesData.lives;
 
             if (livesData.lastLivesResetDate !== today) {
-              // Reset lives to 3
-              updatedLives = 3;
-              await updateUserLivesAndLastResetDate(userChatId, updatedLives, today);
+              await updateUserLivesAndLastResetDate(userChatId, undefined, today);
+
+              if (livesData.lives < 3) {
+                updatedLives = 3;
+                await updateUserLives(userChatId, updatedLives);
+              }
             }
 
             dispatch(setLives(updatedLives));
@@ -118,12 +134,10 @@ export const useGameLogic = () => {
     fetchLives();
   }, [userChatId, dispatch]);
 
-  // Handle Game Over when player makes a mistake
   const handleGameOver = useCallback(async () => {
     const newLives = (state.lives || 0) - 1;
-    dispatch(deductLife()); // Decrement lives in the state
+    dispatch(deductLife());
 
-    // Update lives in Firebase
     if (userChatId) {
       try {
         await updateUserLives(userChatId, newLives);
@@ -132,17 +146,14 @@ export const useGameLogic = () => {
       }
     }
 
-    // Update total points and game stats in Firebase
     if (userChatId) {
       try {
         await updateUserTotalPoints(userChatId, state.points);
         await updateUserGameStats(userChatId, state.points);
 
-        // Fetch user data
         const userData = await getUserData(userChatId);
 
         if (userData) {
-          // Check for new achievements
           const unlockedAchievements = achievements.filter(ach => ach.condition(userData));
 
           const newAchievements = unlockedAchievements
@@ -160,12 +171,13 @@ export const useGameLogic = () => {
       }
     }
 
-    dispatch(actionSetGameOver(true));
+    dispatch(setGameOver(true, 'normal'));
   }, [dispatch, state.lives, state.points, userChatId]);
 
-  // Handle screen click
   const handleScreenClick = useCallback(
       (side: 'left' | 'right') => {
+        resetAfkTimer();
+
         if (state.branches.length === 0 || state.gameOver) return;
 
         const currentBranch = state.branches[state.branches.length - 1];
@@ -174,7 +186,7 @@ export const useGameLogic = () => {
         if (correctSide) {
           dispatch(addPoints(1));
           dispatch(setSquirrelSide(side));
-          setIsJumping(true); // Починаємо стрибок
+          setIsJumping(true);
 
           const timeIncrement = Math.max(0.05, 0.5 - state.points / 100);
           const newTimeLeft = state.timeLeft + timeIncrement;
@@ -184,31 +196,26 @@ export const useGameLogic = () => {
             setMaxTime(newTimeLeft);
           }
 
-          // Додаємо нову гілку зверху
           const newSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
-          const newBranch = { side: newSide, top: 0 }; // Починаємо з позиції top = 0
+          const newBranch = { side: newSide, top: 0 };
           let newBranches = [newBranch, ...state.branches];
 
-          // Оновлюємо позиції всіх гілок
-          const spacing = 120; // Відстань між гілками
+          const spacing = 120;
           newBranches = newBranches.map((branch, index) => ({
             ...branch,
             top: index * spacing,
           }));
 
-          // Оновлюємо гілки в стані
           dispatch(setBranches(newBranches));
 
-          // Оновлюємо scrollOffset
           const scrollAmount = spacing - 85;
           const newScrollOffset = state.scrollOffset + scrollAmount;
           dispatch(setScrollOffset(newScrollOffset));
 
-          // Видаляємо гілку після завершення стрибка
           setTimeout(() => {
             dispatch(removeBranch());
-            setIsJumping(false); 
-          }, 300); 
+            setIsJumping(false);
+          }, 300);
         } else {
           handleGameOver();
         }
@@ -222,6 +229,7 @@ export const useGameLogic = () => {
         state.timeLeft,
         maxTime,
         state.scrollOffset,
+        resetAfkTimer,
       ]
   );
 
@@ -232,6 +240,6 @@ export const useGameLogic = () => {
     startGame,
     generateBranches,
     maxTime,
-    setIsJumping, 
+    setIsJumping,
   };
-};
+};  
