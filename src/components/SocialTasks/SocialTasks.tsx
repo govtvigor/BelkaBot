@@ -28,12 +28,12 @@ interface Task {
   timer: number;
   isLoading: boolean;
   type: "telegram" | "twitter";
-  imageUrl?: string; // Optional property for Telegram task images
+  imageUrl?: string; 
 }
 
-const API_BASE_URL = "https://belka-bot.vercel.app/api"; // Ensure this points to your API
+const API_BASE_URL = "https://belka-bot.vercel.app/api"; 
 
-// Define your tasks here with translation keys for descriptions
+
 const predefinedTasks: Omit<
   Task,
   "taskCompleted" | "hasJoined" | "canVerify" | "timer" | "isLoading" | "type"
@@ -43,14 +43,14 @@ const predefinedTasks: Omit<
     description: "tasks.main_task",
     channelUrl: "https://t.me/squirreala",
     points: 500,
-    imageUrl: mainChannelIcon, // Replace with the correct image URL
+    imageUrl: mainChannelIcon, 
   },
   {
     id: "joinAnotherChannel",
     description: "tasks.second_task",
     channelUrl: "https://t.me/avcryptoo",
     points: 300,
-    imageUrl: secondChannelIcon, // Replace with the correct image URL
+    imageUrl: secondChannelIcon, 
   },
   // Twitter Tasks
   {
@@ -109,9 +109,9 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
           return task;
         })
       );
-    }, 1000); // Tick every second
+    }, 1000); 
 
-    // Cleanup interval on component unmount
+    
     return () => clearInterval(timerInterval);
   }, []);
 
