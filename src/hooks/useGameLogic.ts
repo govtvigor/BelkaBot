@@ -208,7 +208,7 @@ export const useGameLogic = () => {
           setTimeout(() => {
             dispatch(removeBranch());
             setIsJumping(false); 
-          }, 100); 
+          }, 300); 
         } else {
           handleGameOver();
         }
