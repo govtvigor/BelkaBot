@@ -1,3 +1,5 @@
+// src/actions/gameActions.ts
+
 import { Branch } from '../reducers/gameReducer';
 
 export const startGame = () => ({
@@ -12,10 +14,11 @@ export const setBranches = (branches: Branch[]) => ({
 export const updateSpeed = () => ({
     type: 'UPDATE_SPEED' as const,
 });
+
 export const setLives = (lives: number) => ({
     type: 'SET_LIVES' as const,
     payload: lives,
-  });
+});
 
 export const decreaseTime = () => ({
     type: 'DECREASE_TIME' as const,
@@ -57,33 +60,44 @@ export const addBranch = (branch: Branch) => ({
 export const removeBranch = () => ({
     type: 'REMOVE_BRANCH' as const,
 });
+
 export const setLivesLoading = (isLoading: boolean) => ({
     type: 'SET_LIVES_LOADING' as const,
     payload: isLoading,
-  });
+});
 
 export const updateScrollOffset = (offset: number) => ({
     type: 'UPDATE_SCROLL_OFFSET' as const,
     payload: offset,
 });
+
 export const setTimeLeft = (time: number) => ({
     type: 'SET_TIME_LEFT' as const,
     payload: time,
-  });
+});
 
 export const setLifeDeducted = (deducted: boolean) => ({
     type: 'SET_LIFE_DEDUCTED' as const,
     payload: deducted,
 });
+
 export const setScrollOffset = (offset: number) => ({
     type: 'SET_SCROLL_OFFSET' as const,
     payload: offset,
-  });
-
+});
 
 export const setGameOver = (isGameOver: boolean) => ({
     type: 'SET_GAME_OVER' as const,
     payload: isGameOver,
-  });
-  
-  
+});
+
+export const setBranchPendingRemoval = (pending: boolean) => ({
+    type: 'SET_BRANCH_PENDING_REMOVAL' as const,
+    payload: pending,
+});
+
+// **New Action**
+export const setCurrentBranchIndex = (index: number) => ({
+    type: 'SET_CURRENT_BRANCH_INDEX' as const,
+    payload: index,
+});

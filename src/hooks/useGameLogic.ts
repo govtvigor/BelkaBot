@@ -1,3 +1,5 @@
+// src/hooks/useGameLogic.tsx
+
 import { useReducer, useCallback, useEffect, useContext, useRef, useState } from 'react';
 import { gameReducer, initialState } from '../reducers/gameReducer';
 import { setTimeLeft, setGameOver } from '../actions/gameActions';
@@ -24,6 +26,8 @@ import {
   setLivesLoading,
   setScrollOffset,
   removeBranch, 
+  setBranchPendingRemoval,
+  setCurrentBranchIndex,
 } from '../actions/gameActions';
 
 export const useGameLogic = () => {
@@ -32,9 +36,8 @@ export const useGameLogic = () => {
   const timerRef = useRef<number | null>(null);
   const [maxTime, setMaxTime] = useState(initialState.timeLeft);
   const lastUpdateTimeRef = useRef<number | null>(null);
-  
 
-  // Стан для відстеження стрибка
+  // State to track jumping
   const [isJumping, setIsJumping] = useState(false);
 
   // Timer to decrease time left
@@ -165,64 +168,65 @@ export const useGameLogic = () => {
 
   // Handle screen click
   const handleScreenClick = useCallback(
-      (side: 'left' | 'right') => {
-        if (state.branches.length === 0 || state.gameOver) return;
+    (side: 'left' | 'right') => {
+      if (state.branches.length === 0 || state.gameOver) return;
 
-        const currentBranch = state.branches[state.branches.length - 1];
-        const correctSide = currentBranch?.side === side;
+      const currentBranch = state.branches[state.branches.length - 1];
+      const correctSide = currentBranch?.side === side;
 
-        if (correctSide) {
-          dispatch(addPoints(1));
-          dispatch(setSquirrelSide(side));
-          setIsJumping(true); // Починаємо стрибок
+      if (correctSide) {
+        dispatch(addPoints(1));
+        dispatch(setSquirrelSide(side));
+        setIsJumping(true); // Start jump
 
-          const timeIncrement = Math.max(0.05, 0.5 - state.points / 100);
-          const newTimeLeft = state.timeLeft + timeIncrement;
-          dispatch(setTimeLeft(newTimeLeft));
+        const timeIncrement = Math.max(0.05, 0.5 - state.points / 100);
+        const newTimeLeft = state.timeLeft + timeIncrement;
+        dispatch(setTimeLeft(newTimeLeft));
 
-          if (newTimeLeft > maxTime) {
-            setMaxTime(newTimeLeft);
-          }
-
-          // Додаємо нову гілку зверху
-          const newSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
-          const newBranch = { side: newSide, top: 0 }; // Починаємо з позиції top = 0
-          let newBranches = [newBranch, ...state.branches];
-
-          // Оновлюємо позиції всіх гілок
-          const spacing = 120; // Відстань між гілками
-          newBranches = newBranches.map((branch, index) => ({
-            ...branch,
-            top: index * spacing,
-          }));
-
-          // Оновлюємо гілки в стані
-          dispatch(setBranches(newBranches));
-
-          // Оновлюємо scrollOffset
-          const scrollAmount = spacing - 85;
-          const newScrollOffset = state.scrollOffset + scrollAmount;
-          dispatch(setScrollOffset(newScrollOffset));
-
-          // Видаляємо гілку після завершення стрибка
-          setTimeout(() => {
-            dispatch(removeBranch());
-            setIsJumping(false); 
-          }, 300); 
-        } else {
-          handleGameOver();
+        if (newTimeLeft > maxTime) {
+          setMaxTime(newTimeLeft);
         }
-      },
-      [
-        state.branches,
-        state.gameOver,
-        state.points,
-        dispatch,
-        handleGameOver,
-        state.timeLeft,
-        maxTime,
-        state.scrollOffset,
-      ]
+
+        // Add a new branch at the top
+        const newSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
+        const newBranch = { side: newSide, top: 0 }; // Start at position top = 0
+        let newBranches = [newBranch, ...state.branches];
+
+        // Update positions of all branches
+        const spacing = 120; // Spacing between branches
+        newBranches = newBranches.map((branch, index) => ({
+          ...branch,
+          top: index * spacing,
+        }));
+
+        // Update branches in state
+        dispatch(setBranches(newBranches));
+
+        // Update scrollOffset
+        const scrollAmount = spacing - 85;
+        const newScrollOffset = state.scrollOffset + scrollAmount;
+        dispatch(setScrollOffset(newScrollOffset));
+
+        // Remove branch after jump
+        setTimeout(() => {
+          dispatch(removeBranch());
+          setIsJumping(false); 
+        }, 300); // 1-second delay
+
+      } else {
+        handleGameOver();
+      }
+    },
+    [
+      state.branches,
+      state.gameOver,
+      state.points,
+      dispatch,
+      handleGameOver,
+      state.timeLeft,
+      maxTime,
+      state.scrollOffset,
+    ]
   );
 
   return {

@@ -1,3 +1,5 @@
+// src/client/GameArea.tsx
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Squirrel from "../components/sprites/Squirrel/Squirrel";
 import Branch from "../components/Branch/Branch";
@@ -27,23 +29,19 @@ const GameArea: React.FC = () => {
   const [isGroundHidden, setIsGroundHidden] = useState(false);
   const [isTreePositionAdjusted, setIsTreePositionAdjusted] = useState(false);
   const [backgroundOffsetY, setBackgroundOffsetY] = useState(0);
-  const [isJumping, setIsJumpingLocal] = useState(false); 
+  const [isJumpingLocal, setIsJumpingLocal] = useState(false); 
 
   const groundImageRef = useRef<HTMLImageElement | null>(null);
   const biomes = [
     { image: snowBiomeImage, points: 50 },
     { image: transitionBiomeImage, points: 40 },
     { image: forestBgImage, points: 0 },
-    
-    
   ];
 
- 
   useEffect(() => {
     setBackgroundOffsetY(state.scrollOffset);
   }, [state.scrollOffset]);
 
-  
   useEffect(() => {
     const groundImage = groundImageRef.current;
     if (groundImage) {
@@ -113,11 +111,11 @@ const GameArea: React.FC = () => {
   const handleClick = (event: React.MouseEvent) => {
     const target = event.target as HTMLElement;
 
-  // Check if the clicked element is inside the menu buttons or other UI elements
-  if (target.closest(".menu") || target.closest(".menu-buttons button")) {
-    event.stopPropagation(); 
-    return;
-  }
+    // Check if the clicked element is inside the menu buttons or other UI elements
+    if (target.closest(".menu") || target.closest(".menu-buttons button")) {
+      event.stopPropagation(); 
+      return;
+    }
     if (!state.gameStarted) {
       handleGameStartWithJump();
     } else {
@@ -133,12 +131,11 @@ const GameArea: React.FC = () => {
     }
   };
 
-  // Передаємо isJumping з useGameLogic до локального стану
+  // Update local isJumping state
   useEffect(() => {
     setIsJumpingLocal(state.isJumping);
   }, [state.isJumping]);
 
-  
   if (currentScreen === "profile") {
     return <Profile onMenuClick={handleMenuClick} />;
   }
@@ -147,15 +144,16 @@ const GameArea: React.FC = () => {
     return <SocialTasks onMenuClick={handleMenuClick} />;
   }
 
-  
+  const spacing = 120;
+
   return (
       <div className="game-container">
         <div className="game-area-wrapper">
         <div
           className="background-wrapper"
           style={{
-            transform: `translateY(${backgroundOffsetY}px)`,
-            transition: 'none', // Убираем анимацию
+            transform: `translateY(${backgroundOffsetY}px)`, // Ensures tree moves up
+            transition: 'none',
             height: `${biomes.length * 200}vh`,
           }}
         >
@@ -218,12 +216,12 @@ const GameArea: React.FC = () => {
             {state.branches.length > 0 && (
                 <div className="branches">
                   {state.branches
-                      .filter((branch, index) => state.gameStarted || index !== state.branches.length - 1)
+                      .slice(state.currentBranchIndex + 1) // Start rendering from the next branch
                       .map((branch: BranchType, index: number) => (
                           <Branch
-                              key={index}
+                              key={index + state.currentBranchIndex + 1}
                               side={branch.side}
-                              top={branch.top}
+                              top={(index) * spacing}
                               onClick={
                                 state.gameStarted
                                     ? (e) => {
@@ -241,15 +239,13 @@ const GameArea: React.FC = () => {
                 position={state.squirrelSide}
                 isInGame={state.gameStarted}
                 isJumpingToFirstBranch={isJumpingToFirstBranch}
-                isJumping={isJumping} 
+                isJumping={isJumpingLocal} 
             />
           </div>
         </div>
 
         {state.inMenu && (
-            
-              <Menu onMenuClick={handleMenuClick} />
-            
+            <Menu onMenuClick={handleMenuClick} />
         )}
 
         {state.gameOver && (

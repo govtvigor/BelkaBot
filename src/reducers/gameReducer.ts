@@ -1,3 +1,5 @@
+// src/reducers/gameReducer.tsx
+
 import {
   addBranch,
   addPoints,
@@ -18,7 +20,8 @@ import {
   setLives,
   setLivesLoading,
   setTimeLeft,
-  
+  setBranchPendingRemoval,
+  setCurrentBranchIndex, // Added import
 } from "../actions/gameActions";
 
 export interface Branch {
@@ -46,7 +49,9 @@ export interface GameState {
   lifeDeducted: boolean;
   gameOver: boolean;
   isLivesLoading: boolean;
-  isJumping: boolean; // Додано
+  isJumping: boolean;
+  branchPendingRemoval: boolean;
+  currentBranchIndex: number; // Added property
 }
 
 export const initialState: GameState = {
@@ -64,7 +69,9 @@ export const initialState: GameState = {
   lifeDeducted: false,
   gameOver: false,
   isLivesLoading: true,
-  isJumping: false, // Додано
+  isJumping: false,
+  branchPendingRemoval: false,
+  currentBranchIndex: -1, // Initialized to -1 (no branches interacted with yet)
 };
 
 export type GameAction =
@@ -86,12 +93,14 @@ export type GameAction =
   | ReturnType<typeof setGameOver>
   | ReturnType<typeof setLives>
   | ReturnType<typeof setTimeLeft>
-  | ReturnType<typeof setLivesLoading>;
+  | ReturnType<typeof setLivesLoading>
+  | ReturnType<typeof setBranchPendingRemoval>
+  | ReturnType<typeof setCurrentBranchIndex>; // Included new action
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case 'START_GAME':
-      return { ...state, gameStarted: true, inMenu: false, gameOver: false };
+      return { ...state, gameStarted: true, inMenu: false, gameOver: false, currentBranchIndex: -1 };
     case 'UPDATE_SPEED':
       return { ...state, speed: Math.min(state.speed + 0.1, 40) };
     case 'SET_TIME_LEFT':
@@ -111,13 +120,14 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         scrollOffset: initialState.scrollOffset,
         bonuses: initialState.bonuses,
         lifeDeducted: initialState.lifeDeducted,
-        // squirrelTop: initialState.squirrelTop,
         inMenu: initialState.inMenu,
-        // Preserve lives and isLivesLoading
+        branchPendingRemoval: false,
+        currentBranchIndex: -1,
+        isJumping: false,
       };
 
     case 'DEDUCT_LIFE':
-      const currentLives = state.lives ?? 0; // If state.lives is null, default to 0
+      const currentLives = state.lives ?? 0;
       const newLives = currentLives - 1;
       return {
         ...state,
@@ -133,14 +143,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, inMenu: action.payload };
     case 'SET_SQUIRREL_SIDE':
       return { ...state, squirrelSide: action.payload };
-      case 'ADD_BRANCH':
-        return { ...state, branches: [action.payload, ...state.branches] };
-      
-      case 'REMOVE_BRANCH':
-        return { ...state, branches: state.branches.slice(0, -1) };
-      
-      case 'SET_BRANCHES':
-        return { ...state, branches: action.payload };
+    case 'ADD_BRANCH':
+      return { ...state, branches: [action.payload, ...state.branches] };
+    case 'REMOVE_BRANCH':
+      return { ...state, branches: state.branches.slice(0, -1) };
+    case 'SET_BRANCHES':
+      return { ...state, branches: action.payload };
     case 'UPDATE_SCROLL_OFFSET':
       return { ...state, scrollOffset: action.payload };
     case 'SET_SCROLL_OFFSET':
@@ -153,7 +161,10 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, isLivesLoading: action.payload };
     case 'SET_GAME_OVER':
       return { ...state, gameOver: action.payload };
-    
+    case 'SET_BRANCH_PENDING_REMOVAL':
+      return { ...state, branchPendingRemoval: action.payload };
+    case 'SET_CURRENT_BRANCH_INDEX': // Handle new action
+      return { ...state, currentBranchIndex: action.payload };
     default:
       return state;
   }

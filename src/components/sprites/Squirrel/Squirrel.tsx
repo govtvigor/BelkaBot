@@ -29,7 +29,7 @@ const Squirrel: React.FC<SquirrelProps> = ({ position, isInGame, isJumpingToFirs
   };
 
   // Determine the bottom position based on whether the squirrel is jumping to the first branch or in-game
-  const bottomPosition = isJumpingToFirstBranch ? '60px' : isInGame ? '60px' : '60px';
+  const bottomPosition = isJumpingToFirstBranch ? '60px' : isInGame ? '50px' : '60px';
 
   return (
       <div
