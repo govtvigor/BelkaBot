@@ -45,6 +45,17 @@ const GameArea: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true); // Controls visibility of loading screen
   const [fadeOut, setFadeOut] = useState(false); // Controls fade-out effect
 
+  // **3. Define setTrunkBottom outside of useEffect**
+  const setTrunkBottom = () => {
+    const groundImage = groundImageRef.current;
+    if (groundImage) {
+      const groundHeight = groundImage.clientHeight;
+      console.log(`Setting trunk bottom to: ${groundHeight}px`); // Debugging line
+      document.documentElement.style.setProperty('--tree-trunk-bottom', `${groundHeight}px`);
+      document.documentElement.style.setProperty('--tree-trunk-bottom-mobile', `${groundHeight}px`);
+    }
+  };
+
   useEffect(() => {
     // Start fade-out shortly before loading ends
     const fadeOutTimer = setTimeout(() => {
@@ -70,16 +81,14 @@ const GameArea: React.FC = () => {
   useEffect(() => {
     const groundImage = groundImageRef.current;
     if (groundImage) {
-      const setTrunkBottom = () => {
-        const groundHeight = groundImage.clientHeight;
-        document.documentElement.style.setProperty('--tree-trunk-bottom', `${groundHeight}px`);
-        document.documentElement.style.setProperty('--tree-trunk-bottom-mobile', `${groundHeight}px`);
+      const handleImageLoad = () => {
+        setTrunkBottom();
       };
 
       if (groundImage.complete) {
         setTrunkBottom();
       } else {
-        groundImage.onload = setTrunkBottom;
+        groundImage.onload = handleImageLoad;
       }
 
       window.addEventListener('resize', setTrunkBottom);
@@ -89,6 +98,13 @@ const GameArea: React.FC = () => {
       };
     }
   }, [state.gameStarted]);
+
+  // **4. Recalculate tree position after loading**
+  useEffect(() => {
+    if (!isLoading) {
+      setTrunkBottom();
+    }
+  }, [isLoading]);
 
   // Generate branches on mount
   useEffect(() => {
@@ -161,7 +177,7 @@ const GameArea: React.FC = () => {
     setIsJumpingLocal(state.isJumping);
   }, [state.isJumping]);
 
-  // **3. Render Loading Screen if loading**
+  // **5. Render Loading Screen if loading**
   if (isLoading) {
     return (
       <div className={`loading-screen ${fadeOut ? "fade-out" : ""}`}>
@@ -178,7 +194,7 @@ const GameArea: React.FC = () => {
     );
   }
 
-  // **4. Render Profile or Social Tasks if selected**
+  // **6. Render Profile or Social Tasks if selected**
   if (currentScreen === "profile") {
     return <Profile onMenuClick={handleMenuClick} />;
   }
@@ -189,7 +205,7 @@ const GameArea: React.FC = () => {
 
   const spacing = 120;
 
-  // **5. Main Game Render**
+  // **7. Main Game Render**
   return (
     <div className="game-container">
       <div className="game-area-wrapper">
@@ -302,4 +318,4 @@ const GameArea: React.FC = () => {
   );
 };
 
-export default GameArea;
+export default GameArea; 
