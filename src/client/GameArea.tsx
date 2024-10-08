@@ -24,6 +24,7 @@ import twitterIcon from "../assets/x.svg";
 import { getUserData, updateUserTutorialCompleted } from "../client/firebaseFunctions";
 import Tutorial from "../components/Tutorial/Tutorial";
 
+
 const GameArea: React.FC = () => {
   const { 
     state, 
@@ -32,9 +33,9 @@ const GameArea: React.FC = () => {
     generateBranches, 
     maxTime, 
     setIsJumping 
-  } = useGameLogic(); // Removed resetAfkTimer from here
-  const [currentScreen, setCurrentScreen] = useState<"game" | "profile" | "social">("game");
+  } = useGameLogic();
 
+  const [currentScreen, setCurrentScreen] = useState<"game" | "profile" | "social">("game");
   const [isJumpingToFirstBranch, setIsJumpingToFirstBranch] = useState(false);
   const [isGroundMovingDown, setIsGroundMovingDown] = useState(false);
   const [isTreeMovingUp, setIsTreeMovingUp] = useState(false);
@@ -340,7 +341,6 @@ const GameArea: React.FC = () => {
                         ? (e) => {
                             e.stopPropagation();
                             handleScreenClick(branch.side);
-                            // No need to reset AFK timer here as it's handled globally
                           }
                         : undefined 
                     }
