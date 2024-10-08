@@ -21,6 +21,8 @@ import SocialTasks from "../components/SocialTasks/SocialTasks";
 import loadingBackgroundImage from "../assets/loadingBackground.png";
 import telegramIcon from "../assets/telegramIcon.svg";
 import twitterIcon from "../assets/x.svg";
+import { getUserData, updateUserTutorialCompleted } from "../client/firebaseFunctions";
+import Tutorial from "../components/Tutorial/Tutorial";
 
 const GameArea: React.FC = () => {
   const { 
@@ -50,6 +52,11 @@ const GameArea: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
+
+  // Tutorial state
+  const [isTutorialCompleted, setIsTutorialCompleted] = useState<boolean | null>(null);
+  const [showTutorial, setShowTutorial] = useState<boolean>(false);
+  const [chatId, setChatId] = useState<string | null>(null);
 
   const setTrunkBottom = () => {
     const groundImage = groundImageRef.current;
@@ -173,7 +180,49 @@ const GameArea: React.FC = () => {
     setIsJumpingLocal(state.isJumping);
   }, [state.isJumping]);
 
-  if (isLoading) {
+  // Tutorial logic
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatIdParam = urlParams.get('chatId');
+    if (chatIdParam) {
+      setChatId(chatIdParam);
+      getUserData(chatIdParam).then(userData => {
+        if (userData) {
+          setIsTutorialCompleted(userData.tutorialCompleted);
+          if (!userData.tutorialCompleted) {
+            setShowTutorial(true);
+          }
+        } else {
+          // If user data not found, assume new user
+          setIsTutorialCompleted(false);
+          setShowTutorial(true);
+        }
+      }).catch(error => {
+        console.error('Error fetching user data:', error);
+        // Handle error, perhaps show an error message
+      });
+    } else {
+      console.error('chatId not found in URL parameters.');
+      // Handle missing chatId, perhaps redirect to an error page
+    }
+  }, []);
+
+  const handleTutorialConfirm = () => {
+    if (chatId) {
+      updateUserTutorialCompleted(chatId).then(() => {
+        setShowTutorial(false);
+        setIsTutorialCompleted(true);
+      }).catch(error => {
+        console.error('Error updating tutorial completion:', error);
+        // Handle error, perhaps notify the user
+      });
+    } else {
+      setShowTutorial(false);
+      setIsTutorialCompleted(true);
+    }
+  };
+
+  if (isLoading || isTutorialCompleted === null) {
     return (
       <div className={`loading-screen ${fadeOut ? "fade-out" : ""}`}>
         <img
@@ -181,22 +230,24 @@ const GameArea: React.FC = () => {
           alt="Loading Background"
           className="loading-background"
         />
-        <div className="loading-text">Welcome to Nutty Corporation!
-        
-        </div>
+        <div className="loading-text">Welcome to Nutty Corporation!</div>
         <p className="loading-subtext">Get ready to collect some nuts!</p>
         
         <div className="spinner"></div>
         <div className="socials">
           <div className="socials-block">
-          <a href="https://t.me/squirreala"><img src={telegramIcon} alt="telegram" /></a>
+            <a href="https://t.me/squirreala"><img src={telegramIcon} alt="telegram" /></a>
           </div>
           <div className="socials-block">
-          <a href="https://twitter.com/peysubz"><img src={twitterIcon} alt="twitter" /></a> 
+            <a href="https://twitter.com/peysubz"><img src={twitterIcon} alt="twitter" /></a> 
           </div>
         </div>
       </div>
     );
+  }
+
+  if (showTutorial) {
+    return <Tutorial onConfirm={handleTutorialConfirm} />;
   }
 
   if (currentScreen === "profile") {

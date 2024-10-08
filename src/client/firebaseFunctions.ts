@@ -66,7 +66,7 @@ export async function saveUserByChatId(chatId: string, referrerId?: string, user
               totalPoints: 0,
               username: username || '',
               referralPoints: 0,
-              referredBy: referrerId || null, // Set referredBy correctly
+              referredBy: referrerId || null, 
               referrals: [],
               referredUsers: {},
               walletAddress: null,
@@ -74,7 +74,8 @@ export async function saveUserByChatId(chatId: string, referrerId?: string, user
               highestScore: 0,
               achievements: [],
               completedTasks: [],
-              languageCode: languageCode || 'en', // Save languageCode
+              languageCode: languageCode || 'en',
+              tutorialCompleted: false, 
           };
           await setDoc(userRef, userData);
           console.log('New user added with chatId:', chatId);
@@ -105,6 +106,20 @@ export async function saveUserByChatId(chatId: string, referrerId?: string, user
       console.error('Error saving user by chatId:', error);
   }
 }
+export const updateUserTutorialCompleted = async (
+  chatId: string
+): Promise<void> => {
+  try {
+    const userRef = doc(db, 'users', chatId);
+    await updateDoc(userRef, {
+      tutorialCompleted: true,
+    });
+    console.log(`Tutorial completed for user ${chatId}`);
+  } catch (error) {
+    console.error('Error updating tutorialCompleted:', error);
+    throw error;
+  }
+};
 
 
 
@@ -126,7 +141,6 @@ export const updateUserTaskCompletion = async (
     await updateDoc(userRef, {
       completedTasks: arrayUnion(taskId),
     });
-    console.log(`Task '${taskId}' marked as completed for user '${chatId}'`);
   } catch (error) {
     console.error(`Error updating task completion for user '${chatId}':`, error);
     throw error;
@@ -146,7 +160,7 @@ const encodeBase62 = (num: number): string => {
 };
 
 export const getReferralLink = (userChatId: string): string => {
-  const botUsername = 'squirrelapp_bot'; // Replace with your bot's username
+  const botUsername = 'squirrelapp_bot'; 
 
   if (!botUsername) {
     console.error("Telegram bot username is not defined.");
@@ -176,7 +190,7 @@ export const getReferralData = async (userChatId: string): Promise<{
       const referredUsers: ReferralUser[] = [];
 
       if (data?.referredUsers) {
-        const referredUsersData = data.referredUsers; // { chatId: bonusPoints }
+        const referredUsersData = data.referredUsers; 
 
         for (const referredUserId in referredUsersData) {
           const bonusPoints = referredUsersData[referredUserId];
@@ -235,7 +249,6 @@ export async function updateUserWallet(chatId: string | null, walletAddress: str
     await updateDoc(userRef, {
       walletAddress: formatTonAddress(walletAddress)
     });
-    console.log('Кошелек успешно обновлен для chatId:', chatId);
   } catch (error) {
     console.error('Ошибка при обновлении данных пользователя:', error);
   }
@@ -298,37 +311,13 @@ export const updateUserLives = async (chatId: string, newLives: number): Promise
     await updateDoc(userRef, {
       lives: newLives,
     });
-    console.log(`Updated lives for user ${chatId} to ${newLives}`);
   } catch (error) {
     console.error('Error updating user lives in Firebase:', error);
     throw error;
   }
 };
 
-export const setOAuthState = async (state: string, chatId: string, codeVerifier: string): Promise<void> => {
-  await setDoc(doc(db, "oauthStates", state), {
-    chatId,
-    codeVerifier,
-    createdAt: new Date(),
-  });
-};
 
-// Update getOAuthState to retrieve codeVerifier
-
-export const getOAuthState = async (
-  state: string
-): Promise<{ chatId: string; codeVerifier: string } | null> => {
-  const docSnap = await getDoc(doc(db, "oauthStates", state));
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    await deleteDoc(doc(db, "oauthStates", state)); // Prevent reuse
-    return {
-      chatId: data.chatId || "",
-      codeVerifier: data.codeVerifier || "",
-    };
-  }
-  return null;
-};
 
 
 
@@ -386,7 +375,6 @@ export const updateUserGMStreak = async (chatId: string, gmStreak: number): Prom
       gmStreak: gmStreak,
       lastGMDate: today,
     });
-    console.log(`Updated GM streak for user ${chatId} to ${gmStreak}`);
   } catch (error) {
     console.error("Error updating GM streak in Firebase:", error);
     throw error;
@@ -421,7 +409,6 @@ export const updateUserTotalPoints = async (chatId: string, pointsToAdd: number)
         [`referredUsers.${chatId}`]: increment(bonusPoints),
       });
     
-      console.log(`Awarded ${bonusPoints} points to referrer ${referrerId}`);
     }
   } catch (error) {
     console.error("Error updating user total points:", error);
