@@ -21,7 +21,14 @@ import SocialTasks from "../components/SocialTasks/SocialTasks";
 import loadingBackgroundImage from "../assets/loadingBackground.png";
 
 const GameArea: React.FC = () => {
-  const { state, dispatch, handleScreenClick, generateBranches, maxTime, setIsJumping } = useGameLogic();
+  const { 
+    state, 
+    dispatch, 
+    handleScreenClick, 
+    generateBranches, 
+    maxTime, 
+    setIsJumping 
+  } = useGameLogic(); // Removed resetAfkTimer from here
   const [currentScreen, setCurrentScreen] = useState<"game" | "profile" | "social">("game");
 
   const [isJumpingToFirstBranch, setIsJumpingToFirstBranch] = useState(false);
@@ -159,6 +166,9 @@ const GameArea: React.FC = () => {
         handleScreenClick("right");
       }
     }
+
+    // Reset AFK timer on any click within the game area
+    // Note: resetAfkTimer is now handled globally via event listeners
   };
 
   useEffect(() => {
@@ -270,6 +280,7 @@ const GameArea: React.FC = () => {
                         ? (e) => {
                             e.stopPropagation();
                             handleScreenClick(branch.side);
+                            // No need to reset AFK timer here as it's handled globally
                           }
                         : undefined 
                     }
@@ -297,6 +308,7 @@ const GameArea: React.FC = () => {
             <>
               <h2>You were AFK</h2>
               <p>Please stay active to continue playing!</p>
+              <button onClick={resetGameHandler}>Play Again</button>
             </>
           ) : (
             <>
@@ -311,4 +323,4 @@ const GameArea: React.FC = () => {
   );
 };
 
-export default GameArea;  
+export default GameArea;

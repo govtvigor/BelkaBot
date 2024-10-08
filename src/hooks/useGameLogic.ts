@@ -2,7 +2,20 @@
 
 import { useReducer, useCallback, useEffect, useContext, useRef, useState } from 'react';
 import { gameReducer, initialState } from '../reducers/gameReducer';
-import { setTimeLeft, setLivesLoading, setSquirrelSide, setGameOver, startGame, resetGame, deductLife, addPoints, setBranches, setLives, removeBranch, setScrollOffset } from '../actions/gameActions';
+import { 
+  setTimeLeft, 
+  setLivesLoading, 
+  setSquirrelSide, 
+  setGameOver, 
+  startGame, 
+  resetGame, 
+  deductLife, 
+  addPoints, 
+  setBranches, 
+  setLives, 
+  removeBranch, 
+  setScrollOffset 
+} from '../actions/gameActions';
 import { ChatIdContext } from '../client/App';
 import { achievements } from '../constants/achievements';
 import {
@@ -26,18 +39,41 @@ export const useGameLogic = () => {
   const [isJumping, setIsJumping] = useState(false);
 
   const resetAfkTimer = useCallback(() => {
+    console.log("AFK timer reset");
     if (afkTimerRef.current) {
       clearTimeout(afkTimerRef.current);
     }
     afkTimerRef.current = window.setTimeout(() => {
+      console.log("User is AFK");
       dispatch(setGameOver(true, 'afk'));
-    }, 5000);
+    }, 5000); // 5 seconds AFK timeout
   }, [dispatch]);
 
   useEffect(() => {
     if (state.gameStarted && !state.gameOver) {
       resetAfkTimer();
 
+      const handleUserActivity = () => {
+        resetAfkTimer();
+      };
+
+      // Add both 'pointerdown' and 'touchstart' event listeners
+      window.addEventListener('pointerdown', handleUserActivity);
+      window.addEventListener('touchstart', handleUserActivity);
+
+      return () => {
+        window.removeEventListener('pointerdown', handleUserActivity);
+        window.removeEventListener('touchstart', handleUserActivity);
+        if (afkTimerRef.current) {
+          clearTimeout(afkTimerRef.current);
+          afkTimerRef.current = null;
+        }
+      };
+    }
+  }, [state.gameStarted, state.gameOver, resetAfkTimer]);
+
+  useEffect(() => {
+    if (state.gameStarted && !state.gameOver) {
       const gameLoop = (currentTime: number) => {
         if (lastUpdateTimeRef.current === null) {
           lastUpdateTimeRef.current = currentTime;
@@ -63,14 +99,9 @@ export const useGameLogic = () => {
           cancelAnimationFrame(timerRef.current);
         }
         lastUpdateTimeRef.current = null;
-
-        if (afkTimerRef.current) {
-          clearTimeout(afkTimerRef.current);
-          afkTimerRef.current = null;
-        }
       };
     }
-  }, [state.gameStarted, state.gameOver, state.timeLeft, dispatch, resetAfkTimer]);
+  }, [state.gameStarted, state.gameOver, state.timeLeft, dispatch]);
 
   useEffect(() => {
     if (state.gameStarted && !state.gameOver) {
@@ -79,9 +110,11 @@ export const useGameLogic = () => {
       };
 
       window.addEventListener('pointerdown', handleUserActivity);
+      window.addEventListener('touchstart', handleUserActivity);
 
       return () => {
         window.removeEventListener('pointerdown', handleUserActivity);
+        window.removeEventListener('touchstart', handleUserActivity);
       };
     }
   }, [state.gameStarted, state.gameOver, resetAfkTimer]);
@@ -175,62 +208,62 @@ export const useGameLogic = () => {
   }, [dispatch, state.lives, state.points, userChatId]);
 
   const handleScreenClick = useCallback(
-      (side: 'left' | 'right') => {
-        resetAfkTimer();
+    (side: 'left' | 'right') => {
+      resetAfkTimer();
 
-        if (state.branches.length === 0 || state.gameOver) return;
+      if (state.branches.length === 0 || state.gameOver) return;
 
-        const currentBranch = state.branches[state.branches.length - 1];
-        const correctSide = currentBranch?.side === side;
+      const currentBranch = state.branches[state.branches.length - 1];
+      const correctSide = currentBranch?.side === side;
 
-        if (correctSide) {
-          dispatch(addPoints(1));
-          dispatch(setSquirrelSide(side));
-          setIsJumping(true);
+      if (correctSide) {
+        dispatch(addPoints(1));
+        dispatch(setSquirrelSide(side));
+        setIsJumping(true);
 
-          const timeIncrement = Math.max(0.05, 0.5 - state.points / 100);
-          const newTimeLeft = state.timeLeft + timeIncrement;
-          dispatch(setTimeLeft(newTimeLeft));
+        const timeIncrement = Math.max(0.05, 0.5 - state.points / 100);
+        const newTimeLeft = state.timeLeft + timeIncrement;
+        dispatch(setTimeLeft(newTimeLeft));
 
-          if (newTimeLeft > maxTime) {
-            setMaxTime(newTimeLeft);
-          }
-
-          const newSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
-          const newBranch = { side: newSide, top: 0 };
-          let newBranches = [newBranch, ...state.branches];
-
-          const spacing = 120;
-          newBranches = newBranches.map((branch, index) => ({
-            ...branch,
-            top: index * spacing,
-          }));
-
-          dispatch(setBranches(newBranches));
-
-          const scrollAmount = spacing - 85;
-          const newScrollOffset = state.scrollOffset + scrollAmount;
-          dispatch(setScrollOffset(newScrollOffset));
-
-          setTimeout(() => {
-            dispatch(removeBranch());
-            setIsJumping(false);
-          }, 300);
-        } else {
-          handleGameOver();
+        if (newTimeLeft > maxTime) {
+          setMaxTime(newTimeLeft);
         }
-      },
-      [
-        state.branches,
-        state.gameOver,
-        state.points,
-        dispatch,
-        handleGameOver,
-        state.timeLeft,
-        maxTime,
-        state.scrollOffset,
-        resetAfkTimer,
-      ]
+
+        const newSide: 'left' | 'right' = Math.random() > 0.5 ? 'left' : 'right';
+        const newBranch = { side: newSide, top: 0 };
+        let newBranches = [newBranch, ...state.branches];
+
+        const spacing = 120;
+        newBranches = newBranches.map((branch, index) => ({
+          ...branch,
+          top: index * spacing,
+        }));
+
+        dispatch(setBranches(newBranches));
+
+        const scrollAmount = spacing - 85;
+        const newScrollOffset = state.scrollOffset + scrollAmount;
+        dispatch(setScrollOffset(newScrollOffset));
+
+        setTimeout(() => {
+          dispatch(removeBranch());
+          setIsJumping(false);
+        }, 300);
+      } else {
+        handleGameOver();
+      }
+    },
+    [
+      state.branches,
+      state.gameOver,
+      state.points,
+      dispatch,
+      handleGameOver,
+      state.timeLeft,
+      maxTime,
+      state.scrollOffset,
+      resetAfkTimer,
+    ]
   );
 
   return {
@@ -241,5 +274,6 @@ export const useGameLogic = () => {
     generateBranches,
     maxTime,
     setIsJumping,
+    resetAfkTimer
   };
-};  
+};
