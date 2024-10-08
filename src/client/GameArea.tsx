@@ -19,6 +19,8 @@ import forestBgImage from '../assets/forest-bg-2.png';
 import transitionBiomeImage from '../assets/transitionForestToSnow.png';
 import SocialTasks from "../components/SocialTasks/SocialTasks";
 import loadingBackgroundImage from "../assets/loadingBackground.png";
+import telegramIcon from "../assets/telegramIcon.svg";
+import twitterIcon from "../assets/x.svg";
 
 const GameArea: React.FC = () => {
   const { 
@@ -53,7 +55,6 @@ const GameArea: React.FC = () => {
     const groundImage = groundImageRef.current;
     if (groundImage) {
       const groundHeight = groundImage.clientHeight;
-      console.log(`Setting trunk bottom to: ${groundHeight}px`);
       document.documentElement.style.setProperty('--tree-trunk-bottom', `${groundHeight}px`);
       document.documentElement.style.setProperty('--tree-trunk-bottom-mobile', `${groundHeight}px`);
     }
@@ -166,9 +167,6 @@ const GameArea: React.FC = () => {
         handleScreenClick("right");
       }
     }
-
-    // Reset AFK timer on any click within the game area
-    // Note: resetAfkTimer is now handled globally via event listeners
   };
 
   useEffect(() => {
@@ -183,9 +181,20 @@ const GameArea: React.FC = () => {
           alt="Loading Background"
           className="loading-background"
         />
-        <h1 className="loading-text">Welcome to Nutty Corporation!</h1>
+        <div className="loading-text">Welcome to Nutty Corporation!
+        
+        </div>
         <p className="loading-subtext">Get ready to collect some nuts!</p>
+        
         <div className="spinner"></div>
+        <div className="socials">
+          <div className="socials-block">
+          <a href="https://t.me/squirreala"><img src={telegramIcon} alt="telegram" /></a>
+          </div>
+          <div className="socials-block">
+          <a href="https://twitter.com/peysubz"><img src={twitterIcon} alt="twitter" /></a> 
+          </div>
+        </div>
       </div>
     );
   }
