@@ -29,14 +29,33 @@ interface Task {
   isLoading: boolean;
   type: "telegram" | "twitter";
   imageUrl?: string; 
+  timerEnd?: number; // Remains number | undefined
 }
 
 const API_BASE_URL = "https://belka-bot.vercel.app/api"; 
 
+const LOCAL_STORAGE_KEY = "socialTasksTimers";
+
+const saveTimerEndToLocalStorage = (taskId: string, timerEnd: number) => {
+  const timers = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "{}");
+  timers[taskId] = timerEnd;
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(timers));
+};
+
+const loadTimerEndFromLocalStorage = (taskId: string): number | undefined => {
+  const timers = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "{}");
+  return timers[taskId] ?? undefined; // Return undefined instead of null
+};
+
+const removeTimerEndFromLocalStorage = (taskId: string) => {
+  const timers = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "{}");
+  delete timers[taskId];
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(timers));
+};
 
 const predefinedTasks: Omit<
   Task,
-  "taskCompleted" | "hasJoined" | "canVerify" | "timer" | "isLoading" | "type"
+  "taskCompleted" | "hasJoined" | "canVerify" | "timer" | "isLoading" | "type" | "timerEnd"
 >[] = [
   {
     id: "joinTelegramChannel",
@@ -78,19 +97,31 @@ const predefinedTasks: Omit<
 const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
   const { t } = useTranslation();
   const userChatId = useContext(ChatIdContext); // User's Telegram chat ID
-  const [tasksState, setTasksState] = useState<Task[]>(
-    predefinedTasks.map((task) => ({
-      ...task,
-      taskCompleted: false,
-      hasJoined: false,
-      canVerify: false,
-      timer: 0,
-      isLoading: false,
-      type:
+
+  const [tasksState, setTasksState] = useState<Task[]>(() =>
+    predefinedTasks.map((task) => {
+      const type: "telegram" | "twitter" =
         task.id.startsWith("joinTelegram") || task.id.startsWith("joinAnotherChannel")
           ? "telegram"
-          : "twitter",
-    }))
+          : "twitter";
+      const timerEnd = loadTimerEndFromLocalStorage(task.id);
+      let timer = 0;
+      let canVerify = false;
+      if (timerEnd && timerEnd > Date.now()) {
+        timer = Math.floor((timerEnd - Date.now()) / 1000);
+        canVerify = true;
+      }
+      return {
+        ...task,
+        taskCompleted: false,
+        hasJoined: false,
+        canVerify: timer > 0 ? true : false,
+        timer: timer,
+        isLoading: false,
+        type,
+        timerEnd: timer > 0 && timerEnd !== undefined ? timerEnd : undefined, // Ensure timerEnd is number or undefined
+      };
+    })
   );
 
   // Effect to handle the countdown timer for tasks
@@ -100,10 +131,20 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
         prevTasks.map((task) => {
           if (task.timer > 0) {
             const newTimer = task.timer - 1;
+            if (newTimer <= 0) {
+              // Timer finished
+              removeTimerEndFromLocalStorage(task.id);
+              return {
+                ...task,
+                timer: 0,
+                canVerify: true,
+                timerEnd: undefined,
+              };
+            }
             return {
               ...task,
               timer: newTimer,
-              canVerify: newTimer === 0 ? true : task.canVerify,
+              // canVerify remains true once timer starts
             };
           }
           return task;
@@ -111,10 +152,10 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
       );
     }, 1000); 
 
-    
     return () => clearInterval(timerInterval);
   }, []);
 
+  // Load user data and update taskCompleted and hasJoined
   useEffect(() => {
     const checkTaskCompletion = async () => {
       if (userChatId) {
@@ -194,10 +235,14 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
             alert(t('tasks.subscription_verified', { points: task.points }) || `Subscription verified! You have earned ${task.points} NUT points.`);
           } else {
             alert(t('tasks.not_a_member') || "You are not a member of the channel.");
+            const timerEnd = Date.now() + 30000; // 30-second timer
             setTasksState((prev) => {
               const newTasks = [...prev];
               newTasks[index].canVerify = false;
-              newTasks[index].timer = 30; // Start a 30-second countdown
+              newTasks[index].timer = 30; // Start at 30 seconds
+              newTasks[index].timerEnd = timerEnd; // Set timerEnd
+              // Save timerEnd to localStorage
+              saveTimerEndToLocalStorage(task.id, timerEnd);
               return newTasks;
             });
           }
@@ -257,7 +302,7 @@ const SocialTasks: React.FC<SocialTaskProps> = ({ onMenuClick }) => {
                       ? t('tasks.verifying')
                       : task.canVerify
                       ? t('tasks.verify')
-                      : ` (${task.timer})`}
+                      : ` (${task.timer})`} {/* Display remaining timer */}
                   </button>
                 ) : (
                   <button className="join-button" onClick={() => handleAction(index)}>
