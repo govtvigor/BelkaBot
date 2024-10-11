@@ -1,0 +1,72 @@
+/* src/components/StoryCard/StoryCard.css */
+
+.story-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    max-width: 600px;
+    margin: 50px auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.story-card h2 {
+    font-size: 28px;
+    margin-bottom: 25px;
+    color: #333333;
+}
+
+.story-card p {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #555555;
+}
+
+.story-card input {
+    width: 120px;
+    padding: 10px;
+    margin-bottom: 25px;
+    border: 2px solid #007bff;
+    border-radius: 6px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.story-card input:focus {
+    outline: none;
+    border-color: #0056b3;
+}
+
+.story-card .options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.option-card {
+    background-color: #f0f8ff;
+    border: 2px solid #007bff;
+    border-radius: 10px;
+    padding: 20px;
+    width: 200px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.option-card:hover {
+    background-color: #e6f2ff;
+    transform: translateY(-5px);
+}
+
+.option-card p {
+    font-size: 16px;
+    color: #007bff;
+    margin: 0;
+}
+
+.error {
+    color: red;
+    margin-bottom: 15px;
+    font-weight: bold;
+}

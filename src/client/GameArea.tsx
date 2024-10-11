@@ -21,9 +21,14 @@ import SocialTasks from "../components/SocialTasks/SocialTasks";
 import loadingBackgroundImage from "../assets/loadingBackground.png";
 import telegramIcon from "../assets/telegramIcon.svg";
 import twitterIcon from "../assets/x.svg";
-import { getUserData, updateUserTutorialCompleted } from "../client/firebaseFunctions";
+import { 
+  getUserData, 
+  updateUserTutorialCompleted, 
+  getActiveStory, 
+  processStoryBets 
+} from "../client/firebaseFunctions";
 import Tutorial from "../components/Tutorial/Tutorial";
-
+import StoryCard from "../components/StoryCard/StoryCard";
 
 const GameArea: React.FC = () => {
   const { 
@@ -42,7 +47,8 @@ const GameArea: React.FC = () => {
   const [isGroundHidden, setIsGroundHidden] = useState(false);
   const [isTreePositionAdjusted, setIsTreePositionAdjusted] = useState(false);
   const [backgroundOffsetY, setBackgroundOffsetY] = useState(0);
-  const [isJumping, setIsJumpingLocal] = useState(false); 
+  const [isJumping, setIsJumpingLocal] = useState(false);
+  const [currentStory, setCurrentStory] = useState<any>(null);
 
   const groundImageRef = useRef<HTMLImageElement | null>(null);
   const biomes = [
@@ -68,6 +74,22 @@ const GameArea: React.FC = () => {
     }
   };
 
+  // Fetch the active story on mount
+  useEffect(() => {
+    const fetchCurrentStory = async () => {
+      try {
+        const story = await getActiveStory();
+        setCurrentStory(story);
+        console.log('Fetched Story:', story); // Debugging
+      } catch (error) {
+        console.error('Error fetching current story:', error);
+      }
+    };
+  
+    fetchCurrentStory();
+  }, []);
+
+  // Handle loading screen
   useEffect(() => {
     const fadeOutTimer = setTimeout(() => {
       setFadeOut(true);
@@ -83,10 +105,12 @@ const GameArea: React.FC = () => {
     };
   }, []);
 
+  // Update background offset based on scroll
   useEffect(() => {
     setBackgroundOffsetY(state.scrollOffset);
   }, [state.scrollOffset]);
 
+  // Set trunk bottom on image load and window resize
   useEffect(() => {
     const groundImage = groundImageRef.current;
     if (groundImage) {
@@ -114,6 +138,7 @@ const GameArea: React.FC = () => {
     }
   }, [isLoading]);
 
+  // Generate branches
   useEffect(() => {
     generateBranches();
   }, [generateBranches]);
@@ -204,7 +229,10 @@ const GameArea: React.FC = () => {
       });
     } else {
       console.error('chatId not found in URL parameters.');
-      // Handle missing chatId, perhaps redirect to an error page
+      // Handle missing chatId, perhaps redirect to an error page or show a message
+      // For now, we'll set chatId to null and show an error
+      setChatId(null);
+      setIsTutorialCompleted(null);
     }
   }, []);
 
@@ -221,6 +249,12 @@ const GameArea: React.FC = () => {
       setShowTutorial(false);
       setIsTutorialCompleted(true);
     }
+  };
+
+  // Function to handle when a user selects an option in StoryCard
+  const handleStoryOptionSelected = () => {
+    // Redirect to SocialTasks screen
+    setCurrentScreen("social");
   };
 
   if (isLoading || isTutorialCompleted === null) {
@@ -263,100 +297,109 @@ const GameArea: React.FC = () => {
 
   return (
     <div className="game-container">
-      <div className="game-area-wrapper">
-        <div
-          className="background-wrapper"
-          style={{
-            transform: `translateY(${backgroundOffsetY}px)`,
-            transition: 'none',
-            height: `${biomes.length * 200}vh`,
-          }}
-        >
-          {biomes.map((biome, index) => (
-            <div
-              key={index}
-              className="background-biome"
-              style={{
-                backgroundImage: `url(${biome.image})`,
-              }}
-            ></div>
-          ))}
-        </div>
-
-        <div
-          className={`game-area ${state.inMenu ? "menu-mode" : "game-mode"}`}
-          onClick={handleClick}
-        >
-          {!state.gameStarted && (
-            <img className="start-text" src={startText} alt="Start Text" />
-          )}
-
-          <div className="tree-wrapper">
-            {!isGroundHidden && (
-              <div className={`ground-wrapper ${isGroundMovingDown ? 'move-down' : ''}`}>
-                <img
-                  src={groundTreeImage}
-                  alt="Ground"
-                  ref={groundImageRef}
-                  style={{ width: '100%', height: 'auto' }}
-                />
-              </div>
-            )}
-            
-            <div
-              className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''} ${isTreeMovingUp ? 'move-up' : ''} ${isTreePositionAdjusted ? 'fixed-position' : ''}`}
-              style={
-                {
-                  '--tree-trunk-translate-y': `${state.scrollOffset % window.innerHeight}px`,
-                  transition: "transform 0.2s ease-out",
-                } as React.CSSProperties
-              }
-            />
+      {/* Show StoryCard if there's an active story */}
+      {currentStory ? (
+        <StoryCard
+          story={currentStory}
+          chatId={chatId!} // Assuming chatId is not null here
+          onSelectOption={handleStoryOptionSelected}
+        />
+      ) : (
+        <div className="game-area-wrapper">
+          <div
+            className="background-wrapper"
+            style={{
+              transform: `translateY(${backgroundOffsetY}px)`,
+              transition: 'none',
+              height: `${biomes.length * 200}vh`,
+            }}
+          >
+            {biomes.map((biome, index) => (
+              <div
+                key={index}
+                className="background-biome"
+                style={{
+                  backgroundImage: `url(${biome.image})`,
+                }}
+              ></div>
+            ))}
           </div>
 
-          {state.isLivesLoading ? (
-            <div>Loading lives...</div>
-          ) : (
-            <Lives lives={state.lives} />
-          )}
+          <div
+            className={`game-area ${state.inMenu ? "menu-mode" : "game-mode"}`}
+            onClick={handleClick}
+          >
+            {!state.gameStarted && (
+              <img className="start-text" src={startText} alt="Start Text" />
+            )}
 
-          {state.gameStarted && (
-            <div className="timer-score-container">
-              <Timer timeLeft={state.timeLeft} maxTime={maxTime} />
-              <Score points={state.points} />
-            </div>
-          )}
-
-          {state.branches.length > 0 && (
-            <div className="branches">
-              {state.branches
-                .filter((branch, index) => state.gameStarted || index !== state.branches.length - 1)
-                .map((branch: BranchType, index: number) => (
-                  <Branch
-                    key={index}
-                    side={branch.side}
-                    top={branch.top}
-                    onClick={
-                      state.gameStarted
-                        ? (e) => {
-                            e.stopPropagation();
-                            handleScreenClick(branch.side);
-                          }
-                        : undefined 
-                    }
+            <div className="tree-wrapper">
+              {!isGroundHidden && (
+                <div className={`ground-wrapper ${isGroundMovingDown ? 'move-down' : ''}`}>
+                  <img
+                    src={groundTreeImage}
+                    alt="Ground"
+                    ref={groundImageRef}
+                    style={{ width: '100%', height: 'auto' }}
                   />
-                ))}
+                </div>
+              )}
+              
+              <div
+                className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''} ${isTreeMovingUp ? 'move-up' : ''} ${isTreePositionAdjusted ? 'fixed-position' : ''}`}
+                style={
+                  {
+                    '--tree-trunk-translate-y': `${state.scrollOffset % window.innerHeight}px`,
+                    transition: "transform 0.2s ease-out",
+                  } as React.CSSProperties
+                }
+              />
             </div>
-          )}
 
-          <Squirrel
-            position={state.squirrelSide}
-            isInGame={state.gameStarted}
-            isJumpingToFirstBranch={isJumpingToFirstBranch}
-            isJumping={isJumping} 
-          />
+            {state.isLivesLoading ? (
+              <div>Loading lives...</div>
+            ) : (
+              <Lives lives={state.lives} />
+            )}
+
+            {state.gameStarted && (
+              <div className="timer-score-container">
+                <Timer timeLeft={state.timeLeft} maxTime={maxTime} />
+                <Score points={state.points} />
+              </div>
+            )}
+
+            {state.branches.length > 0 && (
+              <div className="branches">
+                {state.branches
+                  .filter((branch, index) => state.gameStarted || index !== state.branches.length - 1)
+                  .map((branch: BranchType, index: number) => (
+                    <Branch
+                      key={index}
+                      side={branch.side}
+                      top={branch.top}
+                      onClick={
+                        state.gameStarted
+                          ? (e) => {
+                              e.stopPropagation();
+                              handleScreenClick(branch.side);
+                            }
+                          : undefined 
+                      }
+                    />
+                  ))}
+              </div>
+            )}
+
+            <Squirrel
+              position={state.squirrelSide}
+              isInGame={state.gameStarted}
+              isJumpingToFirstBranch={isJumpingToFirstBranch}
+              isJumping={isJumping} 
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {state.inMenu && (
         <Menu onMenuClick={handleMenuClick} />

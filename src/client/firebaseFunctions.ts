@@ -2,7 +2,7 @@
 
 import { db, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from './firebase';
 import { formatTonAddress } from '../utils/convertAddress';
-import { increment, arrayUnion, orderBy, deleteDoc } from 'firebase/firestore';
+import { increment, arrayUnion, orderBy, deleteDoc, Timestamp, addDoc, writeBatch } from 'firebase/firestore';
 
 export interface LeaderboardEntry {
   chatId: string;     
@@ -14,6 +14,67 @@ export interface ReferralUser {
   pointsEarned: number;
 }
 
+export const saveUserBet = async (
+  chatId: string,
+  storyId: string,
+  selectedOption: string,
+  betAmount: number
+): Promise<void> => {
+  try {
+    const userRef = doc(db, 'users', chatId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      throw new Error('User does not exist');
+    }
+
+    const userData = userSnap.data();
+    const currentPoints = userData.totalPoints || 0;
+
+    if (currentPoints < betAmount) {
+      throw new Error('Insufficient points to place bet');
+    }
+
+    // Deduct the bet amount from the user's totalPoints
+    await updateDoc(userRef, {
+      totalPoints: increment(-betAmount),
+    });
+
+    const betsCollection = collection(db, 'storyBets');
+    await addDoc(betsCollection, {
+      chatId,
+      storyId,
+      selectedOption,
+      betAmount,
+      processed: false,
+      timestamp: Timestamp.now(),
+    });
+  } catch (error) {
+    console.error('Error saving user bet:', error);
+    throw error;
+  }
+};
+export const getUserBet = async (chatId: string, storyId: string): Promise<any> => {
+  try {
+    const betsCollection = collection(db, 'storyBets');
+    const betsQuery = query(
+      betsCollection,
+      where('chatId', '==', chatId),
+      where('storyId', '==', storyId)
+    );
+
+    const betsSnapshot = await getDocs(betsQuery);
+
+    if (!betsSnapshot.empty) {
+      return betsSnapshot.docs[0].data();
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching user bet:', error);
+    throw error;
+  }
+};
 export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
   try {
     const usersCollection = collection(db, 'users');
@@ -33,6 +94,88 @@ export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
   } catch (error) {
     console.error("Error fetching leaderboard data:", error);
     return [];
+  }
+};
+
+export const getActiveStory = async (): Promise<any> => {
+  try {
+    const storiesCollection = collection(db, 'stories');
+    const storyQuery = query(
+      storiesCollection,
+      where('isActive', '==', true)
+    );
+
+    const storiesSnapshot = await getDocs(storyQuery);
+
+    if (!storiesSnapshot.empty) {
+      const storyDoc = storiesSnapshot.docs[0];
+      return { id: storyDoc.id, ...storyDoc.data() };
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching active story:', error);
+    throw error;
+  }
+};
+export const processStoryBets = async (storyId: string): Promise<void> => {
+  try {
+    // Fetch the story to get the correctOption
+    const storyRef = doc(db, 'stories', storyId);
+    const storySnap = await getDoc(storyRef);
+
+    if (!storySnap.exists()) {
+      throw new Error('Story does not exist');
+    }
+
+    const storyData = storySnap.data();
+    const correctOption = storyData.correctOption;
+
+    if (!correctOption) {
+      throw new Error('Story correctOption is not set');
+    }
+
+    // Fetch all unprocessed bets for this story
+    const betsCollection = collection(db, 'storyBets');
+    const betsQuery = query(
+      betsCollection,
+      where('storyId', '==', storyId),
+      where('processed', '==', false)
+    );
+
+    const betsSnapshot = await getDocs(betsQuery);
+
+    // Process each bet using writeBatch
+    const batch = writeBatch(db); // Use writeBatch instead of db.batch()
+
+    betsSnapshot.forEach((betDoc) => {
+      const betData = betDoc.data();
+      const userRef = doc(db, 'users', betData.chatId);
+
+      if (betData.selectedOption === correctOption) {
+        // User wins, award 2x bet amount
+        batch.update(userRef, {
+          totalPoints: increment(betData.betAmount * 2),
+        });
+      }
+
+      // Mark the bet as processed
+      batch.update(betDoc.ref, {
+        processed: true,
+      });
+    });
+
+    // Commit the batch
+    await batch.commit();
+
+    // Mark the story as processed
+    await updateDoc(storyRef, {
+      processed: true,
+    });
+
+  } catch (error) {
+    console.error('Error processing story bets:', error);
+    throw error;
   }
 };
 export const getUserLanguage = async (chatId: string): Promise<string> => {
