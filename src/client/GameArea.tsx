@@ -265,152 +265,168 @@ const GameArea: React.FC = () => {
     setCurrentScreen("social");
   };
 
-  // Centralized rendering based on currentScreen
-  if (isLoading || isTutorialCompleted === null) {
-    return (
-      <div className={`loading-screen ${fadeOut ? "fade-out" : ""}`}>
-        <img
-          src={loadingBackgroundImage}
-          alt="Loading Background"
-          className="loading-background"
-        />
-        <div className="loading-text">Welcome to Nutty Corporation!</div>
-        <p className="loading-subtext">Get ready to collect some nuts!</p>
-        
-        <div className="spinner"></div>
-        <div className="socials">
-          <div className="socials-block">
-            <a href="https://t.me/squirreala"><img src={telegramIcon} alt="telegram" /></a>
-          </div>
-          <div className="socials-block">
-            <a href="https://twitter.com/peysubz"><img src={twitterIcon} alt="twitter" /></a> 
+  // Main render
+  return (
+    <div className="game-container">
+      {/* Loading Screen */}
+      {isLoading && isTutorialCompleted === null && (
+        <div className={`loading-screen ${fadeOut ? "fade-out" : ""}`}>
+          <img
+            src={loadingBackgroundImage}
+            alt="Loading Background"
+            className="loading-background"
+          />
+          <div className="loading-text">Welcome to Nutty Corporation!</div>
+          <p className="loading-subtext">Get ready to collect some nuts!</p>
+          
+          <div className="spinner"></div>
+          <div className="socials">
+            <div className="socials-block">
+              <a href="https://t.me/squirreala"><img src={telegramIcon} alt="telegram" /></a>
+            </div>
+            <div className="socials-block">
+              <a href="https://twitter.com/peysubz"><img src={twitterIcon} alt="twitter" /></a> 
+            </div>
           </div>
         </div>
-      </div>
-    );
-  }
+      )}
 
-  if (showTutorial) {
-    return <Tutorial onConfirm={handleTutorialConfirm} />;
-  }
+      {/* Tutorial */}
+      {!isLoading && showTutorial && (
+        <Tutorial onConfirm={handleTutorialConfirm} />
+      )}
 
-  switch (currentScreen) {
-    case "story":
-      if (currentStory) {
-        return (
-          <div className="story-page-container">
-            <StoryPage
-              story={currentStory}
-              chatId={chatId!} // Assuming chatId is not null here
-              onBetPlaced={handleStoryOptionSelected}
-              onMenuClick={handleMenuClick} // Pass the handler
-            />
-            {/* Menu is now inside StoryPage */}
-          </div>
-        );
-      } else {
-        return <div className="error-message">No active story available.</div>;
-      }
-    case "game":
-      return (
-        <div className="game-container">
-          {/* Render the actual game */}
-          <div className="game-area-wrapper">
-            <div
-              className="background-wrapper"
-              style={{
-                transform: `translateY(${backgroundOffsetY}px)`,
-                transition: 'none',
-                height: `${biomes.length * 200}vh`,
-              }}
-            >
-              {biomes.map((biome, index) => (
-                <div
-                  key={index}
-                  className="background-biome"
-                  style={{
-                    backgroundImage: `url(${biome.image})`,
-                  }}
-                ></div>
-              ))}
-            </div>
+      {/* Main Content */}
+      {!isLoading && !showTutorial && (
+        <>
+          {/* Render Menu if not in "game" screen */}
+          {/* {currentScreen !== "game" && (
+            
+          )} */}
 
-            <div
-              className={`game-area ${state.inMenu ? "menu-mode" : "game-mode"}`}
-              onClick={handleClick}
-            >
-              {!state.gameStarted && (
-                <img className="start-text" src={startText} alt="Start Text" />
-              )}
-
-              <div className="tree-wrapper">
-                {!isGroundHidden && (
-                  <div className={`ground-wrapper ${isGroundMovingDown ? 'move-down' : ''}`}>
-                    <img
-                      src={groundTreeImage}
-                      alt="Ground"
-                      ref={groundImageRef}
-                      style={{ width: '100%', height: 'auto' }}
-                    />
-                  </div>
-                )}
-                
-                <div
-                  className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''} ${isTreeMovingUp ? 'move-up' : ''} ${isTreePositionAdjusted ? 'fixed-position' : ''}`}
-                  style={
-                    {
-                      '--tree-trunk-translate-y': `${state.scrollOffset % window.innerHeight}px`,
-                      transition: "transform 0.2s ease-out",
-                    } as React.CSSProperties
-                  }
-                />
-              </div>
-
-              {state.isLivesLoading ? (
-                <div>Loading lives...</div>
-              ) : (
-                <Lives lives={state.lives} />
-              )}
-
-              {state.gameStarted && (
-                <div className="timer-score-container">
-                  <Timer timeLeft={state.timeLeft} maxTime={maxTime} />
-                  <Score points={state.points} />
-                </div>
-              )}
-
-              {state.branches.length > 0 && (
-                <div className="branches">
-                  {state.branches
-                    .filter((branch, index) => state.gameStarted || index !== state.branches.length - 1)
-                    .map((branch: BranchType, index: number) => (
-                      <Branch
-                        key={index}
-                        side={branch.side}
-                        top={branch.top}
-                        onClick={
-                          state.gameStarted
-                            ? (e) => {
-                                e.stopPropagation();
-                                handleScreenClick(branch.side);
-                              }
-                            : undefined 
-                        }
-                      />
-                    ))}
-                </div>
-              )}
-
-              <Squirrel
-                position={state.squirrelSide}
-                isInGame={state.gameStarted}
-                isJumpingToFirstBranch={isJumpingToFirstBranch}
-                isJumping={isJumping} 
+          {/* Render StoryPage */}
+          {currentScreen === "story" && currentStory && (
+            <div className="story-page-container">
+              <StoryPage
+                story={currentStory}
+                chatId={chatId!} // Assuming chatId is not null here
+                onBetPlaced={handleStoryOptionSelected}
+                onMenuClick={handleMenuClick} // Pass the handler
               />
             </div>
-          </div>
-          {/* Remove Menu from the "game" screen */}
-          {/* <Menu onMenuClick={handleMenuClick} /> */}
+          )}
+
+          {/* Render Profile */}
+          {currentScreen === "profile" && (
+            <Profile onMenuClick={handleMenuClick} />
+          )}
+
+          {/* Render SocialTasks */}
+          {currentScreen === "social" && (
+            <SocialTasks onMenuClick={handleMenuClick} />
+          )}
+
+          {/* Render Game */}
+          {currentScreen === "game" && (
+            <div className="game-area-wrapper">
+              <div
+                className="background-wrapper"
+                style={{
+                  transform: `translateY(${backgroundOffsetY}px)`,
+                  transition: 'none',
+                  height: `${biomes.length * 200}vh`,
+                }}
+              >
+                {biomes.map((biome, index) => (
+                  <div
+                    key={index}
+                    className="background-biome"
+                    style={{
+                      backgroundImage: `url(${biome.image})`,
+                    }}
+                  ></div>
+                ))}
+              </div>
+
+              <div
+                className={`game-area ${state.inMenu ? "menu-mode" : "game-mode"}`}
+                onClick={handleClick}
+              >
+                {!state.gameStarted && (
+                  <img className="start-text" src={startText} alt="Start Text" />
+                )}
+
+                <div className="tree-wrapper">
+                  {!isGroundHidden && (
+                    <div className={`ground-wrapper ${isGroundMovingDown ? 'move-down' : ''}`}>
+                      <img
+                        src={groundTreeImage}
+                        alt="Ground"
+                        ref={groundImageRef}
+                        style={{ width: '100%', height: 'auto' }}
+                      />
+                    </div>
+                  )}
+                  
+                  <div
+                    className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''} ${isTreeMovingUp ? 'move-up' : ''} ${isTreePositionAdjusted ? 'fixed-position' : ''}`}
+                    style={
+                      {
+                        '--tree-trunk-translate-y': `${state.scrollOffset % window.innerHeight}px`,
+                        transition: "transform 0.2s ease-out",
+                      } as React.CSSProperties
+                    }
+                  />
+                </div>
+
+                {state.isLivesLoading ? (
+                  <div>Loading lives...</div>
+                ) : (
+                  <Lives lives={state.lives} />
+                )}
+
+                {state.gameStarted && (
+                  <div className="timer-score-container">
+                    <Timer timeLeft={state.timeLeft} maxTime={maxTime} />
+                    <Score points={state.points} />
+                  </div>
+                )}
+
+                {state.branches.length > 0 && (
+                  <div className="branches">
+                    {state.branches
+                      .filter((branch, index) => state.gameStarted || index !== state.branches.length - 1)
+                      .map((branch: BranchType, index: number) => (
+                        <Branch
+                          key={index}
+                          side={branch.side}
+                          top={branch.top}
+                          onClick={
+                            state.gameStarted
+                              ? (e) => {
+                                  e.stopPropagation();
+                                  handleScreenClick(branch.side);
+                                }
+                              : undefined 
+                          }
+                        />
+                      ))}
+                  </div>
+                )}
+                <Menu onMenuClick={handleMenuClick} />
+
+                <Squirrel
+                  position={state.squirrelSide}
+                  isInGame={state.gameStarted}
+                  isJumpingToFirstBranch={isJumpingToFirstBranch}
+                  isJumping={isJumping} 
+                />
+              </div>
+              
+            </div>
+          )}
+
+          {/* Render Game Over Screen */}
           {state.gameOver && (
             <div className="game-over-screen">
               {state.gameOverReason === 'afk' ? (
@@ -428,30 +444,11 @@ const GameArea: React.FC = () => {
               )}
             </div>
           )}
-        </div>
-      );
-    case "profile":
-      return (
-        <>
-          <Profile onMenuClick={handleMenuClick} />
-          <Menu onMenuClick={handleMenuClick} />
         </>
-      );
-    case "social":
-      return (
-        <>
-          <SocialTasks onMenuClick={handleMenuClick} />
-          <Menu onMenuClick={handleMenuClick} />
-        </>
-      );
-    default:
-      return (
-        <div className="game-container">
-          {/* Render Menu by default */}
-          <Menu onMenuClick={handleMenuClick} />
-        </div>
-      );
-  }
+      )}
+      
+    </div>
+  );
 };
 
 export default GameArea;

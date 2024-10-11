@@ -208,7 +208,7 @@
 /* Обертка для земли */
 .ground-wrapper {
     position: absolute;
-    bottom: 0;
+    bottom: 35px;
     left: 0;
     width: 100%;
     background-image: url('../assets/groundTree.png');
@@ -234,6 +234,9 @@
     /* Увеличиваем высоту, чтобы дерево было полностью видно */
     height: calc(100% + 500px);
     overflow: visible;
+}
+.game-mode .menu {
+    display: none;
 }
 
 /* Ствол дерева */
