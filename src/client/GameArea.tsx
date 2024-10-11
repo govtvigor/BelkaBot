@@ -410,8 +410,6 @@ const GameArea: React.FC = () => {
             </div>
           </div>
           <Menu onMenuClick={handleMenuClick} />
-         
-        
         </div>
       );
     case "profile":
