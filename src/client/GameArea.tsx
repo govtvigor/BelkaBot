@@ -21,7 +21,12 @@ import SocialTasks from "../components/SocialTasks/SocialTasks";
 import loadingBackgroundImage from "../assets/loadingBackground.png";
 import telegramIcon from "../assets/telegramIcon.svg";
 import twitterIcon from "../assets/x.svg";
-import { getUserData, updateUserTutorialCompleted, getActiveStory } from "../client/firebaseFunctions";
+import { 
+  getUserData, 
+  updateUserTutorialCompleted, 
+  getActiveStory, 
+  processStoryBets 
+} from "../client/firebaseFunctions";
 import Tutorial from "../components/Tutorial/Tutorial";
 import StoryPage from "../components/StoryPage/StoryPage"; // Import StoryPage
 
@@ -43,8 +48,8 @@ const GameArea: React.FC = () => {
   const [isGroundHidden, setIsGroundHidden] = useState(false);
   const [isTreePositionAdjusted, setIsTreePositionAdjusted] = useState(false);
   const [backgroundOffsetY, setBackgroundOffsetY] = useState(0);
-  const [isJumping, setIsJumpingLocal] = useState(false); 
-  const [currentStory, setCurrentStory] = useState<any>(null); // You may want to define a proper type for story
+  const [isJumping, setIsJumpingLocal] = useState(false);
+  const [currentStory, setCurrentStory] = useState<any>(null);
 
   const groundImageRef = useRef<HTMLImageElement | null>(null);
   const biomes = [
@@ -61,7 +66,6 @@ const GameArea: React.FC = () => {
   const [showTutorial, setShowTutorial] = useState<boolean>(false);
   const [chatId, setChatId] = useState<string | null>(null);
 
-  // Function to set CSS variables for tree trunk positioning
   const setTrunkBottom = () => {
     const groundImage = groundImageRef.current;
     if (groundImage) {
@@ -138,17 +142,19 @@ const GameArea: React.FC = () => {
     }
   }, [isLoading]);
 
-  // Generate branches on component mount
+  // Generate branches
   useEffect(() => {
     generateBranches();
   }, [generateBranches]);
 
-  // Handle menu navigation
   const handleMenuClick = (screen: "game" | "profile" | "social") => {
-    setCurrentScreen(screen);
+    if (screen === "game") {
+      setCurrentScreen("game"); // This will show "Coming soon"
+    } else {
+      setCurrentScreen(screen);
+    }
   };
 
-  // Handle game start with jump animation
   const handleGameStartWithJump = useCallback(() => {
     if (state.lives <= 0) {
       alert('You have no lives left. Please buy more lives in your profile.');
@@ -171,7 +177,6 @@ const GameArea: React.FC = () => {
     }, animationDuration);
   }, [state.lives, dispatch]);
 
-  // Reset game to initial state
   const resetGameHandler = useCallback(() => {
     setIsJumpingToFirstBranch(false);
     setIsGroundMovingDown(false);
@@ -184,16 +189,13 @@ const GameArea: React.FC = () => {
     generateBranches();
   }, [dispatch, generateBranches]);
 
-  // Handle clicks in the game area
   const handleClick = (event: React.MouseEvent) => {
     const target = event.target as HTMLElement;
 
-    // Prevent game area click events when interacting with the menu
     if (target.closest(".menu") || target.closest(".menu-buttons button")) {
       event.stopPropagation(); 
       return;
     }
-
     if (!state.gameStarted) {
       handleGameStartWithJump();
     } else {
@@ -208,7 +210,6 @@ const GameArea: React.FC = () => {
     }
   };
 
-  // Update local jumping state based on global state
   useEffect(() => {
     setIsJumpingLocal(state.isJumping);
   }, [state.isJumping]);
@@ -243,7 +244,6 @@ const GameArea: React.FC = () => {
     }
   }, []);
 
-  // Handle tutorial confirmation
   const handleTutorialConfirm = () => {
     if (chatId) {
       updateUserTutorialCompleted(chatId).then(() => {
@@ -259,13 +259,13 @@ const GameArea: React.FC = () => {
     }
   };
 
-  // Handle story option selection (e.g., placing a bet)
+  // Function to handle when a user selects an option in StoryCard
   const handleStoryOptionSelected = () => {
     // Redirect to SocialTasks screen
     setCurrentScreen("social");
   };
 
-  // Render loading screen or tutorial if applicable
+  // Centralized rendering based on currentScreen
   if (isLoading || isTutorialCompleted === null) {
     return (
       <div className={`loading-screen ${fadeOut ? "fade-out" : ""}`}>
@@ -290,12 +290,10 @@ const GameArea: React.FC = () => {
     );
   }
 
-  // Render tutorial if not completed
   if (showTutorial) {
     return <Tutorial onConfirm={handleTutorialConfirm} />;
   }
 
-  // Handle different screens based on currentScreen state
   switch (currentScreen) {
     case "story":
       if (currentStory) {
@@ -313,20 +311,6 @@ const GameArea: React.FC = () => {
       } else {
         return <div className="error-message">No active story available.</div>;
       }
-    case "profile":
-      return (
-        <>
-          <Profile onMenuClick={handleMenuClick} />
-          <Menu onMenuClick={handleMenuClick} />
-        </>
-      );
-    case "social":
-      return (
-        <>
-          <SocialTasks onMenuClick={handleMenuClick} />
-          <Menu onMenuClick={handleMenuClick} />
-        </>
-      );
     case "game":
       return (
         <div className="game-container">
@@ -425,11 +409,8 @@ const GameArea: React.FC = () => {
               />
             </div>
           </div>
-
-          {/* Render Menu outside game-area-wrapper to prevent interference */}
-          <Menu onMenuClick={handleMenuClick} />
-
-          {/* Render Game Over Screen if game is over */}
+          {/* Remove Menu from the "game" screen */}
+          {/* <Menu onMenuClick={handleMenuClick} /> */}
           {state.gameOver && (
             <div className="game-over-screen">
               {state.gameOverReason === 'afk' ? (
@@ -448,6 +429,20 @@ const GameArea: React.FC = () => {
             </div>
           )}
         </div>
+      );
+    case "profile":
+      return (
+        <>
+          <Profile onMenuClick={handleMenuClick} />
+          <Menu onMenuClick={handleMenuClick} />
+        </>
+      );
+    case "social":
+      return (
+        <>
+          <SocialTasks onMenuClick={handleMenuClick} />
+          <Menu onMenuClick={handleMenuClick} />
+        </>
       );
     default:
       return (
