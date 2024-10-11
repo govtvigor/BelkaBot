@@ -410,7 +410,25 @@ const GameArea: React.FC = () => {
             </div>
           </div>
           <Menu onMenuClick={handleMenuClick} />
+          {state.gameOver && (
+        <div className="game-over-screen">
+          {state.gameOverReason === 'afk' ? (
+            <>
+              <h2>You were AFK</h2>
+              <p>Please stay active to continue playing!</p>
+              <button onClick={resetGameHandler}>Play Again</button>
+            </>
+          ) : (
+            <>
+              <h2>Game Over</h2>
+              <p>Your Score: {state.points}</p>
+              <button onClick={resetGameHandler}>Play Again</button>
+            </>
+          )}
         </div>
+      )}
+        </div>
+        
       );
     case "profile":
       return (
