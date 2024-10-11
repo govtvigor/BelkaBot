@@ -313,12 +313,109 @@ const GameArea: React.FC = () => {
       }
     case "game":
       return (
-        <div className="coming-soon-container">
-          <div className="coming-soon">
+        <div className="game-container">
+          {/* Render the actual game */}
+          <div className="game-area-wrapper">
+            <div
+              className="background-wrapper"
+              style={{
+                transform: `translateY(${backgroundOffsetY}px)`,
+                transition: 'none',
+                height: `${biomes.length * 200}vh`,
+              }}
+            >
+              {biomes.map((biome, index) => (
+                <div
+                  key={index}
+                  className="background-biome"
+                  style={{
+                    backgroundImage: `url(${biome.image})`,
+                  }}
+                ></div>
+              ))}
+            </div>
+
+            <div
+              className={`game-area ${state.inMenu ? "menu-mode" : "game-mode"}`}
+              onClick={handleClick}
+            >
+              {!state.gameStarted && (
+                <img className="start-text" src={startText} alt="Start Text" />
+              )}
+
+              <div className="tree-wrapper">
+                {!isGroundHidden && (
+                  <div className={`ground-wrapper ${isGroundMovingDown ? 'move-down' : ''}`}>
+                    <img
+                      src={groundTreeImage}
+                      alt="Ground"
+                      ref={groundImageRef}
+                      style={{ width: '100%', height: 'auto' }}
+                    />
+                  </div>
+                )}
+                
+                <div
+                  className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''} ${isTreeMovingUp ? 'move-up' : ''} ${isTreePositionAdjusted ? 'fixed-position' : ''}`}
+                  style={
+                    {
+                      '--tree-trunk-translate-y': `${state.scrollOffset % window.innerHeight}px`,
+                      transition: "transform 0.2s ease-out",
+                    } as React.CSSProperties
+                  }
+                />
+              </div>
+
+              {state.isLivesLoading ? (
+                <div>Loading lives...</div>
+              ) : (
+                <Lives lives={state.lives} />
+              )}
+
+              {state.gameStarted && (
+                <div className="timer-score-container">
+                  <Timer timeLeft={state.timeLeft} maxTime={maxTime} />
+                  <Score points={state.points} />
+                </div>
+              )}
+
+              {state.branches.length > 0 && (
+                <div className="branches">
+                  {state.branches
+                    .filter((branch, index) => state.gameStarted || index !== state.branches.length - 1)
+                    .map((branch: BranchType, index: number) => (
+                      <Branch
+                        key={index}
+                        side={branch.side}
+                        top={branch.top}
+                        onClick={
+                          state.gameStarted
+                            ? (e) => {
+                                e.stopPropagation();
+                                handleScreenClick(branch.side);
+                              }
+                            : undefined 
+                        }
+                      />
+                    ))}
+                </div>
+              )}
+
+              <Squirrel
+                position={state.squirrelSide}
+                isInGame={state.gameStarted}
+                isJumpingToFirstBranch={isJumpingToFirstBranch}
+                isJumping={isJumping} 
+              />
+            </div>
+          </div>
+          {/* Include Menu alongside the game */}
+          <Menu onMenuClick={handleMenuClick} />
+          {/* Optionally, display "Coming Soon" message */}
+          <div className="coming-soon-overlay">
             <h2>Coming Soon</h2>
             <p>The game feature is under development. Stay tuned!</p>
           </div>
-          <Menu onMenuClick={handleMenuClick} />
         </div>
       );
     case "profile":
