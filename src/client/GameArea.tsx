@@ -28,7 +28,7 @@ import {
   processStoryBets 
 } from "../client/firebaseFunctions";
 import Tutorial from "../components/Tutorial/Tutorial";
-import StoryCard from "../components/StoryCard/StoryCard";
+import StoryPage from "../components/StoryPage/StoryPage"; // Import StoryPage
 
 const GameArea: React.FC = () => {
   const { 
@@ -40,7 +40,8 @@ const GameArea: React.FC = () => {
     setIsJumping 
   } = useGameLogic();
 
-  const [currentScreen, setCurrentScreen] = useState<"game" | "profile" | "social">("game");
+  // Extend currentScreen to include "story"
+  const [currentScreen, setCurrentScreen] = useState<"game" | "profile" | "social" | "story">("game");
   const [isJumpingToFirstBranch, setIsJumpingToFirstBranch] = useState(false);
   const [isGroundMovingDown, setIsGroundMovingDown] = useState(false);
   const [isTreeMovingUp, setIsTreeMovingUp] = useState(false);
@@ -81,6 +82,9 @@ const GameArea: React.FC = () => {
         const story = await getActiveStory();
         setCurrentStory(story);
         console.log('Fetched Story:', story); // Debugging
+        if (story) {
+          setCurrentScreen("story"); // Navigate to StoryPage if a story is active
+        }
       } catch (error) {
         console.error('Error fetching current story:', error);
       }
@@ -144,7 +148,11 @@ const GameArea: React.FC = () => {
   }, [generateBranches]);
 
   const handleMenuClick = (screen: "game" | "profile" | "social") => {
-    setCurrentScreen(screen);
+    if (screen === "game") {
+      setCurrentScreen("game"); // This will show "Coming soon"
+    } else {
+      setCurrentScreen(screen);
+    }
   };
 
   const handleGameStartWithJump = useCallback(() => {
@@ -257,6 +265,7 @@ const GameArea: React.FC = () => {
     setCurrentScreen("social");
   };
 
+  // Centralized rendering based on currentScreen
   if (isLoading || isTutorialCompleted === null) {
     return (
       <div className={`loading-screen ${fadeOut ? "fade-out" : ""}`}>
@@ -285,145 +294,55 @@ const GameArea: React.FC = () => {
     return <Tutorial onConfirm={handleTutorialConfirm} />;
   }
 
-  if (currentScreen === "profile") {
-    return <Profile onMenuClick={handleMenuClick} />;
-  }
-
-  if (currentScreen === "social") {
-    return <SocialTasks onMenuClick={handleMenuClick} />;
-  }
-
-  const spacing = 120;
-
-  return (
-    <div className="game-container">
-      {/* Show StoryCard if there's an active story */}
-      {currentStory ? (
-        <StoryCard
-          story={currentStory}
-          chatId={chatId!} // Assuming chatId is not null here
-          onSelectOption={handleStoryOptionSelected}
-        />
-      ) : (
-        <div className="game-area-wrapper">
-          <div
-            className="background-wrapper"
-            style={{
-              transform: `translateY(${backgroundOffsetY}px)`,
-              transition: 'none',
-              height: `${biomes.length * 200}vh`,
-            }}
-          >
-            {biomes.map((biome, index) => (
-              <div
-                key={index}
-                className="background-biome"
-                style={{
-                  backgroundImage: `url(${biome.image})`,
-                }}
-              ></div>
-            ))}
-          </div>
-
-          <div
-            className={`game-area ${state.inMenu ? "menu-mode" : "game-mode"}`}
-            onClick={handleClick}
-          >
-            {!state.gameStarted && (
-              <img className="start-text" src={startText} alt="Start Text" />
-            )}
-
-            <div className="tree-wrapper">
-              {!isGroundHidden && (
-                <div className={`ground-wrapper ${isGroundMovingDown ? 'move-down' : ''}`}>
-                  <img
-                    src={groundTreeImage}
-                    alt="Ground"
-                    ref={groundImageRef}
-                    style={{ width: '100%', height: 'auto' }}
-                  />
-                </div>
-              )}
-              
-              <div
-                className={`tree-trunk ${state.gameStarted ? 'fade-in' : ''} ${isTreeMovingUp ? 'move-up' : ''} ${isTreePositionAdjusted ? 'fixed-position' : ''}`}
-                style={
-                  {
-                    '--tree-trunk-translate-y': `${state.scrollOffset % window.innerHeight}px`,
-                    transition: "transform 0.2s ease-out",
-                  } as React.CSSProperties
-                }
-              />
-            </div>
-
-            {state.isLivesLoading ? (
-              <div>Loading lives...</div>
-            ) : (
-              <Lives lives={state.lives} />
-            )}
-
-            {state.gameStarted && (
-              <div className="timer-score-container">
-                <Timer timeLeft={state.timeLeft} maxTime={maxTime} />
-                <Score points={state.points} />
-              </div>
-            )}
-
-            {state.branches.length > 0 && (
-              <div className="branches">
-                {state.branches
-                  .filter((branch, index) => state.gameStarted || index !== state.branches.length - 1)
-                  .map((branch: BranchType, index: number) => (
-                    <Branch
-                      key={index}
-                      side={branch.side}
-                      top={branch.top}
-                      onClick={
-                        state.gameStarted
-                          ? (e) => {
-                              e.stopPropagation();
-                              handleScreenClick(branch.side);
-                            }
-                          : undefined 
-                      }
-                    />
-                  ))}
-              </div>
-            )}
-
-            <Squirrel
-              position={state.squirrelSide}
-              isInGame={state.gameStarted}
-              isJumpingToFirstBranch={isJumpingToFirstBranch}
-              isJumping={isJumping} 
+  switch (currentScreen) {
+    case "story":
+      if (currentStory) {
+        return (
+          <div className="story-page-container">
+            <StoryPage
+              story={currentStory}
+              chatId={chatId!} // Assuming chatId is not null here
+              onBetPlaced={handleStoryOptionSelected}
+              onMenuClick={handleMenuClick} // Pass the handler
             />
+            {/* Menu is now inside StoryPage */}
           </div>
+        );
+      } else {
+        return <div className="error-message">No active story available.</div>;
+      }
+    case "game":
+      return (
+        <div className="coming-soon-container">
+          <div className="coming-soon">
+            <h2>Coming Soon</h2>
+            <p>The game feature is under development. Stay tuned!</p>
+          </div>
+          <Menu onMenuClick={handleMenuClick} />
         </div>
-      )}
-
-      {state.inMenu && (
-        <Menu onMenuClick={handleMenuClick} />
-      )}
-
-      {state.gameOver && (
-        <div className="game-over-screen">
-          {state.gameOverReason === 'afk' ? (
-            <>
-              <h2>You were AFK</h2>
-              <p>Please stay active to continue playing!</p>
-              <button onClick={resetGameHandler}>Play Again</button>
-            </>
-          ) : (
-            <>
-              <h2>Game Over</h2>
-              <p>Your Score: {state.points}</p>
-              <button onClick={resetGameHandler}>Play Again</button>
-            </>
-          )}
+      );
+    case "profile":
+      return (
+        <>
+          <Profile onMenuClick={handleMenuClick} />
+          <Menu onMenuClick={handleMenuClick} />
+        </>
+      );
+    case "social":
+      return (
+        <>
+          <SocialTasks onMenuClick={handleMenuClick} />
+          <Menu onMenuClick={handleMenuClick} />
+        </>
+      );
+    default:
+      return (
+        <div className="game-container">
+          {/* Render Menu by default */}
+          <Menu onMenuClick={handleMenuClick} />
         </div>
-      )}
-    </div>
-  );
+      );
+  }
 };
 
 export default GameArea;

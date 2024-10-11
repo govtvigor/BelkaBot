@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { saveUserBet, getUserBet } from '../../client/firebaseFunctions';
-import './storyCard.scss'; // Import the CSS file
+import './storyCard.scss'; // Ensure the path is correct
 
 interface StoryCardProps {
   story: {
@@ -10,25 +10,23 @@ interface StoryCardProps {
     text: string;
     options: string[];
   };
-  chatId?: string; // Make chatId optional for testing
-  onSelectOption: () => void;  // Callback to trigger after user selects an option
+  chatId?: string;
+  onSelectOption: () => void;
 }
 
 const StoryCard: React.FC<StoryCardProps> = ({ story, chatId, onSelectOption }) => {
-  console.log('StoryCard Props:', { story, chatId }); // Debugging
-
-  const [betAmount, setBetAmount] = useState<number>(100); // Default bet amount
+  const [betAmount, setBetAmount] = useState<number>(100);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [userBet, setUserBetState] = useState<any>(null);
   const [isBetLoading, setIsBetLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchUserBet = async () => {
-      if (!chatId) return; // Do not fetch if chatId is not available
+      if (!chatId) return;
       try {
         const bet = await getUserBet(chatId, story.id);
         setUserBetState(bet);
-        console.log('Fetched User Bet:', bet); // Debugging
+        console.log('Fetched User Bet:', bet);
       } catch (error) {
         console.error('Error fetching user bet:', error);
       } finally {
@@ -57,8 +55,8 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, chatId, onSelectOption }) 
     try {
       await saveUserBet(chatId, story.id, option, betAmount);
       alert("Your choice has been recorded. You will be notified of the result when the story ends.");
-      onSelectOption();  // Redirect or proceed after selection
-    } catch (error: unknown) { // Type the error as unknown
+      onSelectOption();
+    } catch (error: unknown) {
       if (error instanceof Error) {
         setErrorMessage(error.message);
       } else {
@@ -69,7 +67,7 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, chatId, onSelectOption }) 
 
   return (
     <div className="story-card">
-      <h2>{story.text}</h2>
+      <h2>{story.text || 'No story text available'}</h2>
       {isBetLoading ? (
         <p>Loading your bet...</p>
       ) : userBet ? (
@@ -86,11 +84,15 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, chatId, onSelectOption }) 
           />
           {errorMessage && <p className="error">{errorMessage}</p>}
           <div className="options">
-            {story.options.map((option) => (
-              <div key={option} className="option-card" onClick={() => handleOptionClick(option)}>
-                <p>{option}</p>
-              </div>
-            ))}
+            {story.options && story.options.length > 0 ? (
+              story.options.map((option) => (
+                <div key={option} className="option-card" onClick={() => handleOptionClick(option)}>
+                  <p>{option}</p>
+                </div>
+              ))
+            ) : (
+              <p>No options available for this story.</p>
+            )}
           </div>
         </>
       )}

@@ -92,6 +92,34 @@
     left: 45%;
     top: 47%;
   }
+  .coming-soon-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f8ff; /* Light background color */
+    text-align: center;
+  }
+  
+  .coming-soon-container .coming-soon h2 {
+    font-size: 3rem;
+    color: #333333;
+    margin-bottom: 20px;
+  }
+  
+  .coming-soon-container .coming-soon p {
+    font-size: 1.5rem;
+    color: #555555;
+  }
+  
+  /* Styles for Error Message */
+  .error-message {
+    color: red;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-top: 50px;
+  }
   .socials {
     display: flex;
     justify-content: space-evenly;
