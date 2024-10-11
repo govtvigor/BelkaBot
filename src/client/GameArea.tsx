@@ -409,13 +409,9 @@ const GameArea: React.FC = () => {
               />
             </div>
           </div>
-          {/* Include Menu alongside the game */}
           <Menu onMenuClick={handleMenuClick} />
-          {/* Optionally, display "Coming Soon" message */}
-          <div className="coming-soon-overlay">
-            <h2>Coming Soon</h2>
-            <p>The game feature is under development. Stay tuned!</p>
-          </div>
+         
+        
         </div>
       );
     case "profile":
